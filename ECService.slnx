@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ECService.Application/ECService.Application.csproj" />
+    <Project Path="src/ECService.Domain/ECService.Domain.csproj" />
+    <Project Path="src/ECService.Infrastructure/ECService.Infrastructure.csproj" />
+    <Project Path="src/ECService.Presentation/ECService.Presentation.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ECService.Tests/ECService.Tests.csproj" />
+  </Folder>
+</Solution>

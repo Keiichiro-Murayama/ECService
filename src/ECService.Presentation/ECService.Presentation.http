@@ -1,0 +1,6 @@
+@ECService.Presentation_HostAddress = http://localhost:5245
+
+GET {{ECService.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
