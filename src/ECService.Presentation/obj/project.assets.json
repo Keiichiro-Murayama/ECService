@@ -36,6 +36,42 @@
             "related": ".pdb;.xml"
           }
         }
+      },
+      "ECService.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "ECService.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ECService.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ECService.Application.dll": {}
+        }
+      },
+      "ECService.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/ECService.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ECService.Domain.dll": {}
+        }
+      },
+      "ECService.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "ECService.Application": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ECService.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ECService.Infrastructure.dll": {}
+        }
       }
     }
   },
@@ -75,10 +111,27 @@
         "microsoft.openapi.2.0.0.nupkg.sha512",
         "microsoft.openapi.nuspec"
       ]
+    },
+    "ECService.Application/1.0.0": {
+      "type": "project",
+      "path": "../ECService.Application/ECService.Application.csproj",
+      "msbuildProject": "../ECService.Application/ECService.Application.csproj"
+    },
+    "ECService.Domain/1.0.0": {
+      "type": "project",
+      "path": "../ECService.Domain/ECService.Domain.csproj",
+      "msbuildProject": "../ECService.Domain/ECService.Domain.csproj"
+    },
+    "ECService.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../ECService.Infrastructure/ECService.Infrastructure.csproj",
+      "msbuildProject": "../ECService.Infrastructure/ECService.Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "ECService.Application >= 1.0.0",
+      "ECService.Infrastructure >= 1.0.0",
       "Microsoft.AspNetCore.OpenApi >= 10.0.9"
     ]
   },
@@ -107,7 +160,14 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/home/fullness/ECService/src/ECService.Application/ECService.Application.csproj": {
+              "projectPath": "/home/fullness/ECService/src/ECService.Application/ECService.Application.csproj"
+            },
+            "/home/fullness/ECService/src/ECService.Infrastructure/ECService.Infrastructure.csproj": {
+              "projectPath": "/home/fullness/ECService/src/ECService.Infrastructure/ECService.Infrastructure.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
