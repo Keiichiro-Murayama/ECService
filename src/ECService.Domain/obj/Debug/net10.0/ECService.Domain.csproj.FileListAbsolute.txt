@@ -1,0 +1,12 @@
+/home/fullness/ECService/src/ECService.Domain/bin/Debug/net10.0/ECService.Domain.deps.json
+/home/fullness/ECService/src/ECService.Domain/bin/Debug/net10.0/ECService.Domain.dll
+/home/fullness/ECService/src/ECService.Domain/bin/Debug/net10.0/ECService.Domain.pdb
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.AssemblyInfoInputs.cache
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.AssemblyInfo.cs
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.csproj.CoreCompileInputs.cache
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.sourcelink.json
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.dll
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/refint/ECService.Domain.dll
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ECService.Domain.pdb
+/home/fullness/ECService/src/ECService.Domain/obj/Debug/net10.0/ref/ECService.Domain.dll
