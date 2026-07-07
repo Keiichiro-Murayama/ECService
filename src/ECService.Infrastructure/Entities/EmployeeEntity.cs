@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ECService.Infrastructure.Entities
 {
+    [Table("employee")]
     public class EmployeeEntity
     {
         /// <summary>
