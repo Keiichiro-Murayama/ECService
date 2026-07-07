@@ -38,3 +38,8 @@
 /home/fullness/ECService/src/ECService.Presentation/obj/Debug/net10.0/ECService.Presentation.pdb
 /home/fullness/ECService/src/ECService.Presentation/obj/Debug/net10.0/ECService.Presentation.genruntimeconfig.cache
 /home/fullness/ECService/src/ECService.Presentation/obj/Debug/net10.0/ref/ECService.Presentation.dll
+/home/fullness/ECService/src/ECService.Presentation/bin/Debug/net10.0/Microsoft.EntityFrameworkCore.dll
+/home/fullness/ECService/src/ECService.Presentation/bin/Debug/net10.0/Microsoft.EntityFrameworkCore.Abstractions.dll
+/home/fullness/ECService/src/ECService.Presentation/bin/Debug/net10.0/Microsoft.EntityFrameworkCore.Relational.dll
+/home/fullness/ECService/src/ECService.Presentation/bin/Debug/net10.0/Npgsql.dll
+/home/fullness/ECService/src/ECService.Presentation/bin/Debug/net10.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
