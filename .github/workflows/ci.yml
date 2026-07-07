@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore
-        run: dotnet restore ECService.sln
+        run: dotnet restore ECService.slnx
 
       - name: Build
         run: dotnet build ECService.slnx --no-restore --configuration Release
