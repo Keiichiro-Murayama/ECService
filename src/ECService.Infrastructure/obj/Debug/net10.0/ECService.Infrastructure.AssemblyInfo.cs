@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ECService.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cbcb8a6e3e1fdf96d948b3ffdb3e8a63f058b975")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+58973acbc4201854cec994061ce5a80ecf0b710b")]
 [assembly: System.Reflection.AssemblyProductAttribute("ECService.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ECService.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

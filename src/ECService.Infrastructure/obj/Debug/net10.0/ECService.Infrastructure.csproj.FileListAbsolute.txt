@@ -16,3 +16,5 @@
 /home/fullness/ECService/src/ECService.Infrastructure/obj/Debug/net10.0/refint/ECService.Infrastructure.dll
 /home/fullness/ECService/src/ECService.Infrastructure/obj/Debug/net10.0/ECService.Infrastructure.pdb
 /home/fullness/ECService/src/ECService.Infrastructure/obj/Debug/net10.0/ref/ECService.Infrastructure.dll
+/home/fullness/ECService/src/ECService.Infrastructure/bin/Debug/net10.0/ECService.Infrastructure.runtimeconfig.json
+/home/fullness/ECService/src/ECService.Infrastructure/obj/Debug/net10.0/ECService.Infrastructure.genruntimeconfig.cache
