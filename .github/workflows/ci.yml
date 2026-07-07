@@ -27,7 +27,7 @@ jobs:
         run: dotnet restore ECService.sln
 
       - name: Build
-        run: dotnet build ECService.sln --no-restore --configuration Release
+        run: dotnet build ECService.slnx --no-restore --configuration Release
 
       - name: Test
-        run: dotnet test ECService.sln --no-build --configuration Release
+        run: dotnet test ECService.slnx --no-build --configuration Release
