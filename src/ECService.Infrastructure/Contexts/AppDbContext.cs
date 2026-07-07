@@ -1,7 +1,7 @@
 using ECService.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace ECService.Infrastructure.Context
+namespace ECService.Infrastructure.Contexts
 {
     public class AppDbContext : DbContext
     {
