@@ -8,10 +8,10 @@ namespace ECService.Domain.Repositories;
 public interface IEmployeeRepository
 {
     /// <summary>
-    /// 社員情報を全件取得する。
+    /// 担当者アカウントが未登録の社員情報を取得する。
     /// </summary>
-    /// <returns>社員情報の一覧。</returns>
-    Task<List<Employee>> SelectAllAsync();
+    /// <returns>未登録社員情報の一覧。</returns>
+    Task<List<Employee>> SelectUnregisteredAsync();
 
     /// <summary>
     /// 社員UUIDに一致する社員情報を取得する。

@@ -1,7 +1,8 @@
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
-using ECService.Infrastructure.Data;
 using ECService.Infrastructure.Adapters;
+using ECService.Infrastructure.Data;
+using ECService.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECService.Infrastructure.Repositories;
@@ -23,17 +24,20 @@ public class EmployeeRepository : IEmployeeRepository
     }
 
     /// <summary>
-    /// 社員情報を全件取得する。
+    /// 担当者アカウントが未登録の社員情報を取得する。
     /// </summary>
-    /// <returns>社員情報の一覧。</returns>
-    public async Task<List<Employee>> SelectAllAsync()
+    /// <returns>未登録社員情報の一覧。</returns>
+    public async Task<List<Employee>> SelectUnregisteredAsync()
     {
         var entities = await _context.Employees
-            .Include(employee => employee.Department)
+            .Where(employee =>
+                !_context.EmployeeAccounts
+                    .Any(employeeAccount =>
+                        employeeAccount.EmployeeId == employee.Id))
             .ToListAsync();
 
         return entities
-            .Select(entity => _adapter.ToDomain(entity))
+            .Select(entity => _adapter.Restore(entity))
             .ToList();
     }
 
@@ -45,7 +49,6 @@ public class EmployeeRepository : IEmployeeRepository
     public async Task<Employee?> SelectByUuidAsync(string employeeUuid)
     {
         var entity = await _context.Employees
-            .Include(employee => employee.Department)
             .FirstOrDefaultAsync(employee =>
                 employee.EmployeeUuid == employeeUuid);
 
@@ -54,6 +57,6 @@ public class EmployeeRepository : IEmployeeRepository
             return null;
         }
 
-        return _adapter.ToDomain(entity);
+        return _adapter.Restore(entity);
     }
 }
