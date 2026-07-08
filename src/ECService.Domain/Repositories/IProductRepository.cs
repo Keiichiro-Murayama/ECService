@@ -23,23 +23,16 @@ public interface IProductRepository
     /// <summary>
     /// 指定された商品Idの商品と在庫、商品カテゴリを返す
     /// </summary>
-    /// <param name="id">商品Id</param>
+    /// <param name="productUuid">商品Uuid</param>
     /// <returns>Product または null</returns>
-    Task<Product?> SelectByIdWithProductStockAndCategoryAsync(string id);
-
-    /// <summary>
-    /// 指定されたキーワードで商品を部分一致検索して商品と在庫、商品カテゴリを取得する
-    /// </summary>
-    /// <param name="keyword">検索キーワード</param>
-    /// <returns>Productのリスト</returns>
-    Task<List<Product>> SelectByTitleLikeWithProductStockAndCategoryAsync(string keyword);
+    Task<Product?> SelectByUuidAsync(string productUuid);
 
     /// <summary>
     /// 商品を削除する
     /// </summary>
-    /// <param name="id">削除対象の商品Id(UUID)</param>
+    /// <param name="productUuid">削除対象の商品Id(UUID)</param>
     /// <returns>true:削除成功 false:削除失敗</returns>
-    Task<bool> DeleteAsync(string id);
+    Task<bool> DeleteAsync(string productUuid);
 
     /// <summary>
     /// 指定された商品名の存在有無を返す
@@ -47,5 +40,17 @@ public interface IProductRepository
     /// <param name="name">商品名</param>
     /// <returns>true:存在する false:存在しない</returns> 
     Task<bool> ExistsByNameAsync(string name);
-    
+
+    /// <summary>
+    /// すべての商品を取得する
+    /// </summary>
+
+    Task<List<Product>>:SelectAllasync();
+
+    /// <summary>
+    /// カテゴリで商品一覧を取得する
+    /// </summary>
+    /// <param name="CategoryUuid">カテゴリーId</param>
+    Task<List<Product>>:SelectByCategoryAsync(string CategoryUuid);
+
 }
