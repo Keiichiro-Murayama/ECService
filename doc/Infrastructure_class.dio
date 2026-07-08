@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="alxku1eUuSqiVQKdn34j" name="ページ1">
-        <mxGraphModel dx="1074" dy="426" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="811" dy="405" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -11,7 +11,7 @@
                     <mxGeometry x="360" y="200" width="480" height="890" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" value="ProductEntity.cs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="380" y="210" width="210" height="170" as="geometry"/>
+                    <mxGeometry x="380" y="210" width="210" height="160" as="geometry"/>
                 </mxCell>
                 <mxCell id="12" value="+ Id : int&lt;br&gt;+ ProductUuid : string&lt;br&gt;+ Name : string&lt;br&gt;+ Price : string&lt;br&gt;+ CategoryId : int&lt;br&gt;+ DeleteFlg : int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="11" vertex="1">
                     <mxGeometry y="26" width="210" height="94" as="geometry"/>
@@ -19,8 +19,8 @@
                 <mxCell id="13" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="11" vertex="1">
                     <mxGeometry y="120" width="210" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="14" value="+ Category : CategoryEntity&lt;div&gt;+ ProductStock : ProductStockEntity&amp;nbsp;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="11" vertex="1">
-                    <mxGeometry y="128" width="210" height="42" as="geometry"/>
+                <mxCell id="14" value="+ Category : CategoryEntity" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="11" vertex="1">
+                    <mxGeometry y="128" width="210" height="32" as="geometry"/>
                 </mxCell>
                 <mxCell id="15" value="ProducStockEntity.cs&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="600" y="210" width="210" height="98" as="geometry"/>
