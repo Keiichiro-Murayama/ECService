@@ -116,6 +116,11 @@
 |コントローラー|`ProductController`|
 |メソッド|`Search`|
 
+### クエリパラメータ
+|項目|型|必須|内容|
+|---|---|---|---|
+|categoryUuid|string|任意|商品カテゴリUUID|
+
    ### レスポンス
 ```json
 [
