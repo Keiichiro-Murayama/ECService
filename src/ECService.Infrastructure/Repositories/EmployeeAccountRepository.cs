@@ -1,7 +1,8 @@
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
-using ECService.Infrastructure.Data;
 using ECService.Infrastructure.Adapters;
+using ECService.Infrastructure.Data;
+using ECService.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECService.Infrastructure.Repositories;
@@ -31,7 +32,6 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
     {
         var entity = await _context.EmployeeAccounts
             .Include(employeeAccount => employeeAccount.Employee)
-            .ThenInclude(employee => employee.Department)
             .FirstOrDefaultAsync(employeeAccount =>
                 employeeAccount.Name == accountName);
 
@@ -40,7 +40,7 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
             return null;
         }
 
-        return _adapter.ToDomain(entity);
+        return _adapter.Restore(entity);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
     /// <param name="employeeAccount">担当者アカウント。</param>
     public async Task CreateAsync(EmployeeAccount employeeAccount)
     {
-        var entity = _adapter.ToEntity(employeeAccount);
+        var entity = _adapter.Convert(employeeAccount);
 
         await _context.EmployeeAccounts.AddAsync(entity);
         await _context.SaveChangesAsync();
