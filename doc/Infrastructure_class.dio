@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="alxku1eUuSqiVQKdn34j" name="ページ1">
-        <mxGraphModel dx="1248" dy="1792" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1159" dy="1299" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -121,10 +121,10 @@
                 <mxCell id="54" value="+ Name: string" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="51" vertex="1">
                     <mxGeometry y="60" width="210" height="26" as="geometry"/>
                 </mxCell>
-                <mxCell id="55" value="EntityNotFoundException.cs&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="55" value="NotFoundException.cs&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1220" y="850" width="270" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="58" value="+ EntityNotFoundException()&lt;br&gt;+ EntityNotFoundException(message: string)&amp;nbsp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="55" vertex="1">
+                <mxCell id="58" value="+ NotFoundException()&lt;br&gt;+ NotFoundException(message: string)&amp;nbsp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="55" vertex="1">
                     <mxGeometry y="26" width="270" height="46" as="geometry"/>
                 </mxCell>
                 <mxCell id="57" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="55" vertex="1">
@@ -179,7 +179,7 @@
                     <mxGeometry y="68" width="330" height="102" as="geometry"/>
                 </mxCell>
                 <mxCell id="83" value="EmployeeRepository.cs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1450" y="444" width="330" height="120" as="geometry"/>
+                    <mxGeometry x="1450" y="444" width="330" height="154" as="geometry"/>
                 </mxCell>
                 <mxCell id="84" value="- _context : AppDbContext" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="83" vertex="1">
                     <mxGeometry y="26" width="330" height="24" as="geometry"/>
@@ -187,20 +187,20 @@
                 <mxCell id="85" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="83" vertex="1">
                     <mxGeometry y="50" width="330" height="8" as="geometry"/>
                 </mxCell>
+                <mxCell id="88" value="- _context : AppDbContext&lt;br&gt;- _adapter : EmployeeAccountEntityAdapter" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="83" vertex="1">
+                    <mxGeometry y="58" width="330" height="34" as="geometry"/>
+                </mxCell>
                 <mxCell id="86" value="+ SelectUnregisteredAsync() : Task&amp;lt;List&amp;lt;Employee&amp;gt;&amp;gt;&lt;br&gt;+ SelectByUuidAsync(employeeUuid : string)&lt;br&gt;    : Task&amp;lt;Employee?&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="83" vertex="1">
-                    <mxGeometry y="58" width="330" height="62" as="geometry"/>
+                    <mxGeometry y="92" width="330" height="62" as="geometry"/>
                 </mxCell>
                 <mxCell id="87" value="EmployeeAccountRepository.cs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1450" y="290" width="330" height="140" as="geometry"/>
-                </mxCell>
-                <mxCell id="88" value="- _context : AppDbContext&lt;br&gt;- _adapter : EmployeeAccountEntityAdapter" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="87" vertex="1">
-                    <mxGeometry y="26" width="330" height="34" as="geometry"/>
+                    <mxGeometry x="1450" y="270" width="330" height="126" as="geometry"/>
                 </mxCell>
                 <mxCell id="89" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="87" vertex="1">
-                    <mxGeometry y="60" width="330" height="8" as="geometry"/>
+                    <mxGeometry y="26" width="330" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="90" value="+ ExistsByAccountNameAsync(accountName : string)&lt;br&gt;    : Task&amp;lt;bool&amp;gt;&lt;br&gt;+ CreateAsync(employeeAccount : EmployeeAccount)&lt;br&gt;    : Task" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="87" vertex="1">
-                    <mxGeometry y="68" width="330" height="72" as="geometry"/>
+                <mxCell id="90" value="+ SelectByAccountNameAsync(accountName : string)&lt;br&gt;+ ExistsByAccountNameAsync(accountName : string)&lt;br&gt;    : Task&amp;lt;bool&amp;gt;&lt;br&gt;+ CreateAsync(employeeAccount : EmployeeAccount)&lt;br&gt;    : Task" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="87" vertex="1">
+                    <mxGeometry y="34" width="330" height="92" as="geometry"/>
                 </mxCell>
                 <mxCell id="104" value="ProductEntityAdapter" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="360" width="270" height="120" as="geometry"/>
