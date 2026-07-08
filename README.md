@@ -88,3 +88,23 @@
 |HTTPメソッド|`POST`|
 |コントローラー|`ProductController`|
 |メソッド|`Register`|
+
+### リクエスト
+
+```json
+{
+  "productName": "ボールペン",
+  "price": 120,
+   "quantity": 50,
+  "categoryId": 1
+}
+```
+
+### レスポンス
+
+```json
+{
+   "productUuid": "550e8400-e29b-41d4-a716-446655440000",
+   "message": "商品を登録しました。"
+}
+```
