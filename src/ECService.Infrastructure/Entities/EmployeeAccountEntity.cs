@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace ECService.Infrastructure.Entities
 {
+    [Table("employee_account")]
     public class EmployeeAccountEntity
     {
         /// <summary>
