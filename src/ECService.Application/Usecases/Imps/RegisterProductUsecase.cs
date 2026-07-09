@@ -7,13 +7,13 @@ using ECService.Domains.Repositories;
 
 namespace ECService.Applications.Usecases.Imps;
 
-public class RegisterrProductUsecase : IRegisterProductUsecase
+public class RegisterProductUsecase : IRegisterProductUsecase
 {
 
    private readonly IUnitOfWork _unitOfWork;
    private readonly IProductRepository _productRepository;
 
-   public RegisterrProductUsecase(
+   public RegisterProductUsecase(
         IUnitOfWork unitOfWork,
         IProductRepository productRepository)
     {
