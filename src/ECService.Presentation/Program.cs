@@ -102,9 +102,9 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
     {
-        Title = "📚 C# REST API開発演習 解答例",
+        Title = "📚 データ管理サービス（管理者向け）",
         Version = "v1",
-        Description = "図書管理システムの REST API",
+        Description = "ECサービスの管理者サービスの REST API",
     });
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -117,15 +117,26 @@ var app = builder.Build();
 // 例外ハンドリングミドルウェアの追加
 // app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-if (app.Environment.IsDevelopment())
+// Swagger UI を開くのは開発環境のみだけど、とりあえず開発環境かどうかのチェックを外して強制的に Swagger UI を開くようにする
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI(c =>
+//     {
+//         // テキストの手順にあった「ルートURLで開く」
+//         c.RoutePrefix = string.Empty; 
+//     });
+// }
+
+// 一旦 if 文のチェックを外して強制的に動かす
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        // テキストの手順にあった「ルートURLで開く」
-        c.RoutePrefix = string.Empty; 
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "RestAPI Exercise v1");
+    c.RoutePrefix = string.Empty; 
+    c.UseRequestInterceptor("(request) => { request.credentials = 'include'; return request; }");
+});
+
 
 app.UseHttpsRedirection();
 
