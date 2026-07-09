@@ -1,4 +1,4 @@
-namespace ECService.Applications.UseCases.UnitOfWorks; 
+namespace ECService.Application.UseCases.UnitOfWorks; 
 /// <summary>
 /// トランザクションの境界を制御する Unit of Work のインターフェイス
 ///

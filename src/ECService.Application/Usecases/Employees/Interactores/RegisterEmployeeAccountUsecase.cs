@@ -1,16 +1,16 @@
-using RestAPI_Exercise.Application.Domains.Models;
-using RestAPI_Exercise.Application.Domains.Repositories;
-using RestAPI_Exercise.Application.Exceptions;
-using RestAPI_Exercise.Application.Security;
-using RestAPI_Exercise.Application.Usecases.Users.Interfaces;
-namespace RestAPI_Exercise.Application.Usecases.Users.Interactors;
+using ECService.Domain.Models;
+using ECService.Domain.Repositories;
+using ECService.Application.UseCases.UnitOfWorks;
+using ECService.Application.Security;
+using ECService.Application.Usecases.Employees.Interfaces;
+namespace ECService.Application.Employees.Interactors;
 /// <summary>
 /// ユースケース:[ユーザーを登録する]を実現するインターフェイスの実装
 /// </summary>
-public class RegisterUserUsecase : IRegisterUserUsecase
+public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
 {
-    private readonly IUserRepository _repository;
-    private readonly IPasswordHashingService _service;
+    private readonly IEmployeeAccountRepository _repository;
+    private readonly IPasswordService _service;
     private readonly IUnitOfWork _unitOfWork;
     /// <summary>
     /// コンストラクタ
@@ -18,8 +18,8 @@ public class RegisterUserUsecase : IRegisterUserUsecase
     /// <param name="repository">ユーザーCRUD操作リポジトリ</param>
     /// <param name="service">パスワードをハッシュ化するサービス</param>
     /// <param name="unitOfWork">トランザクション制御機能</param>
-    public RegisterUserUsecase(
-        IUserRepository repository,IPasswordHashingService service,
+    public RegisterEmployeeAccountUsecase(
+        IEmployeeAccountRepository repository,IPasswordService service,
         IUnitOfWork unitOfWork)
     {
         _repository = repository;
@@ -28,28 +28,11 @@ public class RegisterUserUsecase : IRegisterUserUsecase
     }
 
     /// <summary>
-    /// ユーザー名またはメールアドレスが既に存在するか確認する
-    /// </summary>
-    /// <param name="username">ユーザー名</param>
-    /// <param name="email">メールアドレス</param>
-    /// <exception cref="ExistsException">データが存在する場合にスローされる</exception>
-    public async Task ExistsByUsernameOrEmailAsync(string username, string email)
-    {
-        var result = await
-            _repository.ExistsByUsernameOrEmailAsync(username, email);
-        if (result == true)
-        {
-            throw new
-            ExistsException($"ユーザー名:{username}または、メールアドレス:{email}のユーザーは既に存在します。");
-        }
-    }
-
-    /// <summary>
     /// ユーザーを登録する
     /// </summary>
     /// <param name="user">登録対象ユーザー</param>
     /// <returns></returns>
-    public async Task RegisterUserAsync(User user)
+   public Task ExecuteAsync(EmployeeAccount employeeAccount)
     {
         // トランザクションを開始する
         await _unitOfWork.BeginAsync();
