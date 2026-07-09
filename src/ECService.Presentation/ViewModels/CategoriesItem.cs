@@ -1,0 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using ECService.Domains;
+using ECService.Domain.Models;
+using Microsoft.Extensions.Validation;
+namespace ECService.Presentations.ViewModels;
+/// <summary>
+/// 商品登録ユースケース用ViewModelクラス
+/// </summary>
+public class CategoriesItem
+{
+    public string? CategoryUuid;
+    public string? CategoryId;
+    public string? Name;
+}
