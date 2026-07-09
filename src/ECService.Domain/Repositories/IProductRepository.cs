@@ -1,4 +1,4 @@
-using ECService.Domains.Models;
+using ECService.Domain.Models;
 namespace ECService.Domains.Repositories;
 
 /// <summary>
@@ -25,14 +25,14 @@ public interface IProductRepository
     /// </summary>
     /// <param name="productUuid">商品Uuid</param>
     /// <returns>Product または null</returns>
-    Task<Product?> SelectByUuidAsync(string productUuid);
+    Task<Product?> SelectByUuidAsync(Guid productUuid);
 
     /// <summary>
     /// 商品を削除する
     /// </summary>
     /// <param name="productUuid">削除対象の商品Id(UUID)</param>
     /// <returns>true:削除成功 false:削除失敗</returns>
-    Task<bool> DeleteAsync(string productUuid);
+    Task<bool> DeleteAsync(Guid productUuid);
 
     /// <summary>
     /// 指定された商品名の存在有無を返す
@@ -45,12 +45,12 @@ public interface IProductRepository
     /// すべての商品を取得する
     /// </summary>
 
-    Task<List<Product>>:SelectAllasync();
+    Task<List<Product>>SelectAllAsync();
 
     /// <summary>
     /// カテゴリで商品一覧を取得する
     /// </summary>
     /// <param name="CategoryUuid">カテゴリーId</param>
-    Task<List<Product>>:SelectByCategoryAsync(string CategoryUuid);
+    Task<List<Product>>SelectByCategoryAsync(Guid CategoryUuid);
 
 }
