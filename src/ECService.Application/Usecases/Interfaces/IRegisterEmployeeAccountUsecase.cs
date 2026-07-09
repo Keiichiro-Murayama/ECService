@@ -1,5 +1,5 @@
 using ECService.Domain.Models;
-namespace ECService.Application.Usecases.Employees.Interfaces;
+namespace ECService.Application.Usecases.Interfaces;
 /// <summary>
 /// ユースケース:[ユーザーを登録する]を実現するインターフェイス
 /// </summary>

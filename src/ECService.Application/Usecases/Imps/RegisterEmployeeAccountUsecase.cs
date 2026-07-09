@@ -2,8 +2,8 @@ using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using ECService.Application.UseCases.UnitOfWorks;
 using ECService.Application.Security;
-using ECService.Application.Usecases.Employees.Interfaces;
-namespace ECService.Application.Employees.Interactors;
+using ECService.Application.Usecases.Interfaces;
+namespace ECService.Application.Imps;
 /// <summary>
 /// ユースケース:[ユーザーを登録する]を実現するインターフェイスの実装
 /// </summary>
@@ -39,11 +39,11 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
         try
         {
             // パスワードをハッシュ化する
-            var passwordHash = _service.Hash(user.Password);
+            var passwordHash = _service.Hash(employeeAccount.Password);
             // ハッシュ化したパスワードを設定する
             user.ChangePassword(passwordHash);
             // ユーザーを永続化する
-            await _repository.CreateAsync(user);
+            await _repository.CreateAsync(employeeAccount);
             // トランザクションをコミットする
             await _unitOfWork.CommitAsync();
         }
