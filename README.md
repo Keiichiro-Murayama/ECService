@@ -185,7 +185,7 @@ Authorization: Bearer {JWTトークン}
 {
   "productName": "ボールペン",
   "price": 120,
-  "quantity": 50,
+  "stock": 50,
   "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a"
 }
 ```
@@ -205,7 +205,7 @@ Authorization: Bearer {JWTトークン}
 
 ```json
 {
-  "message": "productName、price、quantity、categoryUuidを入力してください。"
+  "message": "productName、price、stock、categoryUuidを入力してください。"
 }
 ```
 
@@ -287,7 +287,7 @@ Authorization: Bearer {JWTトークン}
   "productUuid": "550e8400-e29b-41d4-a716-446655440000",
   "productName": "ボールペン(黒)",
   "price": 120,
-  "quantity": 50,
+  "stock": 50,
   "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a",
   "imageUrl": "https://example.com/images/ballpen.png"
 }
@@ -318,7 +318,7 @@ Authorization: Bearer {JWTトークン}
 {
   "productName": "ボールペン",
   "price": 150,
-  "quantity": 40,
+  "stock": 40,
   "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a",
   "imageUrl": "https://xxxxx.blob.core.windows.net/products/ballpen.png"
 }
@@ -338,7 +338,7 @@ Authorization: Bearer {JWTトークン}
 
 ```json
 {
-  "message": "productName、price、quantity、categoryUuidを入力してください。"
+  "message": "productName、price、stock、categoryUuidを入力してください。"
 }
 ```
 
