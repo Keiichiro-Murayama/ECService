@@ -1,4 +1,4 @@
-using ECService.Applications.UseCases.UnitOfWorks;
+using ECService.Application.UseCases.UnitOfWorks;
 using ECService.Infrastructure.Contexts;
 namespace ECService.Infrastructure.UnitOfWorks;
 /// <summary>
