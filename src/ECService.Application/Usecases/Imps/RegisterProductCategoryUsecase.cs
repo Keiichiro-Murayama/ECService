@@ -3,22 +3,21 @@ using ECService.Applications.UseCases.UnitOfWorks;
 using ECService.Domain.Exceptions;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
-using ECService.Domains.Repositories;
 
 namespace ECService.Applications.Usecases.Imps;
 
-public class RegisterProductUsecase : IRegisterProductUsecase
+public class RegisterProductCategoryUsecase : IRegisterProductCategoryUsecase
 {
 
    private readonly IUnitOfWork _unitOfWork;
-   private readonly IProductRepository _productRepository;
+   private readonly IProductCategoryRepository _productCategoryRepository;
 
-   public RegisterProductUsecase(
+   public RegisterProductCategoryUsecase(
         IUnitOfWork unitOfWork,
-        IProductRepository productRepository)
+        IProductCategoryRepository productCategoryRepository)
     {
         _unitOfWork = unitOfWork; 
-        _productRepository = productRepository;
+        _productCategoryRepository = productCategoryRepository;
     }
 
  
@@ -28,20 +27,23 @@ public class RegisterProductUsecase : IRegisterProductUsecase
     /// <param name="product">登録対象商品</param>
     /// <returns>なし</returns>
     /// <exception cref="NotFoundException">商品カテゴリが存在しない場合にスローされる</exception>
-    public async Task ExecuteAsync(Product product)
+    public async Task ExecuteAsync(ProductCategory productCategory)
     {
-        // 指定された商品の有無を調べる
-        var result = await _productRepository.ExistsByNameAsync(product.Name);
+        // カテゴリ全件取得
+        await _productCategoryRepository.SelectAllAsync();
+
+        // 指定された商品カテゴリの有無を調べる
+        var result = await _productCategoryRepository.ExistsByNameAsync(productCategory.Name);
         if (result) // 商品が既に存在する
         {
-            throw new DomainException($"商品名:{product.Name}は既に存在します。");
+            throw new DomainException($"カテゴリ名:{productCategory.Name}は既に存在します。");
         }
         // トランザクションを開始する
         await _unitOfWork.BeginTransactionAsync();
         try
         {
-            // 新商品を登録する
-            await _productRepository.CreateAsync(product);
+            // カテゴリを新規登録する
+            await _productCategoryRepository.CreateAsync(productCategory);
             // トランザクションをコミットする
             await _unitOfWork.CommitAsync();
         }
