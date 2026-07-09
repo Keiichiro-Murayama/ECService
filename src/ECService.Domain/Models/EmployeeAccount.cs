@@ -1,10 +1,10 @@
+using System.Text.RegularExpressions;
 using ECService.Domain.Exceptions;
 
 namespace ECService.Domain.Models;
 
 /// <summary>
 /// 社員アカウントを表すドメインオブジェクト
-/// Employeeを参照として保持する
 /// </summary>
 public class EmployeeAccount : Entity
 {
@@ -20,7 +20,7 @@ public class EmployeeAccount : Entity
 
     /// <summary>
     /// パスワード
-    /// DB上はハッシュ値を保持する
+    /// ※クラス図に合わせて PasswordHash という名前にしている
     /// </summary>
     public string PasswordHash { get; private set; }
 
@@ -35,24 +35,25 @@ public class EmployeeAccount : Entity
     protected override string Identity => AccountUuid;
 
     /// <summary>
-    /// アカウント名の最大文字数
+    /// アカウント名・パスワードの最小文字数
     /// </summary>
-    private const int AccountNameMaxLength = 20;
+    private const int MinLength = 5;
 
     /// <summary>
-    /// パスワードハッシュの最大文字数
+    /// アカウント名・パスワードの最大文字数
     /// </summary>
-    private const int PasswordHashMaxLength = 255;
+    private const int MaxLength = 20;
 
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    private EmployeeAccount(
-        string accountUuid,
-        string accountName,
-        string passwordHash,
-        Employee employee)
+    public EmployeeAccount(string accountUuid, string accountName, string passwordHash, Employee employee)
     {
+        ValidateUuid(accountUuid);
+        ValidateAccountName(accountName);
+        ValidatePasswordHash(passwordHash);
+        ValidateEmployee(employee);
+
         AccountUuid = accountUuid;
         AccountName = accountName;
         PasswordHash = passwordHash;
@@ -60,96 +61,58 @@ public class EmployeeAccount : Entity
     }
 
     /// <summary>
-    /// 新しい社員アカウントを生成する
+    /// 社員アカウントを生成する
     /// </summary>
-    public static EmployeeAccount Create(
-        string accountName,
-        string passwordHash,
-        Employee employee)
+    public static EmployeeAccount Create(string name, string passwordHash, Employee employee)
     {
-        ValidateAccountName(accountName);
+        ValidateAccountName(name);
         ValidatePasswordHash(passwordHash);
         ValidateEmployee(employee);
 
         var accountUuid = Guid.NewGuid().ToString();
 
-        return new EmployeeAccount(accountUuid, accountName, passwordHash, employee);
-    }
-
-    /// <summary>
-    /// 既存の社員アカウントを復元する
-    /// </summary>
-    public static EmployeeAccount Restore(
-        string accountUuid,
-        string accountName,
-        string passwordHash,
-        Employee employee)
-    {
-        ValidateUuid(accountUuid, nameof(accountUuid));
-        ValidateAccountName(accountName);
-        ValidatePasswordHash(passwordHash);
-        ValidateEmployee(employee);
-
-        return new EmployeeAccount(accountUuid, accountName, passwordHash, employee);
-    }
-
-    /// <summary>
-    /// アカウント名を変更する
-    /// </summary>
-    public void ChangeAccountName(string accountName)
-    {
-        ValidateAccountName(accountName);
-        AccountName = accountName;
-    }
-
-    /// <summary>
-    /// パスワードハッシュを変更する
-    /// </summary>
-    public void ChangePassword(string passwordHash)
-    {
-        ValidatePasswordHash(passwordHash);
-        PasswordHash = passwordHash;
-    }
-
-    /// <summary>
-    /// 同じアカウント名か判定する
-    /// </summary>
-    public bool IsSameAccount(string accountName)
-    {
-        return AccountName == accountName;
+        return new EmployeeAccount(accountUuid, name, passwordHash, employee);
     }
 
     /// <summary>
     /// アカウント名を検証する
     /// </summary>
-    private static void ValidateAccountName(string accountName)
+    public static void ValidateAccountName(string name)
     {
-        if (string.IsNullOrWhiteSpace(accountName))
+        if (string.IsNullOrWhiteSpace(name))
         {
-            throw new DomainException("アカウント名は必須です。", nameof(accountName));
+            throw new DomainException("アカウント名を入力してください", nameof(name));
         }
 
-        if (accountName.Length > AccountNameMaxLength)
+        if (name.Length < MinLength || name.Length > MaxLength)
         {
-            throw new DomainException(
-                $"アカウント名は{AccountNameMaxLength}文字以内で指定してください。", nameof(accountName));
+            throw new DomainException("アカウント名は5～20文字で入力してください", nameof(name));
+        }
+
+        if (!Regex.IsMatch(name, @"^[a-zA-Z0-9]+$"))
+        {
+            throw new DomainException("アカウント名は半角英数字で入力してください", nameof(name));
         }
     }
 
     /// <summary>
-    /// パスワードハッシュを検証する
+    /// パスワードを検証する
     /// </summary>
-    private static void ValidatePasswordHash(string passwordHash)
+    public static void ValidatePasswordHash(string passwordHash)
     {
         if (string.IsNullOrWhiteSpace(passwordHash))
         {
-            throw new DomainException("パスワードは必須です。", nameof(passwordHash));
+            throw new DomainException("パスワードを入力してください", nameof(passwordHash));
         }
 
-        if (passwordHash.Length > PasswordHashMaxLength)
+        if (passwordHash.Length < MinLength || passwordHash.Length > MaxLength)
         {
-            throw new DomainException(
-                $"パスワードは{PasswordHashMaxLength}文字以内で指定してください。", nameof(passwordHash));
+            throw new DomainException("パスワードは5～20文字で入力してください", nameof(passwordHash));
+        }
+
+        if (!Regex.IsMatch(passwordHash, @"^[a-zA-Z0-9]+$"))
+        {
+            throw new DomainException("パスワードは半角英数字で入力してください", nameof(passwordHash));
         }
     }
 
@@ -160,23 +123,23 @@ public class EmployeeAccount : Entity
     {
         if (employee is null)
         {
-            throw new DomainException("社員は必須です。", nameof(employee));
+            throw new DomainException("社員名を選択してください", nameof(employee));
         }
     }
 
     /// <summary>
     /// UUIDを検証する
     /// </summary>
-    private static void ValidateUuid(string uuid, string paramName)
+    private static void ValidateUuid(string accountUuid)
     {
-        if (string.IsNullOrWhiteSpace(uuid))
+        if (string.IsNullOrWhiteSpace(accountUuid))
         {
-            throw new DomainException("識別Idは必須です。", paramName);
+            throw new DomainException("識別Idは必須です。", nameof(accountUuid));
         }
 
-        if (!Guid.TryParse(uuid, out _))
+        if (!Guid.TryParse(accountUuid, out _))
         {
-            throw new DomainException("識別Idの形式が不正です。", paramName);
+            throw new DomainException("識別Idの形式が不正です。", nameof(accountUuid));
         }
     }
 }
