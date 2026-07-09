@@ -1,4 +1,4 @@
-namespace ECService.Internal.Exceptions;
+namespace ECService.Infrastructure.Exceptions;
 
 /// <summary>
 /// 業務制約を表す例外クラス
@@ -22,7 +22,7 @@ public class InternalException : Exception
     /// コンストラクタ
     /// </summary>
     /// <param name="message">エラーメッセージ</param>
-    public InternalException(string message) : base(message)
+    public InternalException(string message, Exception ex) : base(message)
     {
     }
 
