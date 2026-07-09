@@ -3,7 +3,7 @@ namespace ECService.Applications.Usecases.Interfaces;
 /// <summary>
 /// 商品登録サービスインターフェイス
 /// </summary>
-public interface IProductRegisterUsecase
+public interface IRegisterProductUsecase
 {
     /// <summary>
     /// 商品を新規登録する
