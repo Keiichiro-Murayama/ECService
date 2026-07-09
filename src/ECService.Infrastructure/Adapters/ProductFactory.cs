@@ -1,39 +1,57 @@
+using ECService.Domain.Adapters;
 using ECService.Domain.Models;
 using ECService.Infrastructure.Entities;
+using ECService.Infrastructure.Exceptions;
 
 namespace ECService.Infrastructure.Adapters;
 
 /// <summary>
-/// ProductEntity から Product ドメインオブジェクトへ変換するFactory
+/// 商品集約を復元するFactory
 /// </summary>
 public class ProductFactory
 {
-    /// <summary>
-    /// EntityからDomainへ復元する
-    /// </summary>
-    public Product Restore(ProductEntity productEntity, ProductStockEntity stockEntity)
+    private readonly IRestorer<ProductCategory, ProductCategoryEntity> _categoryRestorer;
+    private readonly IRestorer<ProductStock, ProductStockEntity> _productStockRestorer;
+
+    public ProductFactory(
+        IRestorer<ProductCategory, ProductCategoryEntity> categoryRestorer,
+        IRestorer<ProductStock, ProductStockEntity> productStockRestorer)
     {
-        // 商品カテゴリを復元する
-        var category = ProductCategory.Restore(
-            productEntity.ProductCategory.CategoryUuid.ToString(),
-            productEntity.ProductCategory.Name
-        );
+        _categoryRestorer = categoryRestorer;
+        _productStockRestorer = productStockRestorer;
+    }
 
-        // 商品在庫を復元する
-        var stock = ProductStock.Restore(
-            stockEntity.StockUuid.ToString(),
-            stockEntity.Quantity
-        );
+    /// <summary>
+    /// ProductEntity、ProductCategoryEntity、ProductStockEntityからProductを復元する
+    /// </summary>
+    public async Task<Product> Factory(
+        ProductEntity productEntity,
+        ProductStockEntity productStockEntity,
+        ProductCategoryEntity productCategoryEntity)
+    {
+        // nullチェック
+        _ = productEntity ?? throw new InternalException("引数productEntityがnullです。");
+        _ = productStockEntity ?? throw new InternalException("引数productStockEntityがnullです。");
+        _ = productCategoryEntity ?? throw new InternalException("引数productCategoryEntityがnullです。");
 
-        // 商品を復元する
+        // カテゴリEntity → カテゴリDomain
+        var productCategory =
+            await _categoryRestorer.RestoreAsync(productCategoryEntity);
+
+        // 在庫Entity → 在庫Domain
+        var productStock =
+            await _productStockRestorer.RestoreAsync(productStockEntity);
+
+        // 商品Domainを復元
         return Product.Restore(
             productEntity.ProductUuid.ToString(),
             productEntity.Name,
             productEntity.Price,
             productEntity.ImageUrl ?? "",
+            productCategory,
             productEntity.DeleteFlag,
-            category,
-            stock
+
+            productStock
         );
     }
 }
