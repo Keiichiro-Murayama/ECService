@@ -60,5 +60,6 @@ namespace ECService.Infrastructure.Entities
 
         //ナビゲーションプロパティ
         public ProductCategoryEntity ProductCategory { get; set; } = null!;
+        public ProductStockEntity ProductStock { get; set; } = null!;
     }
 }
