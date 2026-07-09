@@ -48,6 +48,13 @@ public class ProductStock : Entity
         return new ProductStock(stockUuid, quantity);
     }
 
+public static ProductStock Restore(string stockUuid,int quantity)
+    {
+        ValidateQuantity(quantity);
+
+        return new ProductStock(stockUuid,quantity);
+    }
+
     /// <summary>
     /// 在庫数を検証する
     /// </summary>

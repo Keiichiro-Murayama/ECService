@@ -4,6 +4,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+        <!-- XMLドキュメントを出力してSwaggerに取り込ませる -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- XMLコメント未記載の警告を抑制(任意) -->
+    <NoWarn>$(NoWarn);1591</NoWarn> 
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +16,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.2.1" />
   </ItemGroup>
 
   <ItemGroup>
