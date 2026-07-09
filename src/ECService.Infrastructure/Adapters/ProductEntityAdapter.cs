@@ -5,7 +5,7 @@ using ECService.Infrastructure.Entities;
 namespace ECService.Infrastructure.Adapters;
 /// <summary>
 /// ドメインオブジェクト:ProductとProductEntityの相互変換クラス
-/// </summary> 
+/// </summary>
 /// <typeparam name="Product">ドメインオブジェクト:Product</typeparam>
 /// <typeparam name="ProductEntity">EFCore:ProductEntity</typeparam>
 public class ProductEntityAdapter :
