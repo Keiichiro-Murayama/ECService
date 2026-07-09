@@ -1,6 +1,6 @@
 using ECService.Domain.Adapters;
 using ECService.Domain.Models;
-using ECService.Infrastructure.Exceptions;
+using ECService.Domain.Exceptions;
 using ECService.Infrastructure.Entities;
 namespace ECService.Infrastructure.Adapters;
 /// <summary>
