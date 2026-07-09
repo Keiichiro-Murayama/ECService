@@ -19,8 +19,15 @@ public class EmployeeAccount : Entity
     public string AccountName { get; private set; }
 
     /// <summary>
-    /// パスワード
-    /// ※クラス図に合わせて PasswordHash という名前にしている
+    /// 入力されたパスワード
+    /// 画面入力値のバリデーション用
+    /// DBには保存しない
+    /// </summary>
+    public string Password { get; private set; }
+
+    /// <summary>
+    /// ハッシュ化済みパスワード
+    /// DBに保存する値
     /// </summary>
     public string PasswordHash { get; private set; }
 
@@ -45,17 +52,30 @@ public class EmployeeAccount : Entity
     private const int MaxLength = 20;
 
     /// <summary>
+    /// ハッシュ化済みパスワードの最大文字数
+    /// DB定義の VARCHAR(255) に対応
+    /// </summary>
+    private const int PasswordHashMaxLength = 255;
+
+    /// <summary>
     /// コンストラクタ
     /// </summary>
-    public EmployeeAccount(string accountUuid, string accountName, string passwordHash, Employee employee)
+    public EmployeeAccount(
+        string accountUuid,
+        string accountName,
+        string password,
+        string passwordHash,
+        Employee employee)
     {
         ValidateUuid(accountUuid);
         ValidateAccountName(accountName);
+        ValidatePassword(password);
         ValidatePasswordHash(passwordHash);
         ValidateEmployee(employee);
 
         AccountUuid = accountUuid;
         AccountName = accountName;
+        Password = password;
         PasswordHash = passwordHash;
         Employee = employee;
     }
@@ -63,15 +83,25 @@ public class EmployeeAccount : Entity
     /// <summary>
     /// 社員アカウントを生成する
     /// </summary>
-    public static EmployeeAccount Create(string name, string passwordHash, Employee employee)
+    public static EmployeeAccount Create(
+        string name,
+        string password,
+        string passwordHash,
+        Employee employee)
     {
         ValidateAccountName(name);
+        ValidatePassword(password);
         ValidatePasswordHash(passwordHash);
         ValidateEmployee(employee);
 
         var accountUuid = Guid.NewGuid().ToString();
 
-        return new EmployeeAccount(accountUuid, name, passwordHash, employee);
+        return new EmployeeAccount(
+            accountUuid,
+            name,
+            password,
+            passwordHash,
+            employee);
     }
 
     /// <summary>
@@ -96,23 +126,39 @@ public class EmployeeAccount : Entity
     }
 
     /// <summary>
-    /// パスワードを検証する
+    /// 入力されたパスワードを検証する
+    /// </summary>
+    public static void ValidatePassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new DomainException("パスワードを入力してください", nameof(password));
+        }
+
+        if (password.Length < MinLength || password.Length > MaxLength)
+        {
+            throw new DomainException("パスワードは5～20文字で入力してください", nameof(password));
+        }
+
+        if (!Regex.IsMatch(password, @"^[a-zA-Z0-9]+$"))
+        {
+            throw new DomainException("パスワードは半角英数字で入力してください", nameof(password));
+        }
+    }
+
+    /// <summary>
+    /// ハッシュ化済みパスワードを検証する
     /// </summary>
     public static void ValidatePasswordHash(string passwordHash)
     {
         if (string.IsNullOrWhiteSpace(passwordHash))
         {
-            throw new DomainException("パスワードを入力してください", nameof(passwordHash));
+            throw new DomainException("パスワードハッシュは必須です。", nameof(passwordHash));
         }
 
-        if (passwordHash.Length < MinLength || passwordHash.Length > MaxLength)
+        if (passwordHash.Length > PasswordHashMaxLength)
         {
-            throw new DomainException("パスワードは5～20文字で入力してください", nameof(passwordHash));
-        }
-
-        if (!Regex.IsMatch(passwordHash, @"^[a-zA-Z0-9]+$"))
-        {
-            throw new DomainException("パスワードは半角英数字で入力してください", nameof(passwordHash));
+            throw new DomainException("パスワードハッシュは255文字以内で指定してください。", nameof(passwordHash));
         }
     }
 
