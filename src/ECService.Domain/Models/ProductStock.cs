@@ -21,6 +21,10 @@ public class ProductStock : Entity
     /// 同一性判定に使用する識別子
     /// </summary>
     protected override string Identity => StockUuid;
+    /// <summary>
+    /// 在庫数の最大値
+    /// </summary>
+    private const int QuantityMinValue = 0;
 
     /// <summary>
     /// 在庫数の最大値
@@ -60,7 +64,7 @@ public static ProductStock Restore(string stockUuid,int quantity)
     /// </summary>
     public static void ValidateQuantity(int quantity)
     {
-        if (quantity > QuantityMaxValue)
+        if (quantity < QuantityMinValue || quantity > QuantityMaxValue)
         {
             throw new DomainException("在庫数は1000個以下で入力してください", nameof(quantity));
         }
