@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="alxku1eUuSqiVQKdn34j" name="ページ1">
-        <mxGraphModel dx="624" dy="1481" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1103" dy="1737" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -166,29 +166,20 @@
                 <mxCell id="76" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="74" vertex="1">
                     <mxGeometry y="60" width="330" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="77" value="+ SelectAllAsync()&lt;br&gt;    : Task&amp;lt;List&amp;lt;ProductCategory&amp;gt;&amp;gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;+SelectByUuid(string uuid) : Task&amp;lt;ProductCategory&amp;gt;&lt;/font&gt;&lt;/div&gt;&lt;div&gt;+ ExistsByNameAsync(name : string)&lt;br&gt;    : Task&amp;lt;bool&amp;gt;&lt;br&gt;+ CreateAsync(productCategory : ProductCategory)&lt;br&gt;    : Task&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="74" vertex="1">
+                <mxCell id="77" value="+ SelectAllAsync()&lt;br&gt;    : Task&amp;lt;List&amp;lt;ProductCategory&amp;gt;&amp;gt;&lt;br&gt;+ ExistsByNameAsync(name : string)&lt;br&gt;    : Task&amp;lt;bool&amp;gt;&lt;br&gt;+ CreateAsync(productCategory : ProductCategory)&lt;br&gt;    : Task" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="74" vertex="1">
                     <mxGeometry y="68" width="330" height="102" as="geometry"/>
                 </mxCell>
                 <mxCell id="83" value="EmployeeRepository.cs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1450" y="610" width="330" height="150" as="geometry"/>
+                    <mxGeometry x="1450" y="700" width="330" height="140" as="geometry"/>
                 </mxCell>
-                <mxCell id="84" value="- _context : AppDbContext&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;- _context : AppDbContext&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;- _adapter : EmployeeAccountEntityAdapter&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="83" vertex="1">
-                    <mxGeometry y="26" width="330" height="54" as="geometry"/>
+                <mxCell id="84" value="- _context : AppDbContext&lt;div&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;- _adapter : EmployeeAccountEntityAdapter&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="83" vertex="1">
+                    <mxGeometry y="26" width="330" height="44" as="geometry"/>
                 </mxCell>
                 <mxCell id="85" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="83" vertex="1">
-                    <mxGeometry y="80" width="330" height="8" as="geometry"/>
+                    <mxGeometry y="70" width="330" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="86" value="+ SelectUnregisteredAsync() : Task&amp;lt;List&amp;lt;Employee&amp;gt;&amp;gt;&lt;br&gt;+ SelectByUuidAsync(employeeUuid : string)&lt;br&gt;    : Task&amp;lt;Employee?&amp;gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="83" vertex="1">
-                    <mxGeometry y="88" width="330" height="62" as="geometry"/>
-                </mxCell>
-                <mxCell id="87" value="EmployeeAccountRepository.cs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="1450" y="470" width="330" height="126" as="geometry"/>
-                </mxCell>
-                <mxCell id="89" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="87" vertex="1">
-                    <mxGeometry y="26" width="330" height="8" as="geometry"/>
-                </mxCell>
-                <mxCell id="90" value="+ SelectByAccountNameAsync(accountName : string)&lt;br&gt;+ ExistsByAccountNameAsync(accountName : string)&lt;br&gt;    : Task&amp;lt;bool&amp;gt;&lt;br&gt;+ CreateAsync(employeeAccount : EmployeeAccount)&lt;br&gt;    : Task" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="87" vertex="1">
-                    <mxGeometry y="34" width="330" height="92" as="geometry"/>
+                    <mxGeometry y="78" width="330" height="62" as="geometry"/>
                 </mxCell>
                 <mxCell id="104" value="ProductEntityAdapter" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="360" width="270" height="120" as="geometry"/>
@@ -252,6 +243,18 @@
                 </mxCell>
                 <mxCell id="47" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="45" vertex="1">
                     <mxGeometry y="140" width="210" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="140" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;EmployeeAccountRepository.cs&lt;/span&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="1450" y="480" width="310" height="178" as="geometry"/>
+                </mxCell>
+                <mxCell id="141" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;- _context : AppDbContext&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;- _adapter : EmployeeAccountEntityAdapter&lt;/span&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="140">
+                    <mxGeometry y="26" width="310" height="44" as="geometry"/>
+                </mxCell>
+                <mxCell id="142" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="140">
+                    <mxGeometry y="70" width="310" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="143" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ SelectByAccountNameAsync(accountName : string)&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ ExistsByAccountNameAsync(accountName : string)&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;: Task&amp;lt;bool&amp;gt;&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ CreateAsync(employeeAccount : EmployeeAccount)&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;: Task&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="140">
+                    <mxGeometry y="78" width="310" height="100" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
