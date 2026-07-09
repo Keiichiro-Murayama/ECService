@@ -1,7 +1,6 @@
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using ECService.Infrastructure.Adapters;
-using ECService.Infrastructure.Data;
 using ECService.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +31,7 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
     {
         var entity = await _context.EmployeeAccounts
             .Include(employeeAccount => employeeAccount.Employee)
+            .ThenInclude(employee => employee.Department)
             .FirstOrDefaultAsync(employeeAccount =>
                 employeeAccount.Name == accountName);
 
@@ -40,7 +40,7 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
             return null;
         }
 
-        return _adapter.Restore(entity);
+        return await _adapter.RestoreAsync(entity);
     }
 
     /// <summary>
@@ -61,7 +61,20 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
     /// <param name="employeeAccount">担当者アカウント。</param>
     public async Task CreateAsync(EmployeeAccount employeeAccount)
     {
-        var entity = _adapter.Convert(employeeAccount);
+        var entity = await _adapter.ConvertAsync(employeeAccount);
+
+        var employeeUuid = Guid.Parse(employeeAccount.Employee.EmployeeUuid);
+
+        var employeeEntity = await _context.Employees
+            .FirstOrDefaultAsync(employee =>
+                employee.EmployeeUuid == employeeUuid);
+
+        if (employeeEntity is null)
+        {
+            throw new InvalidOperationException("社員が見つかりません。");
+        }
+
+        entity.EmployeeId = employeeEntity.Id;
 
         await _context.EmployeeAccounts.AddAsync(entity);
         await _context.SaveChangesAsync();

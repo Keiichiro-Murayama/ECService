@@ -1,7 +1,6 @@
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using ECService.Infrastructure.Adapters;
-using ECService.Infrastructure.Data;
 using ECService.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,15 +29,22 @@ public class EmployeeRepository : IEmployeeRepository
     public async Task<List<Employee>> SelectUnregisteredAsync()
     {
         var entities = await _context.Employees
+            .Include(employee => employee.Department)
             .Where(employee =>
                 !_context.EmployeeAccounts
                     .Any(employeeAccount =>
                         employeeAccount.EmployeeId == employee.Id))
             .ToListAsync();
 
-        return entities
-            .Select(entity => _adapter.Restore(entity))
-            .ToList();
+        var employees = new List<Employee>();
+
+        foreach (var entity in entities)
+        {
+            var employee = await _adapter.RestoreAsync(entity);
+            employees.Add(employee);
+        }
+
+        return employees;
     }
 
     /// <summary>
@@ -48,15 +54,21 @@ public class EmployeeRepository : IEmployeeRepository
     /// <returns>社員情報。存在しない場合はnull。</returns>
     public async Task<Employee?> SelectByUuidAsync(string employeeUuid)
     {
+        if (!Guid.TryParse(employeeUuid, out var parsedEmployeeUuid))
+        {
+            return null;
+        }
+
         var entity = await _context.Employees
+            .Include(employee => employee.Department)
             .FirstOrDefaultAsync(employee =>
-                employee.EmployeeUuid == employeeUuid);
+                employee.EmployeeUuid == parsedEmployeeUuid);
 
         if (entity is null)
         {
             return null;
         }
 
-        return _adapter.Restore(entity);
+        return await _adapter.RestoreAsync(entity);
     }
 }

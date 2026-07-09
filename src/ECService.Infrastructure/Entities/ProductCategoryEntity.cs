@@ -29,7 +29,7 @@ namespace ECService.Infrastructure.Entities
         /// カテゴリ名
         /// </summary>
         [Required]
-        [MaxLength(30)]
+        [MaxLength(30)] // 石原:VARCHAR(20)から VARCHAR(30)に変更 
         [Column("name")]
         public string Name { get; set; } = string.Empty;
 
