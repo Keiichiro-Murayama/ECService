@@ -1,11 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram id="alxku1eUuSqiVQKdn34j" name="ページ1">
-        <mxGraphModel dx="811" dy="1574" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1159" dy="1540" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="136" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="870" y="-10" width="440" height="570" as="geometry"/>
+                    <mxGeometry x="870" y="-110" width="440" height="670" as="geometry"/>
                 </mxCell>
                 <mxCell id="132" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="360" y="200" width="480" height="890" as="geometry"/>
@@ -122,7 +122,7 @@
                     <mxGeometry y="72" width="270" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="60" value="ProductFactory.cs" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="875" y="10" width="430" height="110" as="geometry"/>
+                    <mxGeometry x="875" y="-90" width="430" height="110" as="geometry"/>
                 </mxCell>
                 <mxCell id="61" value="- _categoryAdapter : IAdapter&amp;lt;ProductCategory, ProductCategoryEntity&amp;gt;       |&lt;br&gt;- _productStockAdapter : IAdapter&amp;lt;ProductStock, ProductStockEntity&amp;gt;&amp;nbsp;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="60" vertex="1">
                     <mxGeometry y="26" width="430" height="44" as="geometry"/>
@@ -255,6 +255,15 @@
                 </mxCell>
                 <mxCell id="143" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ SelectByAccountNameAsync(accountName : string)&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ ExistsByAccountNameAsync(accountName : string)&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;: Task&amp;lt;bool&amp;gt;&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ CreateAsync(employeeAccount : EmployeeAccount)&lt;/span&gt;&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;: Task&lt;/span&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="140" vertex="1">
                     <mxGeometry y="78" width="310" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="144" value="ProductStockEntityAdapter" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="1000" y="30" width="270" height="104" as="geometry"/>
+                </mxCell>
+                <mxCell id="145" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="144">
+                    <mxGeometry y="26" width="270" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="146" value="+ Convert(domain : ProductStock)&lt;br&gt;    : ProductStockEntity&lt;br&gt;+ Restore( target : ProductStockEntity)&lt;br&gt;    : ProductStock" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="144">
+                    <mxGeometry y="34" width="270" height="70" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
