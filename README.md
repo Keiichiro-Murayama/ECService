@@ -2,34 +2,32 @@
 
 ## フルネス研修総合演習課題「ECサイト」
 
-
 # API一覧
 
-
-| No | API名 | メソッド | エンドポイント |
-|---|---|---|---|
-| 1 | 担当者アカウント登録API | POST | `/api/admin/accounts` |
-| 2 | 未登録社員取得API | GET | `/api/admin/employees/unregistered` |
-| 3 | 商品カテゴリ一覧取得API | GET | `/api/admin/categories` |
-| 4 | 新商品登録API | POST | `/api/admin/products` |
-| 5 | 商品検索API | GET | `/api/admin/products` |
-| 6 | 商品詳細取得API | GET | `/api/admin/products/{productUuid}` |　(商品修正画面・商品削除確認画面で使用)
-| 7 | 商品修正API | PUT | `/api/admin/products/{productUuid}` |
-| 8 | 商品削除API | DELETE | `/api/admin/products/{productUuid}` |
-| 9 | 商品カテゴリ登録API | POST | `/api/admin/categories` |
-| 10 | ログインAPI | POST | `/api/admin/login` |
-
-
+| No  | API名                   | メソッド | エンドポイント                      |
+| --- | ----------------------- | -------- | ----------------------------------- | ---------------------------------------- |
+| 1   | 担当者アカウント登録API | POST     | `/api/admin/accounts`               |
+| 2   | 未登録社員取得API       | GET      | `/api/admin/employees/unregistered` |
+| 3   | 商品カテゴリ一覧取得API | GET      | `/api/admin/categories`             |
+| 4   | 新商品登録API           | POST     | `/api/admin/products`               |
+| 5   | 商品検索API             | GET      | `/api/admin/products`               |
+| 6   | 商品詳細取得API         | GET      | `/api/admin/products/{productUuid}` | 　(商品修正画面・商品削除確認画面で使用) |
+| 7   | 商品修正API             | PUT      | `/api/admin/products/{productUuid}` |
+| 8   | 商品削除API             | DELETE   | `/api/admin/products/{productUuid}` |
+| 9   | 商品カテゴリ登録API     | POST     | `/api/admin/categories`             |
+| 10  | ログインAPI             | POST     | `/api/admin/login`                  |
 
 ## 1.担当者アカウント登録API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/accounts`|
-|HTTPメソッド|`POST`|
-|コントローラー|`EmployeeAccountController`|
-|メソッド|`Register`|
+
+| 項目           | 内容                                |
+| -------------- | ----------------------------------- |
+| エンドポイント | `/api/admin/accounts`               |
+| HTTPメソッド   | `POST`                              |
+| コントローラー | `RegisterEmployeeAccountController` |
+| メソッド       | `RegisterEmployee`                  |
 
 ### リクエスト
+
 ```json
 {
   "employeeId": 1,
@@ -39,14 +37,16 @@
 ```
 
 ## 2.未登録社員取得API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/employees/unregistered`|
-|HTTPメソッド|`GET`|
-|コントローラー|`EmployeeController`|
-|メソッド|`GetUnregisteredEmployees`|
+
+| 項目           | 内容                                |
+| -------------- | ----------------------------------- |
+| エンドポイント | `/api/admin/employees/unregistered` |
+| HTTPメソッド   | `GET`                               |
+| コントローラー | `GetUnregisterdEmployeeController`  |
+| メソッド       | `GetUnregisteredEmployees`          |
 
 ### レスポンス
+
 ```json
 [
   {
@@ -61,14 +61,16 @@
 ```
 
 ## 3.商品カテゴリー一覧取得API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/categories`|
-|HTTPメソッド|`GET`|
-|コントローラー|`CategoryController`|
-|メソッド|`GetCategories`|
+
+| 項目           | 内容                      |
+| -------------- | ------------------------- |
+| エンドポイント | `/api/admin/categories`   |
+| HTTPメソッド   | `GET`                     |
+| コントローラー | `GetCategoriesController` |
+| メソッド       | `GetCategories`           |
 
 ### レスポンス
+
 ```json
 [
   {
@@ -83,45 +85,51 @@
 ```
 
 ## 4.新商品登録API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/products`|
-|HTTPメソッド|`POST`|
-|コントローラー|`ProductController`|
-|メソッド|`Register`|
+
+| 項目           | 内容                        |
+| -------------- | --------------------------- |
+| エンドポイント | `/api/admin/products`       |
+| HTTPメソッド   | `POST`                      |
+| コントローラー | `RegisterProductController` |
+| メソッド       | `RegisterProduct`           |
 
 ### リクエスト
+
 ```json
 {
   "productName": "ボールペン",
   "price": 120,
-   "quantity": 50,
+  "quantity": 50,
   "categoryId": 1
 }
 ```
 
 ### レスポンス
+
 ```json
 {
-   "productUuid": "550e8400-e29b-41d4-a716-446655440000",
-   "message": "商品を登録しました。"
+  "productUuid": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "商品を登録しました。"
 }
 ```
 
 ## 5.商品検索API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/products`|
-|HTTPメソッド|`GET`|
-|コントローラー|`ProductController`|
-|メソッド|`Search`|
+
+| 項目           | 内容                       |
+| -------------- | -------------------------- |
+| エンドポイント | `/api/admin/products`      |
+| HTTPメソッド   | `GET`                      |
+| コントローラー | `SearchProductsController` |
+| メソッド       | `Search`                   |
 
 ### クエリパラメータ
-|項目|型|必須|内容|
-|---|---|---|---|
-|categoryUuid|string|任意|商品カテゴリUUID|
 
-   ### レスポンス
+| 項目         | 型     | 必須 | 内容             |
+| ------------ | ------ | ---- | ---------------- |
+| categoryUuid | string | 任意 | 商品カテゴリUUID |
+
+### レスポンス
+
 ```json
 [
   {
@@ -141,14 +149,16 @@
 ```
 
 ## 6.商品詳細取得API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/products/{productUuid}`|
-|HTTPメソッド|`GET`|
-|コントローラー|`ProductController`|
-|メソッド|`GetById`|
 
-   ### レスポンス
+| 項目           | 内容                                |
+| -------------- | ----------------------------------- |
+| エンドポイント | `/api/admin/products/{productUuid}` |
+| HTTPメソッド   | `GET`                               |
+| コントローラー | `GetProductInfoByIdController`      |
+| メソッド       | `GetInfoById`                       |
+
+### レスポンス
+
 ```json
 {
   "productUuid": "550e8400-e29b-41d4-a716-446655440000",
@@ -161,14 +171,16 @@
 ```
 
 ## 7.商品修正API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/products/{productUuid}`|
-|HTTPメソッド|`PUT`|
-|コントローラー|`ProductController`|
-|メソッド|`Update`|
+
+| 項目           | 内容                                |
+| -------------- | ----------------------------------- |
+| エンドポイント | `/api/admin/products/{productUuid}` |
+| HTTPメソッド   | `PUT`                               |
+| コントローラー | `UpdateProductController`           |
+| メソッド       | `UpdateProduct`                     |
 
 ### リクエスト
+
 ```json
 {
   "productName": "ボールペン",
@@ -180,6 +192,7 @@
 ```
 
 ### レスポンス
+
 ```json
 {
   "message": "商品情報を更新しました。"
@@ -187,14 +200,16 @@
 ```
 
 ## 8.商品削除API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/products/{productUuid}`|
-|HTTPメソッド|`DELETE`|
-|コントローラー|`ProductController`|
-|メソッド|`Delete`|
+
+| 項目           | 内容                                |
+| -------------- | ----------------------------------- |
+| エンドポイント | `/api/admin/products/{productUuid}` |
+| HTTPメソッド   | `DELETE`                            |
+| コントローラー | `DeleteProductController`           |
+| メソッド       | `DeleteProduct`                     |
 
 ### レスポンス
+
 ```json
 {
   "message": "商品を削除しました。"
@@ -202,14 +217,16 @@
 ```
 
 ## 9.商品カテゴリ登録API
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/categories`|
-|HTTPメソッド|`POST`|
-|コントローラー|`CategoryController`|
-|メソッド|`Register`|
+
+| 項目           | 内容                         |
+| -------------- | ---------------------------- |
+| エンドポイント | `/api/admin/categories`      |
+| HTTPメソッド   | `POST`                       |
+| コントローラー | `RegisterCategoryController` |
+| メソッド       | `RegisterCategory`           |
 
 ### リクエスト
+
 ```json
 {
   "categoryName": "文房具"
@@ -217,6 +234,7 @@
 ```
 
 ### レスポンス
+
 ```json
 {
   "categoryUuid": "550e8400-e29b-41d4-a716-446655440000",
@@ -225,14 +243,16 @@
 ```
 
 ## 10.ログインAPI
-|項目|内容|
-|---|---|
-|エンドポイント|`/api/admin/login`|
-|HTTPメソッド|`POST`|
-|コントローラー|`AuthenticateController`|
-|メソッド|`Login`|
+
+| 項目           | 内容                     |
+| -------------- | ------------------------ |
+| エンドポイント | `/api/admin/login`       |
+| HTTPメソッド   | `POST`                   |
+| コントローラー | `AuthenticateController` |
+| メソッド       | `Login`                  |
 
 ### リクエスト
+
 ```json
 {
   "accountName": "yamada01",
@@ -241,9 +261,10 @@
 ```
 
 ### レスポンス（200 OK）
+
 ```json
 {
-   "token": "JWTトークン",
+  "token": "JWTトークン",
   "accountUuid": "550e8400-e29b-41d4-a716-446655440000",
   "accountName": "yamada01",
   "message": "ログインしました。"
@@ -253,6 +274,7 @@
 ### エラーレスポンス
 
 #### 400 Bad Request
+
 ```json
 {
   "message": "アカウント名またはパスワードを入力してください。"
@@ -260,6 +282,7 @@
 ```
 
 #### 401 Unauthorized
+
 ```json
 {
   "message": "アカウント名またはパスワードが正しくありません。"
@@ -267,9 +290,11 @@
 ```
 
 ## 11.ログアウト
+
 JWT認証のため、ログアウト時はフロントエンド側で保持しているJWTトークンを削除する。
 そのため、ログアウトAPIは作成しない。
 401 Unauthorized
+
 ```json
 {
   "message": "ログインしていません。"
