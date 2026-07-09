@@ -6,7 +6,7 @@ namespace ECService.Presentations.ViewModels;
 /// <summary>
 /// 商品登録ユースケース用ViewModelクラス
 /// </summary>
-public class RegisterProductViewModel
+public class RegisterProductViewModel//石原：クラス図との命名が違うとおもう
 {
     /// <summary>
     /// 商品名
