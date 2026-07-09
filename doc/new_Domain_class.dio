@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="KKfMD3SemsG6aV6jb4rE" name="ページ1">
-        <mxGraphModel dx="3276" dy="1979" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="4239" dy="2217" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -41,7 +41,7 @@
                     <mxGeometry x="-550" y="-847" width="420" height="331" as="geometry"/>
                 </mxCell>
                 <mxCell id="10" value="EmployeeAccount" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="-850" y="200" width="310" height="200" as="geometry"/>
+                    <mxGeometry x="-850" y="120" width="310" height="230" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" value="+ string: AccountUuid&lt;div&gt;+ string: AccountName&lt;/div&gt;&lt;div&gt;+ string: PasswordHash&lt;/div&gt;&lt;div&gt;+ Employee: Employee&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="10" vertex="1">
                     <mxGeometry y="26" width="310" height="84" as="geometry"/>
@@ -49,8 +49,8 @@
                 <mxCell id="12" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="10" vertex="1">
                     <mxGeometry y="110" width="310" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="13" value="&lt;div&gt;+void:&amp;nbsp; &lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Create(string name, string passwordHash, Employee employee)&lt;/div&gt;&lt;div&gt;+ void:ValidateAccountName(string name)&lt;/div&gt;&lt;div&gt;+void: ValidatePasswordHash(string passwordHash)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="10" vertex="1">
-                    <mxGeometry y="118" width="310" height="82" as="geometry"/>
+                <mxCell id="13" value="&lt;div&gt;+EmployeeAccount:&amp;nbsp; &lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Create(string name, string passwordHash, Employee employee)&lt;/div&gt;&lt;div&gt;+ void:ValidateAccountName(string name)&lt;/div&gt;&lt;div&gt;+void: ValidatePasswordHash(string passwordHash)&lt;/div&gt;&lt;div&gt;+ void: ValidateEmployee(Employee: employee)&lt;/div&gt;&lt;div&gt;+ void: ValidateUuid(string: accountUuid)&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="10" vertex="1">
+                    <mxGeometry y="118" width="310" height="112" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="ProductCategory" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="540" y="-270" width="290" height="120" as="geometry"/>
@@ -61,11 +61,11 @@
                 <mxCell id="16" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="14" vertex="1">
                     <mxGeometry y="70" width="290" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="&lt;div&gt;+void: Create(string:name)&lt;/div&gt;+ void: ValidateName(string: name)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="14" vertex="1">
+                <mxCell id="17" value="&lt;div&gt;+ ProductCategory: Create(string:name)&lt;/div&gt;+ void: ValidateName(string: name)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="14" vertex="1">
                     <mxGeometry y="78" width="290" height="42" as="geometry"/>
                 </mxCell>
                 <mxCell id="18" value="Product" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="490" width="390" height="300" as="geometry"/>
+                    <mxGeometry x="490" width="390" height="370" as="geometry"/>
                 </mxCell>
                 <mxCell id="19" value="+ string: ProductUuid&lt;div&gt;+ string: Name&lt;/div&gt;&lt;div&gt;+ int: Price&lt;/div&gt;&lt;div&gt;+ string: ImageUrl&lt;/div&gt;&lt;div&gt;+ ProductCategory: ProductCategory&lt;/div&gt;&lt;div&gt;+ int: DeleteFlg&lt;/div&gt;&lt;div&gt;+ ProductStock: ProductStock&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="18" vertex="1">
                     <mxGeometry y="26" width="390" height="124" as="geometry"/>
@@ -73,11 +73,11 @@
                 <mxCell id="20" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="18" vertex="1">
                     <mxGeometry y="150" width="390" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="21" value="&lt;div&gt;+ void:Create(string name, int price, string imageUrl, ProductCategory productCategory, ProductStock productStock)&lt;/div&gt;+ void: ChangeName(string: name)&lt;div&gt;+ void: ChangePrice(int: price)&lt;/div&gt;&lt;div&gt;+ void: ChangeImageUrl(string: imageUrl)&lt;/div&gt;&lt;div&gt;+ void: ChangeCategory(ProductCategory: ProductCategory)&lt;/div&gt;&lt;div&gt;+ void: ChangeStock(ProductStock: ProductStock)&lt;/div&gt;&lt;div&gt;+ void: Delete()&lt;/div&gt;&lt;div&gt;+ bool: IsDelete()&amp;nbsp;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="18" vertex="1">
-                    <mxGeometry y="158" width="390" height="142" as="geometry"/>
+                <mxCell id="21" value="&lt;div&gt;+ Product:Create(string name, int price, string imageUrl, ProductCategory productCategory, ProductStock productStock)&lt;/div&gt;+ void: ChangeName(string: name)&lt;div&gt;+ void: ChangePrice(int: price)&lt;/div&gt;&lt;div&gt;+ void: ChangeImageUrl(string: imageUrl)&lt;/div&gt;&lt;div&gt;+ void: ChangeCategory(ProductCategory: ProductCategory)&lt;/div&gt;&lt;div&gt;+ void: ChangeStock(ProductStock: ProductStock)&lt;/div&gt;&lt;div&gt;+ void: Delete()&lt;/div&gt;&lt;div&gt;+ bool: IsDelete()&amp;nbsp;&lt;/div&gt;&lt;div&gt;+ void: ValidateName(string: name)&lt;/div&gt;&lt;div&gt;+ void: ValidatePrice(int: price)&lt;/div&gt;&lt;div&gt;+ void: ValidateImageUrl(string: imageUrl)&lt;/div&gt;&lt;div&gt;+ void: ValidateCategory(ProductCategory productCategory)&lt;/div&gt;&lt;div&gt;+ void: ValidateStock(ProductStock productStock&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="18" vertex="1">
+                    <mxGeometry y="158" width="390" height="212" as="geometry"/>
                 </mxCell>
                 <mxCell id="22" value="ProductStock" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="545.75" y="370" width="310" height="130" as="geometry"/>
+                    <mxGeometry x="550" y="410" width="310" height="130" as="geometry"/>
                 </mxCell>
                 <mxCell id="23" value="+ string: StockUuid&lt;div&gt;+ int: Quantity&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="22" vertex="1">
                     <mxGeometry y="26" width="310" height="44" as="geometry"/>
@@ -85,26 +85,8 @@
                 <mxCell id="24" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="22" vertex="1">
                     <mxGeometry y="70" width="310" height="8" as="geometry"/>
                 </mxCell>
-                <mxCell id="25" value="&lt;div&gt;+void: Create(int quantity)&lt;/div&gt;&lt;div&gt;+void: ValidateQuantity(int quantity)&lt;/div&gt;+ void: ChangeQuantity(int: quantity)&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="22" vertex="1">
+                <mxCell id="25" value="&lt;div&gt;+ProductStock: Create(int quantity)&lt;/div&gt;&lt;div&gt;+void: ValidateQuantity(int quantity)&lt;/div&gt;+ void: ChangeQuantity(int: quantity)&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="22" vertex="1">
                     <mxGeometry y="78" width="310" height="52" as="geometry"/>
-                </mxCell>
-                <mxCell id="26" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;Department&lt;/span&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="-800" y="-280" width="200" height="78" as="geometry"/>
-                </mxCell>
-                <mxCell id="27" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ string: DepartmentUuid&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ string: Name&amp;nbsp;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="26" vertex="1">
-                    <mxGeometry y="26" width="200" height="44" as="geometry"/>
-                </mxCell>
-                <mxCell id="28" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="26" vertex="1">
-                    <mxGeometry y="70" width="200" height="8" as="geometry"/>
-                </mxCell>
-                <mxCell id="30" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;Employee&lt;/span&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="-800" y="-90" width="210" height="108" as="geometry"/>
-                </mxCell>
-                <mxCell id="31" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;+ string: EmployeeUuid&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ string: Name&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ string: Kana&lt;/div&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ Department: Department&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="30" vertex="1">
-                    <mxGeometry y="26" width="210" height="74" as="geometry"/>
-                </mxCell>
-                <mxCell id="32" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" parent="30" vertex="1">
-                    <mxGeometry y="100" width="210" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="34" value="&amp;lt;&amp;lt;interface&amp;gt;&amp;gt;&lt;div&gt;IConverter&lt;/div&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="-450" y="-786" width="230" height="90" as="geometry"/>
@@ -171,20 +153,20 @@
                 </mxCell>
                 <mxCell id="65" value="" style="endArrow=classic;html=1;" parent="1" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="-707" y="-170" as="sourcePoint"/>
-                        <mxPoint x="-707" y="-90" as="targetPoint"/>
+                        <mxPoint x="-695" y="-190" as="sourcePoint"/>
+                        <mxPoint x="-695.45" y="-140" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="67" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="27" edge="1">
+                <mxCell id="67" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="-1130" y="-240" as="sourcePoint"/>
-                        <mxPoint x="-903" y="-242" as="targetPoint"/>
+                        <mxPoint x="-800" y="-232" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="68" value="" style="endArrow=classic;html=1;" parent="1" target="31" edge="1">
+                <mxCell id="68" value="" style="endArrow=classic;html=1;" parent="1" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="-1100" y="-20" as="sourcePoint"/>
-                        <mxPoint x="-904" y="-20" as="targetPoint"/>
+                        <mxPoint x="-800" y="-28.888888888888687" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="69" value="" style="endArrow=classic;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="11" edge="1">
@@ -247,11 +229,32 @@
                         <mxPoint x="710" y="230" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="66" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" target="10" edge="1" source="30">
+                <mxCell id="66" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.436;exitY=1.022;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="104" target="10" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
-                        <mxPoint x="-697" y="70" as="sourcePoint"/>
+                        <mxPoint x="-695" y="-24" as="sourcePoint"/>
                         <mxPoint x="-647" y="20" as="targetPoint"/>
                     </mxGeometry>
+                </mxCell>
+                <mxCell id="101" value="Employee" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-804" y="-140" width="268" height="170" as="geometry"/>
+                </mxCell>
+                <mxCell id="102" value="&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ string: EmployeeUuid&lt;/span&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ string: Name&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ string: Kana&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ Department: Department&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="101">
+                    <mxGeometry y="26" width="268" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="103" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="101">
+                    <mxGeometry y="90" width="268" height="8" as="geometry"/>
+                </mxCell>
+                <mxCell id="104" value="+ void: ValidateEmployeeUuid(string: employeeUuid)&lt;div&gt;+ void: ValidateKana(string kana)&lt;/div&gt;&lt;div&gt;+ void: ValidateName(string: name)&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="101">
+                    <mxGeometry y="98" width="268" height="72" as="geometry"/>
+                </mxCell>
+                <mxCell id="105" value="Department" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="-804" y="-270" width="190" height="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="106" value="&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ string: DepartmentUuid&lt;/span&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ string: Name&amp;nbsp;&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" vertex="1" parent="105">
+                    <mxGeometry y="26" width="190" height="44" as="geometry"/>
+                </mxCell>
+                <mxCell id="107" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" vertex="1" parent="105">
+                    <mxGeometry y="70" width="190" height="8" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
