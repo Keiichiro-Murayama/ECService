@@ -98,18 +98,18 @@ builder.Services.AddInfrastructure(connectionString);
 
 // Swagger(タイトル・XML コメント付き)
 builder.Services.AddEndpointsApiExplorer();
-// builder.Services.AddSwaggerGen(options =>
-// {
-//     options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-//     {
-//         Title = "📚 C# REST API開発演習 解答例",
-//         Version = "v1",
-//         Description = "図書管理システムの REST API",
-//     });
-//     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-//     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-//     options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
-// });
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Title = "📚 C# REST API開発演習 解答例",
+        Version = "v1",
+        Description = "図書管理システムの REST API",
+    });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+});
 
 
 var app = builder.Build();
@@ -117,11 +117,15 @@ var app = builder.Build();
 // 例外ハンドリングミドルウェアの追加
 // app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        // テキストの手順にあった「ルートURLで開く」
+        c.RoutePrefix = string.Empty; 
+    });
+}
 
 app.UseHttpsRedirection();
 
