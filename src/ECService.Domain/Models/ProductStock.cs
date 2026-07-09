@@ -4,7 +4,6 @@ namespace ECService.Domain.Models;
 
 /// <summary>
 /// 商品在庫を表すドメインオブジェクト
-/// Productに内包される内部エンティティ
 /// </summary>
 public class ProductStock : Entity
 {
@@ -22,6 +21,11 @@ public class ProductStock : Entity
     /// 同一性判定に使用する識別子
     /// </summary>
     protected override string Identity => StockUuid;
+
+    /// <summary>
+    /// 在庫数の最大値
+    /// </summary>
+    private const int QuantityMaxValue = 1000;
 
     /// <summary>
     /// コンストラクタ
@@ -45,14 +49,14 @@ public class ProductStock : Entity
     }
 
     /// <summary>
-    /// 既存の商品在庫を復元する
+    /// 在庫数を検証する
     /// </summary>
-    public static ProductStock Restore(string stockUuid, int quantity)
+    public static void ValidateQuantity(int quantity)
     {
-        ValidateUuid(stockUuid, nameof(stockUuid));
-        ValidateQuantity(quantity);
-
-        return new ProductStock(stockUuid, quantity);
+        if (quantity > QuantityMaxValue)
+        {
+            throw new DomainException("在庫数は1000個以下で入力してください", nameof(quantity));
+        }
     }
 
     /// <summary>
@@ -61,33 +65,7 @@ public class ProductStock : Entity
     public void ChangeQuantity(int quantity)
     {
         ValidateQuantity(quantity);
+
         Quantity = quantity;
-    }
-
-    /// <summary>
-    /// 在庫数を検証する
-    /// </summary>
-    private static void ValidateQuantity(int quantity)
-    {
-        if (quantity < 0)
-        {
-            throw new DomainException("商品在庫数は0以上で指定してください。", nameof(quantity));
-        }
-    }
-
-    /// <summary>
-    /// UUIDを検証する
-    /// </summary>
-    private static void ValidateUuid(string uuid, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(uuid))
-        {
-            throw new DomainException("識別Idは必須です。", paramName);
-        }
-
-        if (!Guid.TryParse(uuid, out _))
-        {
-            throw new DomainException("識別Idの形式が不正です。", paramName);
-        }
     }
 }

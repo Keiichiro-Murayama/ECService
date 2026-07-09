@@ -24,48 +24,36 @@ public class Department : Entity
 
     /// <summary>
     /// 部署名の最大文字数
+    /// DB定義の VARCHAR(100) に対応
     /// </summary>
     private const int NameMaxLength = 100;
 
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    private Department(string departmentUuid, string name)
+    public Department(string departmentUuid, string name)
     {
+        ValidateDepartmentUuid(departmentUuid);
+        ValidateName(name);
+
         DepartmentUuid = departmentUuid;
         Name = name;
     }
 
     /// <summary>
-    /// 新しい部署を生成する
+    /// 部署UUIDを検証する
     /// </summary>
-    public static Department Create(string name)
+    private static void ValidateDepartmentUuid(string departmentUuid)
     {
-        ValidateName(name);
+        if (string.IsNullOrWhiteSpace(departmentUuid))
+        {
+            throw new DomainException("識別Idは必須です。", nameof(departmentUuid));
+        }
 
-        var departmentUuid = Guid.NewGuid().ToString();
-
-        return new Department(departmentUuid, name);
-    }
-
-    /// <summary>
-    /// 既存の部署を復元する
-    /// </summary>
-    public static Department Restore(string departmentUuid, string name)
-    {
-        ValidateUuid(departmentUuid, nameof(departmentUuid));
-        ValidateName(name);
-
-        return new Department(departmentUuid, name);
-    }
-
-    /// <summary>
-    /// 部署名を変更する
-    /// </summary>
-    public void ChangeName(string name)
-    {
-        ValidateName(name);
-        Name = name;
+        if (!Guid.TryParse(departmentUuid, out _))
+        {
+            throw new DomainException("識別Idの形式が不正です。", nameof(departmentUuid));
+        }
     }
 
     /// <summary>
@@ -80,24 +68,7 @@ public class Department : Entity
 
         if (name.Length > NameMaxLength)
         {
-            throw new DomainException(
-                $"部署名は{NameMaxLength}文字以内で指定してください。", nameof(name));
-        }
-    }
-
-    /// <summary>
-    /// UUIDを検証する
-    /// </summary>
-    private static void ValidateUuid(string uuid, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(uuid))
-        {
-            throw new DomainException("識別Idは必須です。", paramName);
-        }
-
-        if (!Guid.TryParse(uuid, out _))
-        {
-            throw new DomainException("識別Idの形式が不正です。", paramName);
+            throw new DomainException("部署名は100文字以内で入力してください", nameof(name));
         }
     }
 }

@@ -115,7 +115,7 @@ public class ProductRepository : IProductRepository
 
             if (category is null)
             {
-                throw new DomainException("指定された商品カテゴリが存在しません。");
+                throw new DomainException("指定された商品カテゴリが存在しません。", ex);
             }
 
             var entity = await _factory.ConvertAsync(product);
@@ -143,7 +143,6 @@ public class ProductRepository : IProductRepository
         {
             var entity = await _context.Products
                 .Include(p => p.ProductCategory)
-                .Include(p => p.ProductStock)
                 .SingleOrDefaultAsync(p =>
                     p.ProductUuid == product.ProductUuid &&
                     p.DeleteFlag == 0);
@@ -183,18 +182,18 @@ public class ProductRepository : IProductRepository
         }
     }
 
-    public async Task DeleteAsync(Product product)
+    public async Task<bool> DeleteAsync(string productUuid)
     {
         try
         {
             var entity = await _context.Products
                 .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == product.ProductUuid &&
+                    p.ProductUuid == productUuid &&
                     p.DeleteFlag == 0);
 
             if (entity is null)
             {
-                throw new DomainException("削除対象の商品が存在しません。");
+                throw new DomainException("削除対象の商品が存在しません。" );
             }
 
             // 論理削除
@@ -208,7 +207,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception ex)
         {
-            throw new InternalException($"商品UUID:{product.ProductUuid}の商品削除中に予期しないエラーが発生しました。", ex);
+            throw new InternalException($"商品UUID:{productUuid}の商品削除中に予期しないエラーが発生しました。", ex);
         }
     }
 }

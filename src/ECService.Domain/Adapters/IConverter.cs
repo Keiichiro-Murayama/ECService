@@ -1,4 +1,4 @@
-namespace ECService.Domains.Adapters;
+namespace ECService.Domain.Adapters;
 /// <summary>
 /// TDomainに指定されたドメインオブジェクトをTTargetに指定されたクラスに変換するインターフェイス
 /// </summary>

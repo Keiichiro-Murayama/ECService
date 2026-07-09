@@ -4,7 +4,7 @@ namespace ECService.Domain.Models;
 
 /// <summary>
 /// 商品を表すドメインオブジェクト
-/// 商品カテゴリを参照し、商品在庫を内包する集約ルート
+/// ProductCategoryを参照し、ProductStockを保持する
 /// </summary>
 public class Product : Entity
 {
@@ -29,15 +29,15 @@ public class Product : Entity
     public string ImageUrl { get; private set; }
 
     /// <summary>
+    /// 商品カテゴリ
+    /// </summary>
+    public ProductCategory ProductCategory { get; private set; }
+
+    /// <summary>
     /// 削除フラグ
     /// 0: 未削除、1: 削除済み
     /// </summary>
     public int DeleteFlg { get; private set; }
-
-    /// <summary>
-    /// 商品カテゴリ
-    /// </summary>
-    public ProductCategory ProductCategory { get; private set; }
 
     /// <summary>
     /// 商品在庫
@@ -50,14 +50,19 @@ public class Product : Entity
     protected override string Identity => ProductUuid;
 
     /// <summary>
-    /// 商品名の最大文字数
+    /// 商品名の最小文字数
     /// </summary>
-    private const int NameMaxLength = 100;
+    private const int NameMinLength = 2;
 
     /// <summary>
-    /// 画像URLの最大文字数
+    /// 商品名の最大文字数
     /// </summary>
-    private const int ImageUrlMaxLength = 200;
+    private const int NameMaxLength = 20;
+
+    /// <summary>
+    /// 価格の最大値
+    /// </summary>
+    private const int PriceMaxValue = 1000000;
 
     /// <summary>
     /// コンストラクタ
@@ -67,75 +72,44 @@ public class Product : Entity
         string name,
         int price,
         string imageUrl,
-        int deleteFlg,
         ProductCategory productCategory,
+        int deleteFlg,
         ProductStock productStock)
     {
         ProductUuid = productUuid;
         Name = name;
         Price = price;
         ImageUrl = imageUrl;
-        DeleteFlg = deleteFlg;
         ProductCategory = productCategory;
+        DeleteFlg = deleteFlg;
         ProductStock = productStock;
     }
 
     /// <summary>
     /// 新しい商品を生成する
-    /// 新規作成時は削除フラグを0にする
     /// </summary>
     public static Product Create(
         string name,
         int price,
         string imageUrl,
         ProductCategory productCategory,
-        int quantity)
-    {
-        ValidateName(name);
-        ValidatePrice(price);
-        ValidateImageUrl(imageUrl);
-        ValidateProductCategory(productCategory);
-
-        var productUuid = Guid.NewGuid().ToString();
-        var productStock = ProductStock.Create(quantity);
-
-        return new Product(
-            productUuid,
-            name,
-            price,
-            imageUrl,
-            0,
-            productCategory,
-            productStock);
-    }
-
-    /// <summary>
-    /// 既存の商品を復元する
-    /// </summary>
-    public static Product Restore(
-        string productUuid,
-        string name,
-        int price,
-        string imageUrl,
-        int deleteFlg,
-        ProductCategory productCategory,
         ProductStock productStock)
     {
-        ValidateUuid(productUuid, nameof(productUuid));
         ValidateName(name);
         ValidatePrice(price);
         ValidateImageUrl(imageUrl);
-        ValidateDeleteFlg(deleteFlg);
-        ValidateProductCategory(productCategory);
-        ValidateProductStock(productStock);
+        ValidateCategory(productCategory);
+        ValidateStock(productStock);
+
+        var productUuid = Guid.NewGuid().ToString();
 
         return new Product(
             productUuid,
             name,
             price,
             imageUrl,
-            deleteFlg,
             productCategory,
+            0,
             productStock);
     }
 
@@ -145,6 +119,7 @@ public class Product : Entity
     public void ChangeName(string name)
     {
         ValidateName(name);
+
         Name = name;
     }
 
@@ -154,6 +129,7 @@ public class Product : Entity
     public void ChangePrice(int price)
     {
         ValidatePrice(price);
+
         Price = price;
     }
 
@@ -163,6 +139,7 @@ public class Product : Entity
     public void ChangeImageUrl(string imageUrl)
     {
         ValidateImageUrl(imageUrl);
+
         ImageUrl = imageUrl;
     }
 
@@ -171,7 +148,8 @@ public class Product : Entity
     /// </summary>
     public void ChangeCategory(ProductCategory productCategory)
     {
-        ValidateProductCategory(productCategory);
+        ValidateCategory(productCategory);
+
         ProductCategory = productCategory;
     }
 
@@ -180,7 +158,8 @@ public class Product : Entity
     /// </summary>
     public void ChangeStock(ProductStock productStock)
     {
-        ValidateProductStock(productStock);
+        ValidateStock(productStock);
+
         ProductStock = productStock;
     }
 
@@ -195,7 +174,7 @@ public class Product : Entity
     /// <summary>
     /// 削除済みか判定する
     /// </summary>
-    public bool IsDeleted()
+    public bool IsDelete()
     {
         return DeleteFlg == 1;
     }
@@ -207,13 +186,12 @@ public class Product : Entity
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new DomainException("商品名は必須です。", nameof(name));
+            throw new DomainException("商品名を入力してください", nameof(name));
         }
 
-        if (name.Length > NameMaxLength)
+        if (name.Length < NameMinLength || name.Length > NameMaxLength)
         {
-            throw new DomainException(
-                $"商品名は{NameMaxLength}文字以内で指定してください。", nameof(name));
+            throw new DomainException("商品名は2～20文字で入力してください", nameof(name));
         }
     }
 
@@ -222,9 +200,9 @@ public class Product : Entity
     /// </summary>
     private static void ValidatePrice(int price)
     {
-        if (price < 0)
+        if (price > PriceMaxValue)
         {
-            throw new DomainException("価格は0以上で指定してください。", nameof(price));
+            throw new DomainException("価格は100万円以下で入力してください", nameof(price));
         }
     }
 
@@ -235,62 +213,29 @@ public class Product : Entity
     {
         if (string.IsNullOrWhiteSpace(imageUrl))
         {
-            throw new DomainException("画像URLは必須です。", nameof(imageUrl));
-        }
-
-        if (imageUrl.Length > ImageUrlMaxLength)
-        {
-            throw new DomainException(
-                $"画像URLは{ImageUrlMaxLength}文字以内で指定してください。", nameof(imageUrl));
-        }
-    }
-
-    /// <summary>
-    /// 削除フラグを検証する
-    /// </summary>
-    private static void ValidateDeleteFlg(int deleteFlg)
-    {
-        if (deleteFlg != 0 && deleteFlg != 1)
-        {
-            throw new DomainException("削除フラグは0または1で指定してください。", nameof(deleteFlg));
+            throw new DomainException("画像をアップロードしてください", nameof(imageUrl));
         }
     }
 
     /// <summary>
     /// 商品カテゴリを検証する
     /// </summary>
-    private static void ValidateProductCategory(ProductCategory productCategory)
+    private static void ValidateCategory(ProductCategory productCategory)
     {
         if (productCategory is null)
         {
-            throw new DomainException("商品カテゴリは必須です。", nameof(productCategory));
+            throw new DomainException("カテゴリを選択してください", nameof(productCategory));
         }
     }
 
     /// <summary>
     /// 商品在庫を検証する
     /// </summary>
-    private static void ValidateProductStock(ProductStock productStock)
+    private static void ValidateStock(ProductStock productStock)
     {
         if (productStock is null)
         {
-            throw new DomainException("商品在庫は必須です。", nameof(productStock));
-        }
-    }
-
-    /// <summary>
-    /// UUIDを検証する
-    /// </summary>
-    private static void ValidateUuid(string uuid, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(uuid))
-        {
-            throw new DomainException("識別Idは必須です。", paramName);
-        }
-
-        if (!Guid.TryParse(uuid, out _))
-        {
-            throw new DomainException("識別Idの形式が不正です。", paramName);
+            throw new DomainException("在庫数を入力してください", nameof(productStock));
         }
     }
 }

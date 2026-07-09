@@ -1,4 +1,4 @@
-namespace ECService.Domains.Adapters;
+namespace ECService.Domain.Adapters;
 /// <summary>
 /// 指定のクラス(TTarget)からドメインオブジェクト(TDomain)を復元するインターフェイス
 /// </summary>

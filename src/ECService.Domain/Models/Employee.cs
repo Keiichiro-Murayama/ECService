@@ -35,23 +35,30 @@ public class Employee : Entity
 
     /// <summary>
     /// 社員名の最大文字数
+    /// DB定義の VARCHAR(100) に対応
     /// </summary>
     private const int NameMaxLength = 100;
 
     /// <summary>
     /// 社員名カナの最大文字数
+    /// DB定義の VARCHAR(100) に対応
     /// </summary>
     private const int KanaMaxLength = 100;
 
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    private Employee(
+    public Employee(
         string employeeUuid,
         string name,
         string kana,
         Department department)
     {
+        ValidateEmployeeUuid(employeeUuid);
+        ValidateName(name);
+        ValidateKana(kana);
+        ValidateDepartment(department);
+
         EmployeeUuid = employeeUuid;
         Name = name;
         Kana = kana;
@@ -59,64 +66,19 @@ public class Employee : Entity
     }
 
     /// <summary>
-    /// 新しい社員を生成する
+    /// 社員UUIDを検証する
     /// </summary>
-    public static Employee Create(
-        string name,
-        string kana,
-        Department department)
+    private static void ValidateEmployeeUuid(string employeeUuid)
     {
-        ValidateName(name);
-        ValidateKana(kana);
-        ValidateDepartment(department);
+        if (string.IsNullOrWhiteSpace(employeeUuid))
+        {
+            throw new DomainException("識別Idは必須です。", nameof(employeeUuid));
+        }
 
-        var employeeUuid = Guid.NewGuid().ToString();
-
-        return new Employee(employeeUuid, name, kana, department);
-    }
-
-    /// <summary>
-    /// 既存の社員を復元する
-    /// </summary>
-    public static Employee Restore(
-        string employeeUuid,
-        string name,
-        string kana,
-        Department department)
-    {
-        ValidateUuid(employeeUuid, nameof(employeeUuid));
-        ValidateName(name);
-        ValidateKana(kana);
-        ValidateDepartment(department);
-
-        return new Employee(employeeUuid, name, kana, department);
-    }
-
-    /// <summary>
-    /// 社員名を変更する
-    /// </summary>
-    public void ChangeName(string name)
-    {
-        ValidateName(name);
-        Name = name;
-    }
-
-    /// <summary>
-    /// 社員名カナを変更する
-    /// </summary>
-    public void ChangeKana(string kana)
-    {
-        ValidateKana(kana);
-        Kana = kana;
-    }
-
-    /// <summary>
-    /// 所属部署を変更する
-    /// </summary>
-    public void ChangeDepartment(Department department)
-    {
-        ValidateDepartment(department);
-        Department = department;
+        if (!Guid.TryParse(employeeUuid, out _))
+        {
+            throw new DomainException("識別Idの形式が不正です。", nameof(employeeUuid));
+        }
     }
 
     /// <summary>
@@ -126,13 +88,12 @@ public class Employee : Entity
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new DomainException("社員名は必須です。", nameof(name));
+            throw new DomainException("社員名を選択してください", nameof(name));
         }
 
         if (name.Length > NameMaxLength)
         {
-            throw new DomainException(
-                $"社員名は{NameMaxLength}文字以内で指定してください。", nameof(name));
+            throw new DomainException("社員名は100文字以内で入力してください", nameof(name));
         }
     }
 
@@ -143,13 +104,12 @@ public class Employee : Entity
     {
         if (string.IsNullOrWhiteSpace(kana))
         {
-            throw new DomainException("社員名カナは必須です。", nameof(kana));
+            throw new DomainException("社員名を選択してください", nameof(kana));
         }
 
         if (kana.Length > KanaMaxLength)
         {
-            throw new DomainException(
-                $"社員名カナは{KanaMaxLength}文字以内で指定してください。", nameof(kana));
+            throw new DomainException("社員名カナは100文字以内で入力してください", nameof(kana));
         }
     }
 
@@ -160,23 +120,7 @@ public class Employee : Entity
     {
         if (department is null)
         {
-            throw new DomainException("部署は必須です。", nameof(department));
-        }
-    }
-
-    /// <summary>
-    /// UUIDを検証する
-    /// </summary>
-    private static void ValidateUuid(string uuid, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(uuid))
-        {
-            throw new DomainException("識別Idは必須です。", paramName);
-        }
-
-        if (!Guid.TryParse(uuid, out _))
-        {
-            throw new DomainException("識別Idの形式が不正です。", paramName);
+            throw new DomainException("社員名を選択してください", nameof(department));
         }
     }
 }
