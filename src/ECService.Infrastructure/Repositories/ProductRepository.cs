@@ -15,13 +15,18 @@ public class ProductRepository : IProductRepository
 {
     private readonly AppDbContext _context;
     private readonly ProductFactory _factory;
+    private readonly ProductStockEntityAdapter _productStockAdapter;
+    private readonly ProductEntityAdapter _productEntityAdapter;
 
-    
 
-    public ProductRepository(AppDbContext context, ProductFactory factory)
+
+    public ProductRepository(AppDbContext context, ProductFactory factory, ProductEntityAdapter productEntityAdapter,
+    ProductStockEntityAdapter productStockAdapter)
     {
         _context = context;
         _factory = factory;
+        _productEntityAdapter = productEntityAdapter;
+        _productStockAdapter = productStockAdapter;
     }
 
     /// <summary>
@@ -75,13 +80,14 @@ public class ProductRepository : IProductRepository
     {
         try
         {
+
             // ① 削除されていない商品かつ、指定カテゴリの商品だけ取得する
             var productEntities = await _context.Products
                 .AsNoTracking()
                 .Include(p => p.ProductCategory)
                 .Where(p =>
                     p.DeleteFlag == 0 &&
-                    p.ProductCategory.CategoryUuid == categoryUuid)
+                    p.ProductCategory.CategoryUuid == Guid.Parse(categoryUuid))
                 .ToListAsync();
 
             var products = new List<Product>();
@@ -124,8 +130,8 @@ public class ProductRepository : IProductRepository
             var productEntity = await _context.Products
                 .AsNoTracking()
                 .Include(p => p.ProductCategory)
-                .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == productUuid &&
+               .SingleOrDefaultAsync(p =>
+                p.ProductUuid == Guid.Parse(productUuid) &&
                     p.DeleteFlag == 0);
 
             if (productEntity is null)
@@ -221,40 +227,49 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            retu await _context.Products
-                .Include(p => p.ProductCategory)
+            // ① 更新対象の商品を取得する
+            var productEntity = await _context.Products
                 .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == product.ProductUuid &&
+                    p.ProductUuid == Guid.Parse(product.ProductUuid) &&
                     p.DeleteFlag == 0);
 
-            if (entity is null)
+            if (productEntity is null)
             {
-                throw new DomainException("更新対象の商品が存在しません。");
+                return false;
             }
 
-            var category = await _context.ProductCategories
-                .SingleOrDefaultAsync(c => c.CategoryUuid == product.ProductCategory!.CategoryUuid);
+            // ② カテゴリを取得する
+            var categoryEntity = await _context.ProductCategories
+                .SingleOrDefaultAsync(c =>
+                    c.CategoryUuid == Guid.Parse(product.ProductCategory.CategoryUuid));
 
-            if (category is null)
+            if (categoryEntity is null)
             {
-                throw new DomainException("指定された商品カテゴリが存在しません。");
+                throw new InternalException("指定された商品カテゴリが存在しません。");
             }
 
-            entity.Name = product.Name;
-            entity.Price = product.Price;
-            entity.ProductCategoryId = category.Id;
-            entity.ImageUrl = product.ImageUrl;
+            // ③ 商品情報を更新する
+            productEntity.Name = product.Name;
+            productEntity.Price = product.Price;
+            productEntity.ImageUrl = product.ImageUrl;
+            productEntity.ProductCategoryId = categoryEntity.Id;
 
-            if (entity.ProductStock is not null && product.ProductStock is not null)
+            // ④ 在庫情報を取得する
+            var stockEntity = await _context.ProductStocks
+                .SingleOrDefaultAsync(s => s.ProductId == productEntity.Id);
+
+            if (stockEntity is null)
             {
-                entity.ProductStock.Quantity = product.ProductStock.Quantity;
+                return false;
             }
 
+            // ⑤ 在庫数を更新する
+            stockEntity.Quantity = product.ProductStock.Quantity;
+
+            // ⑥ DBに保存する
             await _context.SaveChangesAsync();
-        }
-        catch (DomainException)
-        {
-            throw;
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -266,24 +281,24 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            var entity = await _context.Products
+            // ① 削除対象の商品を取得する
+            var productEntity = await _context.Products
                 .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == productUuid &&
+                    p.ProductUuid == Guid.Parse(productUuid) &&
                     p.DeleteFlag == 0);
 
-            if (entity is null)
+            if (productEntity is null)
             {
-                throw new DomainException("削除対象の商品が存在しません。");
+                return false;
             }
 
-            // 論理削除
-            entity.DeleteFlag = 1;
+            // ② 物理削除ではなく論理削除する
+            productEntity.DeleteFlag = 1;
 
+            // ③ DBへ反映する
             await _context.SaveChangesAsync();
-        }
-        catch (DomainException)
-        {
-            throw;
+
+            return true;
         }
         catch (Exception ex)
         {
