@@ -31,9 +31,15 @@ public class ProductCategoryRepository : IProductCategoryRepository
         var entities = await _context.ProductCategories
             .ToListAsync();
 
-        return entities
-            .Select(entity => _adapter.Restore(entity))
-            .ToList();
+        var productCategories = new List<ProductCategory>();
+
+        foreach (var entity in entities)
+        {
+            var productCategory = await _adapter.RestoreAsync(entity);
+            productCategories.Add(productCategory);
+        }
+
+        return productCategories;
     }
 
     /// <summary>
@@ -53,7 +59,7 @@ public class ProductCategoryRepository : IProductCategoryRepository
     /// <param name="productCategory">商品カテゴリ。</param>
     public async Task CreateAsync(ProductCategory productCategory)
     {
-        var entity = _adapter.Convert(productCategory);
+        var entity = await _adapter.ConvertAsync(productCategory);
 
         await _context.ProductCategories.AddAsync(entity);
         await _context.SaveChangesAsync();

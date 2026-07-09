@@ -31,7 +31,7 @@ public class ProductCategory : Entity
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    private ProductCategory(string categoryUuid, string name)
+    public ProductCategory(string categoryUuid, string name) // 石原:praivateからpublicに変更
     {
         CategoryUuid = categoryUuid;
         Name = name;

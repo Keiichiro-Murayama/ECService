@@ -44,9 +44,9 @@ namespace ECService.Infrastructure.Entities
         /// 社員名（かな）
         /// </summary>
         [Required]
-        [Column("name_kana")]
+        [Column("kana")]
         [MaxLength(100)]
-        public string NameKana { get; set; } = string.Empty;
+        public string Kana { get; set; } = string.Empty;
 
         //ナビゲーションプロパティ
         public DepartmentEntity Department { get; set; } = null!;
