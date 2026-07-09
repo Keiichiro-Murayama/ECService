@@ -60,6 +60,11 @@ public class Product : Entity
     private const int NameMaxLength = 20;
 
     /// <summary>
+    /// 価格の最小値
+    /// </summary>
+    private const int PriceMinValue = 1000000;
+
+    /// <summary>
     /// 価格の最大値
     /// </summary>
     private const int PriceMaxValue = 1000000;
@@ -225,7 +230,7 @@ public class Product : Entity
     /// </summary>
     private static void ValidatePrice(int price)
     {
-        if (price > PriceMaxValue)
+        if (price < PriceMinValue || price > PriceMaxValue)
         {
             throw new DomainException("価格は100万円以下で入力してください", nameof(price));
         }
