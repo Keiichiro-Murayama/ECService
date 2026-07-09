@@ -112,6 +112,31 @@ public class Product : Entity
             0,
             productStock);
     }
+    public static Product Restore(
+        string productUuid,
+        string name,
+        int price,
+        string imageUrl,
+        ProductCategory productCategory,
+         int deleteFlg,
+        ProductStock productStock)
+    {
+
+        ValidateName(name);
+        ValidatePrice(price);
+        ValidateImageUrl(imageUrl);
+        ValidateCategory(productCategory);
+        ValidateStock(productStock);
+
+        return new Product(
+        productUuid,
+        name,
+        price,
+        imageUrl,
+        productCategory,
+        deleteFlg,
+        productStock);
+    }
 
     /// <summary>
     /// 商品名を変更する
