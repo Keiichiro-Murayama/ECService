@@ -13,17 +13,12 @@ public class RegisterrProductUsecase : IRegisterProductUsecase
    private readonly IUnitOfWork _unitOfWork;
    private readonly IProductRepository _productRepository;
 
-   private readonly IProductCategoryRepository _productCategoryRepository;
-
-
    public RegisterrProductUsecase(
         IUnitOfWork unitOfWork,
-        IProductRepository productRepository,
-        IProductCategoryRepository productCategoryRepository)
+        IProductRepository productRepository)
     {
         _unitOfWork = unitOfWork; 
         _productRepository = productRepository;
-        _productCategoryRepository = productCategoryRepository;
     }
 
  
