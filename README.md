@@ -4,18 +4,70 @@
 
 # API一覧
 
-| No  | API名                   | メソッド | エンドポイント                      |
-| --- | ----------------------- | -------- | ----------------------------------- | ---------------------------------------- |
-| 1   | 担当者アカウント登録API | POST     | `/api/admin/accounts`               |
-| 2   | 未登録社員取得API       | GET      | `/api/admin/employees/unregistered` |
-| 3   | 商品カテゴリ一覧取得API | GET      | `/api/admin/categories`             |
-| 4   | 新商品登録API           | POST     | `/api/admin/products`               |
-| 5   | 商品検索API             | GET      | `/api/admin/products`               |
-| 6   | 商品詳細取得API         | GET      | `/api/admin/products/{productUuid}` | 　(商品修正画面・商品削除確認画面で使用) |
-| 7   | 商品修正API             | PUT      | `/api/admin/products/{productUuid}` |
-| 8   | 商品削除API             | DELETE   | `/api/admin/products/{productUuid}` |
-| 9   | 商品カテゴリ登録API     | POST     | `/api/admin/categories`             |
-| 10  | ログインAPI             | POST     | `/api/admin/login`                  |
+| No  | API名                   | メソッド | エンドポイント                      | 備考                                   |
+| --- | ----------------------- | -------- | ----------------------------------- | -------------------------------------- |
+| 1   | 担当者アカウント登録API | POST     | `/api/admin/accounts`               |                                        |
+| 2   | 未登録社員取得API       | GET      | `/api/admin/employees/unregistered` |                                        |
+| 3   | 商品カテゴリ一覧取得API | GET      | `/api/admin/categories`             |                                        |
+| 4   | 新商品登録API           | POST     | `/api/admin/products`               |                                        |
+| 5   | 商品検索API             | GET      | `/api/admin/products`               |                                        |
+| 6   | 商品詳細取得API         | GET      | `/api/admin/products/{productUuid}` | (商品修正画面・商品削除確認画面で使用) |
+| 7   | 商品修正API             | PUT      | `/api/admin/products/{productUuid}` |                                        |
+| 8   | 商品削除API             | DELETE   | `/api/admin/products/{productUuid}` |                                        |
+| 9   | 商品カテゴリ登録API     | POST     | `/api/admin/categories`             |                                        |
+| 10  | ログインAPI             | POST     | `/api/admin/login`                  |                                        |
+
+---
+
+## 共通エラーレスポンス
+
+システム全体（No.1〜No.10すべて）で予期せぬエラーやサーバー内部エラーが発生した場合は、共通で以下のレスポンスを返却する。
+
+#### 500 Internal Server Error（予期せぬエラー）
+
+```json
+{
+  "message": "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+}
+```
+
+---
+
+## 認証が必要なAPI
+
+以下のAPIはJWT認証が必須です。リクエストのHTTPヘッダーに認証トークンを含める必要があります。
+
+### 認証が必須のAPI
+
+- No.1: 担当者アカウント登録API
+- No.2: 未登録社員取得API
+- No.3: 商品カテゴリ一覧取得API
+- No.4: 新商品登録API
+- No.5: 商品検索API
+- No.6: 商品詳細取得API
+- No.7: 商品修正API
+- No.8: 商品削除API
+- No.9: 商品カテゴリ登録API
+
+### リクエストヘッダー
+
+すべての認証が必須のAPIに対して、以下のヘッダーを含める：
+
+```
+Authorization: Bearer {JWTトークン}
+```
+
+### 認証エラーレスポンス
+
+#### 401 Unauthorized（認証なし・無効なトークン）
+
+```json
+{
+  "message": "認証が必要です。ログインしてください。"
+}
+```
+
+---
 
 ## 1.担当者アカウント登録API
 
@@ -33,6 +85,32 @@
   "employeeId": 1,
   "accountName": "yamada01",
   "password": "abc123"
+}
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（入力エラー）
+
+```json
+{
+  "message": "入力値に不備があります。"
+}
+```
+
+#### 404 Not Found（社員IDが存在しない）
+
+```json
+{
+  "message": "指定された社員IDが存在しません。"
+}
+```
+
+#### 409 Conflict（アカウント重複）
+
+```json
+{
+  "message": "このアカウント名は既に登録されています。"
 }
 ```
 
@@ -60,7 +138,7 @@
 ]
 ```
 
-## 3.商品カテゴリー一覧取得API
+## 3.商品カテゴリ一覧取得API
 
 | 項目           | 内容                      |
 | -------------- | ------------------------- |
@@ -74,11 +152,11 @@
 ```json
 [
   {
-    "categoryId": 1,
+    "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a",
     "categoryName": "文房具"
   },
   {
-    "categoryId": 2,
+    "categoryUuid": "550e8400-e29b-41d4-a716-44665544000b",
     "categoryName": "ノート"
   }
 ]
@@ -100,7 +178,7 @@
   "productName": "ボールペン",
   "price": 120,
   "quantity": 50,
-  "categoryId": 1
+  "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a"
 }
 ```
 
@@ -110,6 +188,24 @@
 {
   "productUuid": "550e8400-e29b-41d4-a716-446655440000",
   "message": "商品を登録しました。"
+}
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（入力値エラー）
+
+```json
+{
+  "message": "入力値に不備があります。"
+}
+```
+
+#### 409 Conflict（重複エラー）
+
+```json
+{
+  "message": "同じ商品名が既に登録されています。"
 }
 ```
 
@@ -128,6 +224,8 @@
 | ------------ | ------ | ---- | ---------------- |
 | categoryUuid | string | 任意 | 商品カテゴリUUID |
 
+**注:** `categoryUuid` が指定されない場合は、全商品を返します。
+
 ### レスポンス
 
 ```json
@@ -137,15 +235,24 @@
     "productName": "水性ボールペン(黒)",
     "price": 120,
     "imageUrl": "https://example.com/images/ballpen.png"
-  }
-   {
+  },
+  {
     "productUuid": "660e8400-e29b-41d4-a716-446655440001",
     "productName": "水性ボールペン(赤)",
     "price": 120,
     "imageUrl": "https://example.com/images/sharp.png"
   }
 ]
+```
 
+### エラーレスポンス
+
+#### 404 Not Found（カテゴリIDが登録されていない）
+
+```json
+{
+  "message": "指定されたカテゴリID（UUID）が存在しません。"
+}
 ```
 
 ## 6.商品詳細取得API
@@ -165,8 +272,18 @@
   "productName": "ボールペン(黒)",
   "price": 120,
   "quantity": 50,
-  "categoryId": 1,
+  "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a",
   "imageUrl": "https://example.com/images/ballpen.png"
+}
+```
+
+### エラーレスポンス
+
+#### 404 Not Found（UUIDが存在しない）
+
+```json
+{
+  "message": "指定された商品が見つかりません。"
 }
 ```
 
@@ -186,7 +303,7 @@
   "productName": "ボールペン",
   "price": 150,
   "quantity": 40,
-  "categoryId": 1,
+  "categoryUuid": "550e8400-e29b-41d4-a716-44665544000a",
   "imageUrl": "https://xxxxx.blob.core.windows.net/products/ballpen.png"
 }
 ```
@@ -196,6 +313,32 @@
 ```json
 {
   "message": "商品情報を更新しました。"
+}
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（入力値エラー）
+
+```json
+{
+  "message": "入力値に不備があります。"
+}
+```
+
+#### 404 Not Found（UUIDが存在しない）
+
+```json
+{
+  "message": "指定された商品が見つかりません。"
+}
+```
+
+#### 409 Conflict（重複エラー）
+
+```json
+{
+  "message": "変更後の商品名は既に登録されています。"
 }
 ```
 
@@ -213,6 +356,16 @@
 ```json
 {
   "message": "商品を削除しました。"
+}
+```
+
+### エラーレスポンス
+
+#### 404 Not Found（UUIDが存在しない）
+
+```json
+{
+  "message": "指定された商品が見つかりません。"
 }
 ```
 
@@ -239,6 +392,24 @@
 {
   "categoryUuid": "550e8400-e29b-41d4-a716-446655440000",
   "message": "商品カテゴリを登録しました。"
+}
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（入力値エラー / 未入力エラー）
+
+```json
+{
+  "message": "カテゴリ名を入力してください。"
+}
+```
+
+#### 409 Conflict（重複エラー）
+
+```json
+{
+  "message": "このカテゴリ名は既に登録されています。"
 }
 ```
 
@@ -273,7 +444,7 @@
 
 ### エラーレスポンス
 
-#### 400 Bad Request
+#### 400 Bad Request（入力値エラー / 未入力エラー）
 
 ```json
 {
@@ -281,7 +452,7 @@
 }
 ```
 
-#### 401 Unauthorized
+#### 401 Unauthorized（認証エラー）
 
 ```json
 {
@@ -293,10 +464,3 @@
 
 JWT認証のため、ログアウト時はフロントエンド側で保持しているJWTトークンを削除する。
 そのため、ログアウトAPIは作成しない。
-401 Unauthorized
-
-```json
-{
-  "message": "ログインしていません。"
-}
-```
