@@ -1,6 +1,6 @@
 using ECService.Application.Usecases.Interfaces;
 using ECService.Domain.Models;
-using ECService.Domains.Repositories;
+using ECService.Domain.Repositories;
 
 namespace ECService.Application.Usecases.Imps;
 
