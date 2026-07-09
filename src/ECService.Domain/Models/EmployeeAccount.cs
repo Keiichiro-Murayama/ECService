@@ -3,7 +3,7 @@ using ECService.Domain.Exceptions;
 
 namespace ECService.Domain.Models;
 
-/// <summary>
+/// <summary>。
 /// 社員アカウントを表すドメインオブジェクト
 /// </summary>
 public class EmployeeAccount : Entity
