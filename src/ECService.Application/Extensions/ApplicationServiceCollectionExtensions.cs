@@ -17,8 +17,6 @@ using ECService.Application.Usecases.Imps;
 using ECService.Application.Security;
 using Microsoft.AspNetCore.Identity;
 ///using Microsoft.IdentityModel.Tokens;
-using ECService.Application.Employees.Interactors;
-using ECService.Application.Usecases.Employees.Interfaces;
 ///using ECService.Infrastructure.Security;
 ///using ECService.Application.Usecases.Authenticate.Interactors;
 ///using ECService.Application.Usecases.Authenticate.Interfaces;
