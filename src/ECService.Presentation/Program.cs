@@ -154,14 +154,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-builder.Services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
-builder.Services.AddScoped<GetProductViewModelAdapter>();
-// インフラストラクチャ層
-builder.Services.AddInfrastructure(connectionString);
-
-// アプリケーション層
-builder.Services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
-
-// プレゼンテーション層
-builder.Services.AddScoped<GetProductViewModelAdapter>();
