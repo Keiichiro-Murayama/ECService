@@ -1,6 +1,6 @@
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
-using ECService.Application.UseCases.UnitOfWorks;
+using ECService.Application.Usecases.UnitOfWorks;
 using ECService.Application.Security;
 using ECService.Application.Usecases.Interfaces;
 using ECService.Application.Exceptions;

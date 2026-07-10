@@ -1,8 +1,8 @@
-using ECService.Applications.Usecases.Interfaces;
+using ECService.Application.Usecases.Interfaces;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 
-namespace ECService.Applications.Usecases.Imps;
+namespace ECService.Application.Usecases.Imps;
 
 /// <summary>
 /// 商品詳細取得ユースケース。

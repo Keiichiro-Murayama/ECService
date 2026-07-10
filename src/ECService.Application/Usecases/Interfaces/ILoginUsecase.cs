@@ -1,5 +1,5 @@
 using ECService.Domain.Models;
-namespace ECService.Applications.Usecases.Interfaces;
+namespace ECService.Application.Usecases.Interfaces;
 /// <summary>
 /// ログイン(認証)を行うユースケースのインターフェイス(UC-02)
 /// </summary>
