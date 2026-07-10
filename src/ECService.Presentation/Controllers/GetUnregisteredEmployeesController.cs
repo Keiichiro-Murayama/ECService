@@ -9,7 +9,8 @@ namespace ECService.Presentation.Controllers;
 /// <summary>
 /// 社員情報を扱うController
 /// </summary>
-[Authorize]
+//[Authorize]
+[ApiController]
 [Route("api/admin/employees/unregisted")]
 [SwaggerTag("未登録社員取得API")]
 public class GetUnregisteredEmployeesController : ControllerBase

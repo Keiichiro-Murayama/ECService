@@ -14,7 +14,8 @@ namespace ECService.Presentation.Controllers;
 /// <summary>
 /// ユースケース:[アカウント名を登録する]を実現するコントローラ
 /// </summary>
-[Authorize]
+//[Authorize]
+[ApiController]
 [Route("api/admin/accounts")]
 [SwaggerTag("担当者アカウント登録API")]
 public class RegisterEmployeeAccountController : ControllerBase
