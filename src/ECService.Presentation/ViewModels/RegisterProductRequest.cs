@@ -40,7 +40,7 @@ public class RegisterProductRequest
     /// </summary>
     [Required(ErrorMessage = "カテゴリを選択してください")]
     [Display(Name = "カテゴリID")]
-    public int CategoryId { get; set; } 
+    public string CategoryUuid { get; set; } = string.Empty;
 
     /// <summary>
     /// 選択された商品カテゴリId
