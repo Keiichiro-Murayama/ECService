@@ -7,12 +7,14 @@ using ECService.Presentation.ViewModels;
 using ECService.Domain.Exceptions;
 using ECService.Application.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace ECService.Presentation.Controllers;
 /// <summary>
 /// ユースケース:[アカウント名を登録する]を実現するコントローラ
 /// </summary>
-[ApiController]
+[Authorize]
 [Route("api/admin/accounts")]
 [SwaggerTag("担当者アカウント登録API")]
 public class RegisterEmployeeAccountController : ControllerBase
@@ -42,6 +44,8 @@ public class RegisterEmployeeAccountController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "指定された社員IDが存在しない")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "アカウント名が既に存在する場合")]
     [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(EmployeeAccount))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
+
     public async Task<IActionResult> Register(
         [FromBody, SwaggerRequestBody("担当者アカウント登録用Request", Required = true)]
         RegisterEmployeeAccountRequest request)
