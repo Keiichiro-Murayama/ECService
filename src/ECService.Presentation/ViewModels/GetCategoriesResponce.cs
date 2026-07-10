@@ -5,7 +5,7 @@ using ECService.Domain.Models;
 using Microsoft.Extensions.Validation;
 namespace ECService.Presentation.ViewModels;
 
-public class GetCategoryRequest
+public class GetCategoriesResponse
 {
     /// <summary>
     /// カテゴリリスト
