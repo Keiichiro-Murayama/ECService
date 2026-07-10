@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using ECService.Applications.Usecases.Imps;
 using ECService.Applications.Usecases.Interfaces;
-using ECService.Presentations.Adapters; 
+using ECService.Presentations.Adapters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -136,7 +136,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "RestAPI Exercise v1");
-    c.RoutePrefix = string.Empty; 
+    c.RoutePrefix = string.Empty;
     c.UseRequestInterceptor("(request) => { request.credentials = 'include'; return request; }");
 });
 
@@ -152,7 +152,7 @@ app.MapControllers();
 app.Run();
 
 builder.Services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
-builder.Services.AddScoped<GetProductViewModelAdapter>(); 
+builder.Services.AddScoped<GetProductViewModelAdapter>();
 // インフラストラクチャ層
 builder.Services.AddInfrastructure(connectionString);
 
