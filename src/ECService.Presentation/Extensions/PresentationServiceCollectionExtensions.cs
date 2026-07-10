@@ -15,7 +15,11 @@ public static class PresentationServiceCollectionExtensions
     /// <returns>DIコンテナ。</returns>
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
+        // 商品詳細取得用ViewModelAdapter
         services.AddScoped<GetProductViewModelAdapter>();
+
+        // 商品検索用ViewModelAdapter
+        services.AddScoped<SearchProductsViewModelAdapter>();
 
         return services;
     }
