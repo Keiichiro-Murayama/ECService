@@ -1,24 +1,21 @@
-using ECService.Application.Usecases.Interfaces;
-using ECService.Application.Usecases.Imps;
+using ECService.Presentation.Adapters;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ECService.Application.Extensions;
+namespace ECService.Presentation.Extensions;
 
 /// <summary>
-/// Application層の依存関係を登録する拡張クラス
+/// プレゼンテーション層の構成要素をDIコンテナへ登録する拡張メソッドを提供する。
 /// </summary>
-public static class ApplicationServiceCollectionExtensions
+public static class PresentationServiceCollectionExtensions
 {
     /// <summary>
-    /// Application層の依存関係をDIコンテナに登録する
+    /// プレゼンテーション層の構成要素を登録する。
     /// </summary>
-    /// <param name="services">サービスコレクション</param>
-    /// <returns>サービスコレクション</returns>
-    public static IServiceCollection AddApplicationLayerDependencies(
-        this IServiceCollection services)
+    /// <param name="services">DIコンテナ。</param>
+    /// <returns>DIコンテナ。</returns>
+    public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
-        // ユースケース：[商品を検索する]を実現するインターフェイス
-        services.AddScoped<ISearchProductsUseCase, SearchProductsUseCase>();
+        services.AddScoped<GetProductViewModelAdapter>();
 
         return services;
     }
