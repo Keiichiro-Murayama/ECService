@@ -1,4 +1,4 @@
-using ECService.Applications.Usecases.Interfaces;
+using ECService.Application.Usecases.Interfaces;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
