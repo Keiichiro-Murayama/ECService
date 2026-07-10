@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 //using ECService.Application.Usecases.Interactors;
 //using ECService.Application.Usecases.Interfaces;
 //using ECService.Presentation.Adapters;
+
+using ECService.Application.Usecases.Interfaces;
+using ECService.Application.Usecases.Imps;
+
 using ECService.Application.Security;
 using Microsoft.AspNetCore.Identity;
 ///using Microsoft.IdentityModel.Tokens;
@@ -61,7 +65,7 @@ public static class ApplicationServiceCollectionExtensions
         //ユースケース[商品をキーワード検索する]を実現するインターフェース
         //services.AddScoped<ISearchBookByKeywordUsecase, SearchBookByKeywordUsecase>();
         //ユースケース：[新商品を削除する]を実現するインターフェース
-       // services.AddScoped<IDeleteBookUsecase, DeleteBookUsecase>();
+        // services.AddScoped<IDeleteBookUsecase, DeleteBookUsecase>();
         // UpdateProductViewModelからドメインオブジェクト:Productへ変換するアダプタ
         // ASP.NET Core Identityのパスワードハッシュ化・検証機能
         services.AddScoped<IPasswordHasher<EmployeeAccount>, PasswordHasher<EmployeeAccount>>();
@@ -72,33 +76,42 @@ public static class ApplicationServiceCollectionExtensions
         // JwtSettingsをバインドしてDIに登録する
         //services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
         // ユースケース:[ログインする]を実現するインターフェイス
-       // services.AddScoped<IAuthenticateUserUsecase, AuthenticateUserUsecase>();
+        // services.AddScoped<IAuthenticateUserUsecase, AuthenticateUserUsecase>();
+
+
+
+
+
+        // ユースケース:[商品を検索する]を実現するインターフェイス
+        services.AddScoped<ISearchProductsUseCase, SearchProductsUseCase>();
+
+
         return services;
     }
 }
 
-    
-    /// <summary>
-    /// テストプロジェクトにServiceProviderを提供するヘルパメソッド
-    /// </summary>
-    /// <param name="config"></param>
-    /// <param name="configureServices"></param>
-    /// <param name="configureLogging"></param>
-    /// <returns></returns>
-   /* public static ServiceProvider BuildAppProvider(
-       IConfiguration config,
-       Action<IServiceCollection>? configureServices = null,
-       Action<ILoggingBuilder>? configureLogging = null)
-    {
-        var services = new ServiceCollection();
-        services.AddLogging(b =>
-        {
-            if (configureLogging is not null) configureLogging(b);
-            else b.AddConsole().SetMinimumLevel(LogLevel.Warning);
-        });
-        services.AddApplicationDependencies(config);
-        configureServices?.Invoke(services);
 
-        return services.BuildServiceProvider(validateScopes: true);
-    }
+/// <summary>
+/// テストプロジェクトにServiceProviderを提供するヘルパメソッド
+/// </summary>
+/// <param name="config"></param>
+/// <param name="configureServices"></param>
+/// <param name="configureLogging"></param>
+/// <returns></returns>
+/* public static ServiceProvider BuildAppProvider(
+    IConfiguration config,
+    Action<IServiceCollection>? configureServices = null,
+    Action<ILoggingBuilder>? configureLogging = null)
+ {
+     var services = new ServiceCollection();
+     services.AddLogging(b =>
+     {
+         if (configureLogging is not null) configureLogging(b);
+         else b.AddConsole().SetMinimumLevel(LogLevel.Warning);
+     });
+     services.AddApplicationDependencies(config);
+     configureServices?.Invoke(services);
+
+     return services.BuildServiceProvider(validateScopes: true);
+ }
 }*/
