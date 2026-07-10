@@ -7,13 +7,13 @@ using ECService.Domain.Repositories;
 
 namespace ECService.Applications.Usecases.Imps;
 
-public class GetCategoryUsecase : IGetCategoryUsecase
+public class GetCategoriesUsecase : IGetCategoriesUsecase
 {
 
    private readonly IUnitOfWork _unitOfWork;
    private readonly IProductCategoryRepository _productCategoryRepository;
 
-   public GetCategoryUsecase(
+   public GetCategoriesUsecase(
         IUnitOfWork unitOfWork,
         IProductCategoryRepository productCategoryRepository)
     {
