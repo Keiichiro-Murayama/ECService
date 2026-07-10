@@ -158,6 +158,13 @@ public class EmployeeAccount : Entity
         {
             throw new DomainException("パスワードは半角英数字で入力してください", nameof(password));
         }
+        // 全て同じ文字で構成されていないか
+        if (password.All(c => c == password[0]))
+        {
+            throw new DomainException(
+                "パスワードは同じ文字だけで入力できません。",
+                nameof(password));
+        }
     }
 
     /// <summary>
