@@ -130,6 +130,13 @@ public class EmployeeAccount : Entity
         {
             throw new DomainException("アカウント名は半角英数字で入力してください", nameof(name));
         }
+        // 全て同じ文字で構成されていないか
+        if (name.All(c => c == name[0]))
+        {
+            throw new DomainException(
+                "アカウント名は同じ文字だけで入力できません。",
+                nameof(name));
+        }
     }
 
     /// <summary>

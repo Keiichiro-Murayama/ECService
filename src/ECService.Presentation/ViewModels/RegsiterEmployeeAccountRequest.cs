@@ -10,7 +10,7 @@ public class RegisterEmployeeAccountRequest
     /// </summary>
     [Required(ErrorMessage = "社員名を選択してください")]
     [Display(Name = "社員ID")]
-    public int? EmployeeId { get; set; }
+    public string EmployeeUuid { get; set; }
 
     /// <summary>
     /// アカウント名（最大20文字）

@@ -4,11 +4,13 @@ using ECService.Domain.Models;
 using ECService.Application.Usecases.Interfaces;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
+using ECService.Domain.Exceptions;
+using ECService.Application.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace ECService.Presentation.Controllers;
 /// <summary>
-/// ユースケース:[ユーザーを登録する]を実現するコントローラ
+/// ユースケース:[アカウント名を登録する]を実現するコントローラ
 /// </summary>
 [ApiController]
 [Route("api/admin/accounts")]
@@ -16,100 +18,79 @@ namespace ECService.Presentation.Controllers;
 public class RegisterEmployeeAccountController : ControllerBase
 {
     private readonly IRegisterEmployeeAccountUsecase _usecase;
-    private readonly RegisterEmployeeAccountViewModelAdapter _adapter;
+
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    /// <param name="usecase">ユースケース:[ユーザーを登録する]を実現するインターフェイス</param>
-    /// <param name="adapter">RegisterProductViewModelからドメインオブジェクト:Productへ変換するアダプタ</param>
+    /// <param name="usecase">ユースケース:[アカウント名を登録する]を実現するインターフェイス</param>
     public RegisterEmployeeAccountController(
-        IRegisterEmployeeAccountUsecase usecase,
-        RegisterEmployeeAccountViewModelAdapter adapter)
+        IRegisterEmployeeAccountUsecase usecase)
     {
         _usecase = usecase;
-        _adapter = adapter;
-    }
-
-    [HttpGet("check")]
-    [SwaggerOperation(Summary = "ユーザー名、メールアドレスの重複チェック",
-                      Description = "ユーザー名、メールアドレスの存在を検証する")]
-    [SwaggerResponse(StatusCodes.Status200OK, "存在しない場合 { exists=false } を返す")]
-    [SwaggerResponse(StatusCodes.Status409Conflict, "既に存在する場合")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "ユーザー名、メールアドレスが未入力の場合")]
-    public async Task<IActionResult> CheckDuplicate(
-        [FromQuery] string? username, [FromQuery, EmailAddress] string? email)
-    {
-        // ユーザー名もメールアドレスも入力?
-        if (string.IsNullOrWhiteSpace(username) && string.IsNullOrWhiteSpace(email))
-        {
-            return BadRequest(new { message = "usernameまたはemailのいずれかを指定してください。" });
-        }
-        try
-        {
-            await _usecase.ExistsByAsync(username!, email!);
-            return Ok(new { exists = false });
-        }
-        catch (ExistsException ex)
-        {
-            // ユーザー名、メールアドレスが既に存在する場合
-            return Conflict(new
-            { code = "USER_ALREADY_EXISTS", message = ex.Message });
-        }
     }
 
     /// <summary>
-    /// ユーザーの登録
+    /// アカウント名の登録
     /// </summary>
-    /// <param name="viewModel">ユースケース:[ユーザーを登録する]を実現するViewModel</param>
+    /// <param name="request">ユースケース:[アカウント名を登録する]を実現するViewModel</param>
     /// <returns></returns>
     [HttpPost]
-    [SwaggerOperation(Summary = "ユーザーを登録",
-                      Description = "ユーザー情報を受け取り、ユーザーを登録する")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "バリデーションエラーまたは業務ルール違反")]
-    [SwaggerResponse(StatusCodes.Status409Conflict, "ユーザーが既に存在する場合")]
-    [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(User))]
+    [SwaggerOperation(Summary = "担当者アカウントを登録",
+                      Description = "社員ID、アカウント名、パスワードを受け取り、担当者アカウントを登録する")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー")]
+    [SwaggerResponse(StatusCodes.Status404NotFound, "指定された社員IDが存在しない")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "アカウント名が既に存在する場合")]
+    [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(EmployeeAccount))]
     public async Task<IActionResult> Register(
-        [FromBody, SwaggerRequestBody("ユーザー登録用ViewModel", Required = true)]
-        RegisterUserViewModel viewModel)
+        [FromBody, SwaggerRequestBody("担当者アカウント登録用Request", Required = true)]
+        RegisterEmployeeAccountRequest request)
     {
-        // サーバーサイドバリデーション
-        if (!ModelState.IsValid)
-        {
-            // プロパティ名をキー、エラーメッセージ配列を値とするディクショナリに変換する
-            var details = ModelState
-                .Where(kv => kv.Value?.Errors.Count > 0) // エラーがある項目だけを抽出する
-                .ToDictionary( // Dictionaryに変換する
-                               // キー:プロパティ名 ("Username", "Email" など)
-                    kv => kv.Key,
-                    // 値: 当該プロパティのエラーメッセージ一覧
-                    kv => kv.Value!.Errors
-                        // エラーメッセージが空やnullの場合は "Invalid value."に置換する
-                        .Select(e => string.IsNullOrWhiteSpace(e.ErrorMessage)
-                            ? "Invalid value." : e.ErrorMessage)
-                        .ToArray()
-                );
-            return BadRequest(new
-            { code = "VALIDATION_ERROR", message = "入力内容に誤りがあります。", details });
-        }
         try
         {
-            // ユーザーの存在チェック
-            await _usecase.ExistsByUsernameOrEmailAsync(viewModel.Username, viewModel.Email);
-            // RegisterUserViewModelからUserを復元する
-            var user = await _adapter.RestoreAsync(viewModel);
-            // ユーザーを登録する
-            await _usecase.RegisterUserAsync(user);
-            return Created($"/api/users/{user.UserUuid}", user);
+            // DataAnnotationsのエラーは通常ここへ来る前に自動で400になる
+            await _usecase.ExecuteAsync(
+                request.EmployeeUuid,
+                request.AccountName,
+                request.Password);
+
+            return StatusCode(
+                StatusCodes.Status201Created,
+                new
+                {
+                    message = "担当者アカウントを登録しました。"
+                });
         }
-        catch (ExistsException ex)
+        catch (ExistsAccountException ex)
         {
-            // 既に存在するユーザーを受信した
-            return Conflict(new { code = "USER_ALREADY_EXISTS", message = ex.Message });
+            return Conflict(new
+            {
+                code = "ACCOUNT_ALREADY_EXISTS",
+                message = ex.Message
+            });
+        }
+        catch (ExistsEmployeeException ex)
+        {
+            return NotFound(new
+            {
+                code = "EMPLOYEE_NOT_FOUND",
+                message = ex.Message
+            });
         }
         catch (DomainException ex)
         {
-            // 業務ルール違反のデータを受信した
-            return BadRequest(new { code = "DOMAIN_RULE_VIOLATION", message = ex.Message });
+            return BadRequest(new
+            {
+                code = "DOMAIN_RULE_VIOLATION",
+                message = ex.Message
+            });
         }
     }
 }
+
+
+
+
+
+
+
