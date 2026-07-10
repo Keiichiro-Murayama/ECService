@@ -1,23 +1,24 @@
-using ECService.Presentation.Adapters;
+using ECService.Application.Usecases.Interfaces;
+using ECService.Application.Usecases.Imps;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ECService.Presentation.Extensions;
+namespace ECService.Application.Extensions;
 
 /// <summary>
-/// Presentation層の依存関係を登録する拡張クラス
+/// Application層の依存関係を登録する拡張クラス
 /// </summary>
-public static class PresentationServiceCollectionExtensions
+public static class ApplicationServiceCollectionExtensions
 {
     /// <summary>
-    /// Presentation層の依存関係をDIコンテナに登録する
+    /// Application層の依存関係をDIコンテナに登録する
     /// </summary>
     /// <param name="services">サービスコレクション</param>
     /// <returns>サービスコレクション</returns>
-    public static IServiceCollection AddPresentationLayerDependencies(
+    public static IServiceCollection AddApplicationLayerDependencies(
         this IServiceCollection services)
     {
-        // 商品検索結果をViewModelへ変換するアダプタ
-        services.AddScoped<SearchProductsViewModelAdapter>();
+        // ユースケース：[商品を検索する]を実現するインターフェイス
+        services.AddScoped<ISearchProductsUseCase, SearchProductsUseCase>();
 
         return services;
     }
