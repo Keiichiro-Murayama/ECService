@@ -1,10 +1,10 @@
-using ECService.Applications.Usecases.Interfaces;
-using ECService.Applications.UseCases.UnitOfWorks;
+using ECService.Application.Usecases.Interfaces;
+using ECService.Application.Usecases.UnitOfWorks;
 using ECService.Domain.Exceptions;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 
-namespace ECService.Applications.Usecases.Imps;
+namespace ECService.Application.Usecases.Imps;
 
 public class RegisterProductCategoryUsecase : IRegisterProductCategoryUsecase
 {

@@ -1,6 +1,6 @@
 using ECService.Domain.Models;
 
-namespace ECService.Applications.Usecases.Interfaces;
+namespace ECService.Application.Usecases.Interfaces;
 
 /// <summary>
 /// 商品詳細取得ユースケースインターフェイス。
