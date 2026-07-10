@@ -10,5 +10,8 @@ public interface IRegisterEmployeeAccountUsecase
     /// </summary>
     /// <param name="employeeAcount">登録対象ユーザー</param>
     /// <returns></returns>
-    Task ExecuteAsync(EmployeeAccount employeeAccount);
+    Task ExecuteAsync(
+           string employeeId,
+           string accountName,
+           string password);
 }

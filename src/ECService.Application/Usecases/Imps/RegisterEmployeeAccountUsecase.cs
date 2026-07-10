@@ -33,7 +33,10 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
     /// 担当者アカウントを登録する
     /// </summary>
     /// <param name="employeeAccount">登録対象の担当者アカウント</param>
-    public async Task ExecuteAsync(EmployeeAccount employeeAccount)
+    public async Task ExecuteAsync(
+        string employeeUuid,
+        string accountName,
+        string password)
     {
         await _unitOfWork.BeginTransactionAsync();
 
@@ -41,7 +44,7 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
         {
             // ① アカウント名が既に登録されているか確認する
             var exists = await _employeeAccountRepository
-                .ExistsByAccountNameAsync(employeeAccount.AccountName);
+                .ExistsByAccountNameAsync(accountName);
 
             if (exists)
             {
@@ -51,16 +54,20 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
 
             // ② 選択された社員がDBに存在するか確認する
             var employee = await _employeeRepository
-                .SelectByUuidAsync(employeeAccount.Employee.EmployeeUuid);
+                .SelectByUuidAsync(employeeUuid);
 
             if (employee is null)
             {
                 throw new ExistsEmployeeException(
                     "選択された社員が存在しません。");
             }
-
+            // 生パスワードを持つアカウントを生成
+            var employeeAccount = EmployeeAccount.Create(
+                accountName,
+                password,
+                employee);
             // ③ 平文パスワードをハッシュ化する
-            var passwordHash = _passwordService.Hash(employeeAccount.Password);
+            var passwordHash = _passwordService.Hash(password);
 
             // ④ ハッシュ化済みパスワードをアカウントに設定する
             employeeAccount.ChangePassword(passwordHash);
