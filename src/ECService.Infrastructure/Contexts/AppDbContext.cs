@@ -72,9 +72,15 @@ namespace ECService.Infrastructure.Contexts
                 entity.HasIndex(e => e.StockUuid).IsUnique();
                 entity.HasIndex(e => e.ProductId).IsUnique();
                 //リレーション設定
+                // entity.HasOne(s => s.Product)
+                //       .WithMany()
+                //       .HasForeignKey(s => s.ProductId)
+                //       .OnDelete(DeleteBehavior.Restrict);
+
+                //石原:商品との1対1リレーション設定に変更、変なら上記に戻す
                 entity.HasOne(s => s.Product)
-                      .WithMany()
-                      .HasForeignKey(s => s.ProductId)
+                      .WithOne(p => p.ProductStock)
+                      .HasForeignKey<ProductStockEntity>(s => s.ProductId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }
