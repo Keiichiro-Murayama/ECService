@@ -1,7 +1,12 @@
+using ECService.Application.Usecases.UnitOfWorks;
+using ECService.Domain.Adapters;
+using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using ECService.Infrastructure.Adapters;
 using ECService.Infrastructure.Contexts;
+using ECService.Infrastructure.Entities;
 using ECService.Infrastructure.Repositories;
+using ECService.Infrastructure.UnitOfWorks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +27,7 @@ public static class InfrastructureServiceCollectionExtensions
         this IServiceCollection services,
         string connectionString)
     {
+        // DbContext
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString));
 
@@ -31,7 +37,37 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ProductCategoryEntityAdapter>();
         services.AddScoped<EmployeeEntityAdapter>();
         services.AddScoped<EmployeeAccountEntityAdapter>();
+
+        // ProductFactory
         services.AddScoped<ProductFactory>();
+
+        // Adapter Interface
+        services.AddScoped<
+            IRestorer<ProductCategory, ProductCategoryEntity>,
+            ProductCategoryEntityAdapter>();
+
+        services.AddScoped<
+            IConverter<ProductCategory, ProductCategoryEntity>,
+            ProductCategoryEntityAdapter>();
+
+        services.AddScoped<
+            IRestorer<ProductStock, ProductStockEntity>,
+            ProductStockEntityAdapter>();
+
+        services.AddScoped<
+            IRestorer<Employee, EmployeeEntity>,
+            EmployeeEntityAdapter>();
+
+        services.AddScoped<
+            IConverter<EmployeeAccount, EmployeeAccountEntity>,
+            EmployeeAccountEntityAdapter>();
+
+        services.AddScoped<
+            IRestorer<EmployeeAccount, EmployeeAccountEntity>,
+            EmployeeAccountEntityAdapter>();
+
+        // UnitOfWork
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Repository
         services.AddScoped<IProductRepository, ProductRepository>();

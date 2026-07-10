@@ -2,7 +2,7 @@
 // using ECService.Domains.Aggregators;
 // using ECService.Infrastructure.Adapters;
 // using ECService.Infrastructure.Aggregators;
-using ECService.Application.UseCases.UnitOfWorks;
+using ECService.Application.Usecases.UnitOfWorks;
 using ECService.Infrastructure.Contexts;
 using ECService.Infrastructure.Entities;
  using ECService.Infrastructure.Repositories;
