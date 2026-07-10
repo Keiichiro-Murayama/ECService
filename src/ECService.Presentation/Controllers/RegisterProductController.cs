@@ -16,7 +16,7 @@ namespace ECService.Presentation.Controllers;
 /// </summary>
 //[Authorize]
 [ApiController]
-[Route("api/admin/accounts")]
+[Route("api/admin/products")]
 public class RegisterProductController : ControllerBase
 {
     private readonly IRegisterProductUsecase _usecase;
