@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using ECService.Domain;
 using ECService.Domain.Models;
 using Microsoft.Extensions.Validation;
-namespace ECService.Presentations.ViewModels;
+namespace ECService.Presentation.ViewModels;
 
 public class GetCategoryRequest
 {
