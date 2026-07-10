@@ -45,10 +45,10 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 
-// 認証をまだ設定していないなら、一旦コメントアウトでもOK
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+//石原:いらなそうなコメントアウト消してまとめました

@@ -1,6 +1,6 @@
 using ECService.Infrastructure.Exceptions;
 using ECService.Domain.Models;
-using ECService.Domain.Exceptions;
+// using ECService.Domain.Exceptions;//石原:exception2個あるから変かも
 using ECService.Domain.Repositories;
 using ECService.Infrastructure.Adapters;
 using ECService.Infrastructure.Contexts;

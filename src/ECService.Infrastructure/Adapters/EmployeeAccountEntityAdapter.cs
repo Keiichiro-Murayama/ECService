@@ -14,8 +14,6 @@ public class EmployeeAccountEntityAdapter :
     /// <summary>
     /// 担当者アカウントのドメインモデルをEntityへ変換する。
     /// </summary>
-    /// <param name="domain">担当者アカウントのドメインモデル。</param>
-    /// <returns>担当者アカウントEntity。</returns>
     public Task<EmployeeAccountEntity> ConvertAsync(EmployeeAccount domain)
     {
         var entity = new EmployeeAccountEntity
@@ -31,8 +29,6 @@ public class EmployeeAccountEntityAdapter :
     /// <summary>
     /// 担当者アカウントEntityからドメインモデルへ復元する。
     /// </summary>
-    /// <param name="target">担当者アカウントEntity。</param>
-    /// <returns>担当者アカウントのドメインモデル。</returns>
     public Task<EmployeeAccount> RestoreAsync(EmployeeAccountEntity target)
     {
         var department = new Department(
@@ -50,6 +46,7 @@ public class EmployeeAccountEntityAdapter :
         var account = new EmployeeAccount(
             target.AccountUuid.ToString(),
             target.Name,
+            target.Password,
             target.Password,
             employee
         );

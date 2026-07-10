@@ -1,4 +1,4 @@
-using ECService.Application.UseCases.UnitOfWorks;
+using ECService.Application.Usecases.UnitOfWorks;
 using ECService.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
