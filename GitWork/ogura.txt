@@ -1,1 +1,54 @@
-いいいkk
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int main(void)
+{
+    int answer;
+    int guess;
+    int count = 0;
+
+    /* 現在時刻を使って乱数を初期化 */
+    srand((unsigned int)time(NULL));
+
+    /* 1〜100のランダムな数字を生成 */
+    answer = rand() % 100 + 1;
+
+    printf("1〜100の数字を当ててください！\n");
+
+    while (1)
+    {
+        printf("数字を入力してください: ");
+
+        if (scanf("%d", &guess) != 1)
+        {
+            printf("数字を入力してください。\n");
+            return 1;
+        }
+
+        if (guess < 1 || guess > 100)
+        {
+            printf("1〜100の数字を入力してください。\n");
+            continue;
+        }
+
+        count++;
+
+        if (guess < answer)
+        {
+            printf("High！もっと大きい数字です。\n");
+        }
+        else if (guess > answer)
+        {
+            printf("Low！もっと小さい数字です。\n");
+        }
+        else
+        {
+            printf("正解です！\n");
+            printf("%d回で当たりました！\n", count);
+            break;
+        }
+    }
+
+    return 0;
+}

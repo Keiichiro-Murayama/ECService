@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using ECService.Applications.Usecases.Imps;
 using ECService.Applications.Usecases.Interfaces;
-using ECService.Presentations.Adapters;
+using ECService.Presentation.Adapters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,6 +99,10 @@ builder.Services.AddInfrastructure(connectionString);
 // builder.Services.AddPresentation();
 
 
+builder.Services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
+builder.Services.AddScoped<GetProductViewModelAdapter>();
+
+
 // Swagger(タイトル・XML コメント付き)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -150,14 +154,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-builder.Services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
-builder.Services.AddScoped<GetProductViewModelAdapter>();
-// インフラストラクチャ層
-builder.Services.AddInfrastructure(connectionString);
-
-// アプリケーション層
-builder.Services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
-
-// プレゼンテーション層
-builder.Services.AddScoped<GetProductViewModelAdapter>();

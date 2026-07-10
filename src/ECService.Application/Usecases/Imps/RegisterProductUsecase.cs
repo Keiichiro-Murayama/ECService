@@ -1,5 +1,5 @@
 using ECService.Applications.Usecases.Interfaces;
-using ECService.Applications.UseCases.UnitOfWorks;
+using ECService.Applications.Usecases.UnitOfWorks;
 using ECService.Domain.Exceptions;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
