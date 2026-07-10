@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="KKfMD3SemsG6aV6jb4rE" name="ページ1">
-        <mxGraphModel dx="2901" dy="1791" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="2461" dy="1662" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -41,7 +41,7 @@
                     <mxGeometry x="-550" y="-847" width="420" height="331" as="geometry"/>
                 </mxCell>
                 <mxCell id="10" value="EmployeeAccount" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-                    <mxGeometry x="-850" y="120" width="310" height="230" as="geometry"/>
+                    <mxGeometry x="-850" y="120" width="310" height="270" as="geometry"/>
                 </mxCell>
                 <mxCell id="11" value="+ string: AccountUuid&lt;div&gt;+ string: AccountName&lt;/div&gt;&lt;div&gt;+ string: PasswordHash&lt;/div&gt;&lt;div&gt;+ Employee: Employee&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="10" vertex="1">
                     <mxGeometry y="26" width="310" height="84" as="geometry"/>
@@ -50,7 +50,7 @@
                     <mxGeometry y="110" width="310" height="8" as="geometry"/>
                 </mxCell>
                 <mxCell id="13" value="&lt;div&gt;+EmployeeAccount:&amp;nbsp; &lt;br&gt;&lt;span style=&quot;white-space: pre;&quot;&gt;&#x9;&lt;/span&gt;Create(string name, string passwordHash, Employee employee)&lt;/div&gt;&lt;div&gt;+ void:ValidateAccountName(string name)&lt;/div&gt;&lt;div&gt;+void: ValidatePasswordHash(string passwordHash)&lt;/div&gt;&lt;div&gt;+ void: ValidateEmployee(Employee: employee)&lt;/div&gt;&lt;div&gt;+ void: ValidateUuid(string: accountUuid)&lt;/div&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" parent="10" vertex="1">
-                    <mxGeometry y="118" width="310" height="112" as="geometry"/>
+                    <mxGeometry y="118" width="310" height="152" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="ProductCategory" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="540" y="-270" width="290" height="120" as="geometry"/>

@@ -11,6 +11,7 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
 {
     private readonly IEmployeeAccountRepository _repository;
     private readonly IPasswordService _service;
+    private readonly IEmployeeRepository _employeeRepository;
     private readonly IUnitOfWork _unitOfWork;
     /// <summary>
     /// コンストラクタ
@@ -32,16 +33,16 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
     /// </summary>
     /// <param name="user">登録対象ユーザー</param>
     /// <returns></returns>
-   public Task ExecuteAsync(EmployeeAccount employeeAccount)
+   public async Task ExecuteAsync(EmployeeAccount employeeAccount)
     {
         // トランザクションを開始する
-        await _unitOfWork.BeginAsync();
+        await _unitOfWork.BeginTransactionAsync();
         try
         {
             // パスワードをハッシュ化する
             var passwordHash = _service.Hash(employeeAccount.Password);
             // ハッシュ化したパスワードを設定する
-            user.ChangePassword(passwordHash);
+            employeeAccount.ChangePassword(passwordHash);
             // ユーザーを永続化する
             await _repository.CreateAsync(employeeAccount);
             // トランザクションをコミットする

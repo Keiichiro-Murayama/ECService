@@ -86,12 +86,10 @@ public class EmployeeAccount : Entity
     public static EmployeeAccount Create(
         string name,
         string password,
-        string passwordHash,
         Employee employee)
     {
         ValidateAccountName(name);
         ValidatePassword(password);
-        ValidatePasswordHash(passwordHash);
         ValidateEmployee(employee);
 
         var accountUuid = Guid.NewGuid().ToString();
@@ -100,8 +98,17 @@ public class EmployeeAccount : Entity
             accountUuid,
             name,
             password,
-            passwordHash,
+            string.Empty,
             employee);
+    }
+
+    /// <summary>
+    /// パスワードを変更する
+    /// </summary>
+    public void ChangePassword(string passwordHash)
+    {
+        ValidatePasswordHash(passwordHash);
+        PasswordHash = passwordHash;
     }
 
     /// <summary>
