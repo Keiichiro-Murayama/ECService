@@ -1,54 +1,397 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
-int main(void)
-{
-    int answer;
-    int guess;
-    int count = 0;
+typedef struct {
+    char name[40];
+    int trust;
+    int money;
+    int charm;
+    int photo;
+    int snack;
+} GameData;
 
-    /* 現在時刻を使って乱数を初期化 */
-    srand((unsigned int)time(NULL));
+void clearScreen(void) {
+    printf("\033[2J\033[H");
+}
 
-    /* 1〜100のランダムな数字を生成 */
-    answer = rand() % 100 + 1;
+void waitEnter(void) {
+    char buffer[16];
+    printf("\nEnterキーで進む...");
+    fgets(buffer, sizeof(buffer), stdin);
+}
 
-    printf("1〜100の数字を当ててください！\n");
+int inputNumber(int min, int max) {
+    char line[128];
+    char *end;
+    long value;
 
-    while (1)
-    {
-        printf("数字を入力してください: ");
+    while (1) {
+        printf("> ");
 
-        if (scanf("%d", &guess) != 1)
-        {
-            printf("数字を入力してください。\n");
-            return 1;
+        if (fgets(line, sizeof(line), stdin) == NULL) {
+            return min;
         }
 
-        if (guess < 1 || guess > 100)
-        {
-            printf("1〜100の数字を入力してください。\n");
+        value = strtol(line, &end, 10);
+
+        if (end == line) {
+            printf("数字を入力してください。\n");
             continue;
         }
 
-        count++;
+        while (*end == ' ' || *end == '\t') {
+            end++;
+        }
 
-        if (guess < answer)
-        {
-            printf("High！もっと大きい数字です。\n");
+        if (*end != '\n' && *end != '\0') {
+            printf("数字だけを入力してください。\n");
+            continue;
         }
-        else if (guess > answer)
-        {
-            printf("Low！もっと小さい数字です。\n");
+
+        if (value < min || value > max) {
+            printf("%d〜%dの範囲で入力してください。\n", min, max);
+            continue;
         }
-        else
-        {
-            printf("正解です！\n");
-            printf("%d回で当たりました！\n", count);
-            break;
-        }
+
+        return (int)value;
     }
+}
+
+void showStatus(const GameData *game) {
+    printf("\n----------------------------------\n");
+    printf("名前      : %s\n", game->name);
+    printf("信頼度    : %d\n", game->trust);
+    printf("所持金    : %d円\n", game->money);
+    printf("お守り    : %s\n", game->charm ? "あり" : "なし");
+    printf("写真      : %s\n", game->photo ? "あり" : "なし");
+    printf("お菓子    : %s\n", game->snack ? "あり" : "なし");
+    printf("----------------------------------\n");
+}
+
+void title(void) {
+    clearScreen();
+
+    printf("========================================\n");
+    printf("         茨城メロメロ大作戦\n");
+    printf("        ～潮風と納豆と青春～\n");
+    printf("========================================\n");
+    printf("\n");
+    printf("※登場人物はすべて架空です。\n");
+    printf("※1周およそ5～10分の短編ゲームです。\n");
+
+    waitEnter();
+}
+
+void opening(GameData *game) {
+    clearScreen();
+
+    printf("春。\n");
+    printf("あなたは仕事の都合で、茨城県へ引っ越してきた。\n");
+    printf("\n");
+    printf("知り合いはほとんどいない。\n");
+    printf("そんなある日、水戸駅前で一人の青年と出会う。\n");
+    printf("\n");
+    printf("青年の名前はユウダイ。\n");
+    printf("少しぶっきらぼうだが、どこか放っておけない雰囲気がある。\n");
+    printf("\n");
+    printf("あなたの名前を入力してください。\n> ");
+
+    if (fgets(game->name, sizeof(game->name), stdin) == NULL) {
+        strcpy(game->name, "主人公");
+    }
+
+    game->name[strcspn(game->name, "\n")] = '\0';
+
+    if (strlen(game->name) == 0) {
+        strcpy(game->name, "主人公");
+    }
+
+    clearScreen();
+
+    printf("ユウダイ「茨城、初めてなんだろ？」\n");
+    printf("ユウダイ「せっかくだし、案内してやるよ」\n");
+    printf("\n");
+    printf("こうして、二人の小さな旅が始まった。\n");
+
+    waitEnter();
+}
+
+void mitoEvent(GameData *game) {
+    int choice;
+
+    clearScreen();
+
+    printf("========================================\n");
+    printf("             水戸・偕楽園\n");
+    printf("========================================\n");
+    printf("\n");
+    printf("梅の香りが、静かな園内に広がっている。\n");
+    printf("ユウダイは少し照れくさそうに歩いている。\n");
+    printf("\n");
+    printf("ユウダイ「こういう場所、誰かと来るの久しぶりだな」\n");
+    printf("\n");
+    printf("どう返す？\n");
+    printf("1. 「私も一緒に来られてうれしい」\n");
+    printf("2. 「似合わないね」\n");
+    printf("3. 「写真撮ろうよ」\n");
+
+    choice = inputNumber(1, 3);
+
+    if (choice == 1) {
+        game->trust += 20;
+        printf("\nユウダイ「……そっか」\n");
+        printf("少しだけ、表情がやわらいだ。\n");
+        printf("信頼度が20上がった！\n");
+    } else if (choice == 2) {
+        game->trust -= 5;
+        printf("\nユウダイ「悪かったな」\n");
+        printf("空気が少しだけ冷えた。\n");
+        printf("信頼度が5下がった。\n");
+    } else {
+        game->trust += 12;
+        game->photo = 1;
+        printf("\n二人で梅を背景に写真を撮った。\n");
+        printf("ユウダイ「まあ、悪くないな」\n");
+        printf("写真を手に入れた！\n");
+        printf("信頼度が12上がった！\n");
+    }
+
+    printf("\n売店で小さな納豆せんべいを見つけた。\n");
+    printf("買いますか？ 300円\n");
+    printf("1. 買う\n");
+    printf("2. 買わない\n");
+
+    choice = inputNumber(1, 2);
+
+    if (choice == 1 && game->money >= 300) {
+        game->money -= 300;
+        game->snack = 1;
+        printf("\n納豆せんべいを買った。\n");
+    } else if (choice == 1) {
+        printf("\nお金が足りなかった。\n");
+    } else {
+        printf("\n今回は買わなかった。\n");
+    }
+
+    waitEnter();
+}
+
+void oaraiEvent(GameData *game) {
+    int choice;
+
+    clearScreen();
+
+    printf("========================================\n");
+    printf("              大洗海岸\n");
+    printf("========================================\n");
+    printf("\n");
+    printf("潮風が強く、波の音が響いている。\n");
+    printf("二人は海を見ながら、並んで歩く。\n");
+    printf("\n");
+    printf("ユウダイ「俺さ、昔から人に頼るの苦手なんだよ」\n");
+    printf("ユウダイ「だから、だいたい一人で何とかしてきた」\n");
+    printf("\n");
+    printf("どうする？\n");
+    printf("1. 黙って隣を歩く\n");
+    printf("2. 「私には頼っていいよ」と言う\n");
+    printf("3. 話題を変える\n");
+
+    choice = inputNumber(1, 3);
+
+    if (choice == 1) {
+        game->trust += 15;
+        printf("\n何も言わず、ただ隣を歩いた。\n");
+        printf("ユウダイ「……ありがとな」\n");
+        printf("信頼度が15上がった！\n");
+    } else if (choice == 2) {
+        game->trust += 25;
+        printf("\nユウダイ「そんなこと言われたの、初めてかも」\n");
+        printf("彼は少しだけ目をそらした。\n");
+        printf("信頼度が25上がった！\n");
+    } else {
+        game->trust -= 10;
+        printf("\nユウダイ「……今の、忘れてくれ」\n");
+        printf("信頼度が10下がった。\n");
+    }
+
+    if (game->snack) {
+        printf("\nあなたは納豆せんべいを差し出した。\n");
+        printf("ユウダイ「海で納豆せんべいって、どういう組み合わせだよ」\n");
+        printf("そう言いながら、彼は笑った。\n");
+        printf("信頼度が10上がった！\n");
+        game->trust += 10;
+        game->snack = 0;
+    }
+
+    waitEnter();
+}
+
+void tsukubaEvent(GameData *game) {
+    int choice;
+
+    clearScreen();
+
+    printf("========================================\n");
+    printf("              筑波山\n");
+    printf("========================================\n");
+    printf("\n");
+    printf("夕方、二人は筑波山の展望台へたどり着いた。\n");
+    printf("遠くまで街の灯りが見える。\n");
+    printf("\n");
+    printf("ユウダイ「今日、楽しかったな」\n");
+    printf("ユウダイ「お前といると、なんか変に落ち着く」\n");
+    printf("\n");
+    printf("どう答える？\n");
+    printf("1. 「私も同じ気持ち」\n");
+    printf("2. 「それ、告白？」\n");
+    printf("3. 「友達として？」\n");
+
+    choice = inputNumber(1, 3);
+
+    if (choice == 1) {
+        game->trust += 25;
+        printf("\nユウダイ「……じゃあ、もう少し一緒にいたい」\n");
+        printf("信頼度が25上がった！\n");
+    } else if (choice == 2) {
+        if (game->trust >= 45) {
+            game->trust += 20;
+            printf("\nユウダイ「そう聞こえたなら、たぶんそうだ」\n");
+            printf("信頼度が20上がった！\n");
+        } else {
+            game->trust -= 5;
+            printf("\nユウダイ「気が早いって」\n");
+            printf("少しだけ気まずくなった。\n");
+            printf("信頼度が5下がった。\n");
+        }
+    } else {
+        game->trust += 5;
+        printf("\nユウダイ「……今は、な」\n");
+        printf("その言葉には、少しだけ含みがあった。\n");
+        printf("信頼度が5上がった！\n");
+    }
+
+    printf("\n山頂の小さな売店で、お守りが売られている。\n");
+    printf("二人おそろいで買いますか？ 500円\n");
+    printf("1. 買う\n");
+    printf("2. 買わない\n");
+
+    choice = inputNumber(1, 2);
+
+    if (choice == 1 && game->money >= 500) {
+        game->money -= 500;
+        game->charm = 1;
+        game->trust += 10;
+        printf("\nおそろいのお守りを買った。\n");
+        printf("ユウダイ「なくすなよ」\n");
+        printf("信頼度が10上がった！\n");
+    } else if (choice == 1) {
+        printf("\nお金が足りなかった。\n");
+    } else {
+        printf("\n売店を後にした。\n");
+    }
+
+    waitEnter();
+}
+
+void finalEvent(GameData *game) {
+    int choice;
+
+    clearScreen();
+
+    printf("========================================\n");
+    printf("             最後の選択\n");
+    printf("========================================\n");
+    printf("\n");
+    printf("帰りの駅。\n");
+    printf("電車が来るまで、あと少し。\n");
+    printf("\n");
+    printf("ユウダイ「今日はありがとな」\n");
+    printf("ユウダイ「また、どっか行くか？」\n");
+    printf("\n");
+    printf("あなたはどうする？\n");
+    printf("1. 「次は私が案内する」\n");
+    printf("2. 「もっと一緒にいたい」\n");
+    printf("3. 「今日はありがとう」とだけ言う\n");
+
+    choice = inputNumber(1, 3);
+
+    if (choice == 1) {
+        game->trust += 10;
+    } else if (choice == 2) {
+        game->trust += 20;
+    } else {
+        game->trust -= 5;
+    }
+
+    clearScreen();
+
+    printf("========================================\n");
+    printf("               ENDING\n");
+    printf("========================================\n\n");
+
+    if (game->trust >= 90 && game->charm && game->photo) {
+        printf("ユウダイは少し黙ったあと、あなたの手を取った。\n");
+        printf("\n");
+        printf("ユウダイ「次からは、案内じゃなくてデートな」\n");
+        printf("\n");
+        printf("二人のおそろいのお守りが、夕日の中で揺れた。\n");
+        printf("\n");
+        printf("TRUE END\n");
+        printf("『茨城で始まる恋』\n");
+    } else if (game->trust >= 70) {
+        printf("ユウダイは照れくさそうに笑った。\n");
+        printf("\n");
+        printf("ユウダイ「じゃあ、次はひたち海浜公園な」\n");
+        printf("\n");
+        printf("二人の距離は、確かに近づいていた。\n");
+        printf("\n");
+        printf("GOOD END\n");
+        printf("『次の約束』\n");
+    } else if (game->trust >= 40) {
+        printf("ユウダイは小さくうなずいた。\n");
+        printf("\n");
+        printf("ユウダイ「まあ、また気が向いたらな」\n");
+        printf("\n");
+        printf("まだ恋ではない。\n");
+        printf("けれど、物語は始まったばかりだ。\n");
+        printf("\n");
+        printf("NORMAL END\n");
+        printf("『友達から』\n");
+    } else {
+        printf("電車が到着し、二人は短い挨拶を交わして別れた。\n");
+        printf("\n");
+        printf("あの日、もう少し素直になれていたら。\n");
+        printf("\n");
+        printf("BAD END\n");
+        printf("『すれ違い』\n");
+    }
+
+    showStatus(game);
+}
+
+int main(void) {
+    GameData game = {
+        "",
+        10,
+        1200,
+        0,
+        0,
+        0
+    };
+
+    srand((unsigned int)time(NULL));
+
+    title();
+    opening(&game);
+
+    mitoEvent(&game);
+    oaraiEvent(&game);
+    tsukubaEvent(&game);
+    finalEvent(&game);
+
+    printf("\n遊んでくれてありがとう！\n");
 
     return 0;
 }
