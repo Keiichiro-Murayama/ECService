@@ -1,5 +1,6 @@
 using ECService.Infrastructure.Exceptions;
 using ECService.Domain.Models;
+using ECService.Domain.Exceptions;
 using ECService.Domain.Repositories;
 using ECService.Infrastructure.Adapters;
 using ECService.Infrastructure.Contexts;
