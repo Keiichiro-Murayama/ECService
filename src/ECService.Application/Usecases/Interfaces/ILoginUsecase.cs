@@ -3,7 +3,7 @@ namespace ECService.Application.Usecases.Interfaces;
 /// <summary>
 /// ログイン(認証)を行うユースケースのインターフェイス(UC-02)
 /// </summary>
-public interface ILoginUseCase
+public interface ILoginUsecase
 {
     /// <summary>
     /// ユーザー名とパスワードで認証し、成功すれば JWT を発行する
