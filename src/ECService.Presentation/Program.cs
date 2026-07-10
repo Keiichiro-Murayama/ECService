@@ -8,9 +8,13 @@ using ECService.Infrastructure.Extensions;
 // using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
-using ECService.Applications.Usecases.Imps;
-using ECService.Applications.Usecases.Interfaces;
-using ECService.Presentations.Adapters;
+using ECService.Application.Usecases.Imps;
+using ECService.Application.Usecases.Interfaces;
+using ECService.Presentation.Adapters;
+
+using ECService.Infrastructure.Extensions;
+using ECService.Application.Extensions;
+using ECService.Presentation.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
