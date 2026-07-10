@@ -2,14 +2,15 @@
 // using ECService.Domains.Aggregators;
 // using ECService.Infrastructure.Adapters;
 // using ECService.Infrastructure.Aggregators;
+using ECService.Application.UseCases.UnitOfWorks;
 using ECService.Infrastructure.Contexts;
 using ECService.Infrastructure.Entities;
-// using ECService.Infrastructure.Repositories;
-// using ECService.Domains.Models;
-// using ECService.Domains.Repositories;
+ using ECService.Infrastructure.Repositories;
+ using ECService.Domain.Models;
+ using ECService.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-// using ECService.Applications.UseCases.UnitOfWorks;
+using ECService.Infrastructure.UnitOfWorks;
 // using ECService.Infrastructures.UnitOfWorks;
 namespace ECService.Infrastructure.Extensions;
 /// <summary>
@@ -57,9 +58,9 @@ public static class PresentationServiceCollectionExtensions
         // Repository(永続化)
         // AppDbContext(Scoped)に依存するため Scoped で登録する
         // ───────────────────────────────────────────
-        // services.AddScoped<ICategoryRepository, CategoryRepository>();
-        // services.AddScoped<IBookRepository, BookRepository>();
-        // services.AddScoped<IUserRepository, UserRepository>();
+         //services.AddScoped<ICategoryRepository, CategoryRepository>();
+         services.AddScoped<IEmployeeAccountRepository, EmployeeAccountRepository>();
+         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
         // ───────────────────────────────────────────
         // UnitOfWork(トランザクション境界の制御)
@@ -67,7 +68,7 @@ public static class PresentationServiceCollectionExtensions
         // インターフェイス IUnitOfWork はアプリケーション層、実装 UnitOfWork はインフラ層にあり、
         // 実装が属する本層で登録する(依存性逆転:アプリケーション層は実装を知らない)。
         // ───────────────────────────────────────────
-        // services.AddScoped<IUnitOfWork, UnitOfWork>();
+         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

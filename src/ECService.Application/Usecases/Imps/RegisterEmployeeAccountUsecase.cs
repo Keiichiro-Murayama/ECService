@@ -4,74 +4,75 @@ using ECService.Application.UseCases.UnitOfWorks;
 using ECService.Application.Security;
 using ECService.Application.Usecases.Interfaces;
 using ECService.Application.Exceptions;
+
 namespace ECService.Application.Imps;
+
 /// <summary>
-/// ユースケース:[ユーザーを登録する]を実現するインターフェイスの実装
+/// 担当者アカウント登録ユースケースの実装
 /// </summary>
 public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
 {
     private readonly IEmployeeAccountRepository _employeeAccountRepository;
-    private readonly IPasswordService _service;
+    private readonly IPasswordService _passwordService;
     private readonly IEmployeeRepository _employeeRepository;
     private readonly IUnitOfWork _unitOfWork;
-    /// <summary>
-    /// コンストラクタ
-    /// </summary>
-    /// <param name="repository">ユーザーCRUD操作リポジトリ</param>
-    /// <param name="service">パスワードをハッシュ化するサービス</param>
-    /// <param name="unitOfWork">トランザクション制御機能</param>
+
     public RegisterEmployeeAccountUsecase(
-        IEmployeeAccountRepository employeeAccountRepository, IPasswordService service,
+        IEmployeeAccountRepository employeeAccountRepository,
+        IPasswordService passwordService,
         IEmployeeRepository employeeRepository,
         IUnitOfWork unitOfWork)
     {
         _employeeAccountRepository = employeeAccountRepository;
-        _service = service;
+        _passwordService = passwordService;
         _employeeRepository = employeeRepository;
         _unitOfWork = unitOfWork;
     }
 
     /// <summary>
-    /// ユーザーを登録する
+    /// 担当者アカウントを登録する
     /// </summary>
-    /// <param name="user">登録対象ユーザー</param>
-    /// <returns></returns>
+    /// <param name="employeeAccount">登録対象の担当者アカウント</param>
     public async Task ExecuteAsync(EmployeeAccount employeeAccount)
     {
-        // トランザクションを開始する
         await _unitOfWork.BeginTransactionAsync();
+
         try
         {
-            // パスワードをハッシュ化する
-            var passwordHash = _service.Hash(employeeAccount.Password);
-            // ハッシュ化したパスワードを設定する
-            employeeAccount.ChangePassword(passwordHash);
+            // ① アカウント名が既に登録されているか確認する
             var exists = await _employeeAccountRepository
-          .ExistsByAccountNameAsync(accountName);
+                .ExistsByAccountNameAsync(employeeAccount.AccountName);
 
             if (exists)
             {
                 throw new ExistsAccountException(
-                    "このアカウント名は既に使用されています。",
-                    nameof(accountName));
+                    "このアカウント名は既に使用されています。");
             }
+
+            // ② 選択された社員がDBに存在するか確認する
             var employee = await _employeeRepository
-         .SelectByUuidAsync(employeeUuid);
+                .SelectByUuidAsync(employeeAccount.Employee.EmployeeUuid);
 
             if (employee is null)
             {
                 throw new ExistsEmployeeException(
-                    "選択された社員が存在しません。",
-                    nameof(employeeUuid));
+                    "選択された社員が存在しません。");
             }
-            // ユーザーを永続化する
+
+            // ③ 平文パスワードをハッシュ化する
+            var passwordHash = _passwordService.Hash(employeeAccount.Password);
+
+            // ④ ハッシュ化済みパスワードをアカウントに設定する
+            employeeAccount.ChangePassword(passwordHash);
+
+            // ⑤ 担当者アカウントを永続化する
             await _employeeAccountRepository.CreateAsync(employeeAccount);
-            // トランザクションをコミットする
+
+            // ⑥ トランザクションを確定する
             await _unitOfWork.CommitAsync();
         }
         catch
         {
-            // トランザクションをロールバックする
             await _unitOfWork.RollbackAsync();
             throw;
         }

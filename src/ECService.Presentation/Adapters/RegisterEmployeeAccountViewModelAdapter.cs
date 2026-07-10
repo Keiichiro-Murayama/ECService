@@ -5,16 +5,16 @@ namespace ECService.Presentation.Adapters;
 /// <summary>
 /// RegisterUserViewModelからドメインオブジェクト:Userへ変換するアダプタ
 /// </summary> 
-public class RegisterEmployeeAccountViewModelAdapter : IRestorer<EmployeeAcccount, RegisterEmployeeAccountViewModel>
+public class RegisterEmployeeAccountViewModelAdapter : IRestorer<EmployeeAccount, RegisterEmployeeAccountRequest>
 {
     /// <summary>
     /// RegisterUserViewModelからドメインオブジェクト:Userを復元する
     /// </summary>
     /// <param name="target">ユースケース:[ユーザーを登録する]を実現するViewModel</param>
     /// <returns></returns>
-    public Task<EmployeeAcccount> RestoreAsync(RegisterEmployeeAccountViewModel target)
+    public Task<EmployeeAccount> RestoreAsync(RegisterEmployeeAccountRequest target)
     {
-        var employeeAccount = new EmployeeAcccount(target.Username, target.Email, target.Password);
-        return Task.FromResult(user);
+        var employeeAccount = new EmployeeAccount(target.Username, target.AccountName, target.Password);
+        return Task.FromResult(employeeAccount);
     }
 }
