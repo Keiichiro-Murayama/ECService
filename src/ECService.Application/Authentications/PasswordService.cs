@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-namespace ECService.Applications.Authentications;
+namespace ECService.Application.Authentications;
 /// <summary>
 /// IPasswordService の実装
 ///

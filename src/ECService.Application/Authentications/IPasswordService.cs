@@ -1,4 +1,4 @@
-namespace ECService.Applications.Authentications;
+namespace ECService.Application.Authentications;
 /// <summary>
 /// パスワードのハッシュ化・照合を行うコンポーネントのインターフェイス
 ///

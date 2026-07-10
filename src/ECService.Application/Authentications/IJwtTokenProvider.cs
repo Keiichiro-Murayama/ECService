@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using ECService.Domain.Models;
-namespace ECService.Applications.Authentications;
+namespace ECService.Application.Authentications;
 /// <summary>
 /// JWTの発行インターフェイス
 ///

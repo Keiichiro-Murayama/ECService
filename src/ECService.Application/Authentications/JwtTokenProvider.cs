@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using System.Text;
-using LibraryApi.Domains.Models;
+using LibraryApi.Domain.Models;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-namespace LibraryApi.Applications.Authentications;
+namespace LibraryApi.Application.Authentications;
 /// <summary>
 /// IJwtTokenProvider の実装
 ///

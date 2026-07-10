@@ -1,4 +1,4 @@
-namespace ECService.Applications.Authentications;
+namespace ECService.Application.Authentications;
 /// <summary>
 /// JWT認証に必要な設定値を保持するクラス
 ///
