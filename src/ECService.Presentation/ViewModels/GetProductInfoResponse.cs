@@ -1,4 +1,4 @@
-namespace ECService.Presentations.ViewModels;
+namespace ECService.Presentation.ViewModels;
 
 /// <summary>
 /// 商品詳細取得APIのレスポンス。

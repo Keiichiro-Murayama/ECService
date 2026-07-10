@@ -1,9 +1,9 @@
 using ECService.Applications.Usecases.Interfaces;
-using ECService.Presentations.Adapters;
-using ECService.Presentations.ViewModels;
+using ECService.Presentation.Adapters;
+using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ECService.Presentations.Controllers;
+namespace ECService.Presentation.Controllers;
 
 /// <summary>
 /// 商品詳細取得APIを提供するController。

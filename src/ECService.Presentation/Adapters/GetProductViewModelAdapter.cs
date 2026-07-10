@@ -1,7 +1,7 @@
 using ECService.Domain.Models;
-using ECService.Presentations.ViewModels;
+using ECService.Presentation.ViewModels;
 
-namespace ECService.Presentations.Adapters;
+namespace ECService.Presentation.Adapters;
 
 /// <summary>
 /// Productドメインモデルを商品詳細レスポンスへ変換するAdapter。
