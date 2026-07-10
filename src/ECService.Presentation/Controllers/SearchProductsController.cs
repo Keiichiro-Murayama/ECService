@@ -12,7 +12,7 @@ namespace ECService.Presentation.Controllers;
 [Route("admin/product/search")]
 public class SearchProductsController : ControllerBase
 {
-    private readonly ISearchProductsUseCase _searchProductsUseCase;
+    private readonly ISearchProductsUsecase _searchProductsUseCase;
     private readonly SearchProductsViewModelAdapter _searchProductsViewModelAdapter;
 
     /// <summary>
@@ -21,7 +21,7 @@ public class SearchProductsController : ControllerBase
     /// <param name="searchProductsUseCase">商品検索ユースケース</param>
     /// <param name="searchProductsViewModelAdapter">商品検索ViewModel変換アダプタ</param>
     public SearchProductsController(
-        ISearchProductsUseCase searchProductsUseCase,
+        ISearchProductsUsecase searchProductsUseCase,
         SearchProductsViewModelAdapter searchProductsViewModelAdapter)
     {
         _searchProductsUseCase = searchProductsUseCase;

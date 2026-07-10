@@ -19,7 +19,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IGetProductInfoUsecase, GetProductInfoUsecase>();
         services.AddScoped<IUpdateProductUsecase, UpdateProductUsecase>();
         services.AddScoped<IDeleteProductUsecase, DeleteProductUsecase>();
-        services.AddScoped<ISearchProductsUseCase, SearchProductsUseCase>();
+        services.AddScoped<ISearchProductsUsecase, SearchProductsUsecase>();
 
         return services;
     }

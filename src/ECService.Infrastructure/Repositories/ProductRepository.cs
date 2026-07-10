@@ -309,28 +309,22 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // 削除対象の商品を取得する
-            var productEntity = await _context.Products
-                .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == Guid.Parse(productUuid) &&
-                    p.DeleteFlag == 0);
+            var uuid = Guid.Parse(productUuid);
 
-            if (productEntity is null)
-            {
-                return false;
-            }
+            var updatedCount = await _context.Products
+                .Where(p =>
+                    p.ProductUuid == uuid &&
+                    p.DeleteFlag == 0)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(p => p.DeleteFlag, 1));
 
-            // 物理削除ではなく論理削除する
-            productEntity.DeleteFlag = 1;
-
-            // DBへ反映する
-            await _context.SaveChangesAsync();
-
-            return true;
+            return updatedCount > 0;
         }
         catch (Exception ex)
         {
-            throw new InternalException($"商品UUID:{productUuid}の商品削除中に予期しないエラーが発生しました。", ex);
+            throw new InternalException(
+                $"商品UUID:{productUuid}の商品削除中に予期しないエラーが発生しました。",
+                ex);
         }
     }
 }

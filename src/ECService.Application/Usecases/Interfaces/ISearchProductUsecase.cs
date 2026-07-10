@@ -5,7 +5,7 @@ namespace ECService.Application.Usecases.Interfaces;
 /// <summary>
 /// 商品検索ユースケースのインターフェイス
 /// </summary>
-public interface ISearchProductsUseCase
+public interface ISearchProductsUsecase
 {
     /// <summary>
     /// 商品を検索する

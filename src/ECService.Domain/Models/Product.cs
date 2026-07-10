@@ -62,7 +62,7 @@ public class Product : Entity
     /// <summary>
     /// 価格の最小値
     /// </summary>
-    private const int PriceMinValue = 1000000;
+    private const int PriceMinValue = 0;
 
     /// <summary>
     /// 価格の最大値
