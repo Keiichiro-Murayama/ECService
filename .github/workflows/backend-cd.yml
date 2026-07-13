@@ -1,0 +1,40 @@
+# GitHub Actionsの画面上に表示されるワークフローの名前
+name: .NET ECService CD
+
+# ワークフローが実行される条件（トリガー）の定義
+# 【修正後】CIワークフローが「完了」した時に実行
+on:
+  workflow_run:
+    workflows: [".NET ECService CI"] # ※ci.ymlの「name:」で指定している名前と完全に一致させる必要がある
+    types:
+      - completed
+    branches:
+      - main
+
+# 実行するジョブ（作業のまとまり）の定義
+jobs:
+  deploy: # ジョブの識別名（任意の名前）
+    # GitHub側が用意する使い捨ての仮想環境（Runner）のOSを指定
+    runs-on: ubuntu-latest
+    
+    # ジョブ内で順番に実行される手順（ステップ）のリスト
+    steps:
+      - name: 運用環境へのSSH疎通確認
+        # サードパーティ製（コミュニティ作成）のSSH接続アクションを利用
+        uses: appleboy/ssh-action@v1.0.3
+        
+        # 上記のアクションに渡すパラメータ（引数）の定義
+        with:
+          # GitHub Secretsから認証情報を安全に取得し、環境に展開（注入）する
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}         # 接続先サーバーのIPアドレス
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}     # ログインユーザー名（ubuntu）
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}      # 秘密鍵（PEM）のテキストデータ
+          
+          # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
+          # （「|」は複数行の文字列を記述するためのYAMLの記法）
+          script: |
+            echo "=== SSH Connection Successful ==="
+            echo "--- System Information ---"
+            uname -a # サーバーのOSやカーネル情報を出力し、Linuxであることを確認
+            echo "--- Current User ---"
+            whoami   # 実行ユーザーを出力し、指定したユーザーでログインできたか確認
