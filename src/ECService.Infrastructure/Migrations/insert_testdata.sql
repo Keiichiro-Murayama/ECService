@@ -29,7 +29,7 @@ INSERT INTO product_category (category_uuid, name) VALUES (gen_random_uuid(), '�
 -- 5. 商品 (product)
 --------------------------------------------------
 INSERT INTO product (product_uuid, product_category_id, name, price, image_url, delete_flag) VALUES (gen_random_uuid(), 1, '高級ボールペン', 1200, 'https://example.com/images/pen.jpg', 0);
-INSERT INTO product (product_uuid, product_category_id, name, price, image_url, delete_flag) VALUES (gen_random_uuid(), 1, '耐水ノート(A5)', 450, NULL, 0);
+INSERT INTO product (product_uuid, product_category_id, name, price, image_url, delete_flag) VALUES (gen_random_uuid(), 1, '耐水ノート(A5)', 450, 'https://example.com/images/notebook.jpg', 0);
 INSERT INTO product (product_uuid, product_category_id, name, price, image_url, delete_flag) VALUES (gen_random_uuid(), 2, 'エコバッグ', 880, 'https://example.com/images/bag.jpg', 0);
 INSERT INTO product (product_uuid, product_category_id, name, price, image_url, delete_flag) VALUES (gen_random_uuid(), 2, 'アロマキャンドル', 1500, 'https://example.com/images/candle.jpg', 0);
 INSERT INTO product (product_uuid, product_category_id, name, price, image_url, delete_flag) VALUES (gen_random_uuid(), 3, 'Type-C ハブ 6in1', 3980, 'https://example.com/images/hub.jpg', 0);
