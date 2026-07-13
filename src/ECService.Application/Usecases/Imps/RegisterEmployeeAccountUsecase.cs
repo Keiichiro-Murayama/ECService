@@ -61,16 +61,16 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
                 throw new ExistsEmployeeException(
                     "選択された社員が存在しません。");
             }
-            // 生パスワードを持つアカウントを生成
-            var employeeAccount = EmployeeAccount.Create(
-                accountName,
-                password,
-                employee);
+
             // ③ 平文パスワードをハッシュ化する
             var passwordHash = _passwordService.Hash(password);
 
-            // ④ ハッシュ化済みパスワードをアカウントに設定する
-            employeeAccount.ChangePassword(passwordHash);
+            // ④ ハッシュ化済みパスワードでアカウントを生成する
+            var employeeAccount = EmployeeAccount.Create(
+                accountName,
+                password,
+                passwordHash,
+                employee);
 
             // ⑤ 担当者アカウントを永続化する
             await _employeeAccountRepository.CreateAsync(employeeAccount);
