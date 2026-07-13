@@ -5,7 +5,7 @@ name: .NET ECService CD
 # 【修正後】CIワークフローが「完了」した時に実行
 on:
   workflow_run:
-    workflows: [".NET ECService CI"] # ※ci.ymlの「name:」で指定している名前と完全に一致させる必要がある
+    workflows: [".NET CI/CD"] # ※ci.ymlの「name:」で指定している名前と完全に一致させる必要がある
     types:
       - completed
     branches:
@@ -33,8 +33,5 @@ jobs:
           # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
           # （「|」は複数行の文字列を記述するためのYAMLの記法）
           script: |
-            echo "=== SSH Connection Successful ==="
-            echo "--- System Information ---"
-            uname -a # サーバーのOSやカーネル情報を出力し、Linuxであることを確認
-            echo "--- Current User ---"
-            whoami   # 実行ユーザーを出力し、指定したユーザーでログインできたか確認
+            cd ~/ECService
+            git pull origin main
