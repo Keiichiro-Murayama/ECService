@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ECService.Presentation.Controllers;
 /// <summary>
-/// ユースケース:[アカウント名を登録する]を実現するコントローラ
+/// ユースケース:[商品を登録する]を実現するコントローラ
 /// </summary>
 //[Authorize]
 [ApiController]
@@ -26,8 +26,8 @@ public class RegisterProductController : ControllerBase
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    /// <param name="usecase">ユースケース:[アカウント名を登録する]を実現するインターフェイス</param>
-    /// <param name="adapter">ユースケース:[アカウント名を登録する]を実現するインターフェイス</param>
+    /// <param name="usecase">ユースケース:[商品を登録する]を実現するインターフェイス</param>
+    /// <param name="adapter">ユースケース:[商品を登録する]を実現するインターフェイス</param>
     public RegisterProductController(
         IRegisterProductUsecase usecase,
         RegisterProductViewModelAdapter adapter)
@@ -37,9 +37,9 @@ public class RegisterProductController : ControllerBase
     }
 
     /// <summary>
-    /// アカウント名の登録
+    /// 商品の登録
     /// </summary>
-    /// <param name="request">ユースケース:[アカウント名を登録する]を実現するViewModel</param>
+    /// <param name="request">ユースケース:[商品を登録する]を実現するViewModel</param>
     /// <returns></returns>
     [HttpPost]
         [SwaggerOperation(Summary = "商品を登録",
