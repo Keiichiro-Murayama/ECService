@@ -9,7 +9,7 @@ on:
     types:
       - completed
     branches:
-      - main
+      - dev
 
 # 実行するジョブ（作業のまとまり）の定義
 jobs:
