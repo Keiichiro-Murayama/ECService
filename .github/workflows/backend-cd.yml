@@ -3,14 +3,12 @@ name: .NET ECService CD
 
 # ワークフローが実行される条件（トリガー）の定義
 # 【修正後】CIワークフローが「完了」した時に実行
+#on:
+  ######  - dev
 on:
-  workflow_run:
-    workflows: [".NET CI/CD"] # ※ci.ymlの「name:」で指定している名前と完全に一致させる必要がある
-    types:
-      - completed
+  push:
     branches:
       - dev
-
 # 実行するジョブ（作業のまとまり）の定義
 jobs:
   deploy: # ジョブの識別名（任意の名前）
