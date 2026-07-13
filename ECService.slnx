@@ -5,5 +5,11 @@
     <Project Path="src/ECService.Infrastructure/ECService.Infrastructure.csproj" />
     <Project Path="src/ECService.Presentation/ECService.Presentation.csproj" />
   </Folder>
-  <Folder Name="/tests/" />
+
+  <Folder Name="/tests/">
+    <Project Path="tests/ECService.Application.Tests/ECService.Application.Tests.csproj" />
+    <Project Path="tests/ECService.Domain.Tests/ECService.Domain.Tests.csproj" />
+    <Project Path="tests/ECService.Infrastructure.Tests/ECService.Infrastructure.Tests.csproj" />
+    <Project Path="tests/ECService.Presentation.Tests/ECService.Presentation.Tests.csproj" />
+  </Folder>
 </Solution>
