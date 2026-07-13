@@ -47,7 +47,6 @@ public class EmployeeAccountEntityAdapter :
             target.AccountUuid.ToString(),
             target.Name,
             target.Password,
-            target.Password,
             employee
         );
 

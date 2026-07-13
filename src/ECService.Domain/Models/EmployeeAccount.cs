@@ -80,6 +80,18 @@ public class EmployeeAccount : Entity
         Employee = employee;
     }
 
+    public EmployeeAccount(
+        string accountUuid,
+        string accountName,
+        string passwordHash,
+        Employee employee)
+    {
+    AccountUuid = accountUuid;
+    AccountName = accountName;
+    PasswordHash = passwordHash;
+    Employee = employee;
+    }
+
     /// <summary>
     /// 社員アカウントを生成する
     /// </summary>

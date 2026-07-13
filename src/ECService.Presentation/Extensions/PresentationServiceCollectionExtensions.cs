@@ -30,6 +30,9 @@ public static class PresentationServiceCollectionExtensions
         // カテゴリ取得用ViewModelAdapter
         services.AddScoped<GetCategoriesViewModelAdapter>();
 
+        // ログイン用ViewModelAdapter
+        services.AddScoped<LoginViewModelAdapter>();
+        
 
         return services;
     }

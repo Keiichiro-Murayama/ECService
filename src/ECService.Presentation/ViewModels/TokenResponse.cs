@@ -4,7 +4,7 @@ namespace ECService.Presentation.ViewModels;
 ///
 /// ログイン結果のメッセージを返す。認証トークンは HttpOnly Cookie で扱うため、本文には含めない。
 /// </summary>
-public class LoginResponse
+public class TokenResponse
 {
     public string Token { get; set; } = string.Empty;
 
