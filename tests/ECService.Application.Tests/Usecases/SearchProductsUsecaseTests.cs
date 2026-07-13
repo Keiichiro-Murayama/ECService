@@ -2,7 +2,6 @@ using ECService.Application.Usecases.Imps;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using Moq;
-using Xunit;
 
 namespace ECService.Application.Tests.Usecases;
 
