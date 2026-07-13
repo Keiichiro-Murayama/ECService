@@ -69,7 +69,8 @@ jobs:
 
       - name: アプリケーションのビルドと発行 (Publish)
         # FDD形式、Linux向けに最適化して ./publish フォルダに出力
-        run:  dotnet publish src/ECService.Presentation/ECService.Presentation.csproj \
+        run: |
+          dotnet publish src/ECService.Presentation/ECService.Presentation.csproj \
             -c Release \
             -r linux-x64 \
             --self-contained false \
