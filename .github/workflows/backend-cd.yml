@@ -3,12 +3,13 @@ name: .NET ECService CD
 
 # ワークフローが実行される条件（トリガー）の定義
 # 【修正後】CIワークフローが「完了」した時に実行
-#on:
-  ######  - dev
 on:
-  push:
+  workflow_run:
+    workflows: [".NET CI/CD"]
+    types:
+      - completed
     branches:
-      - dev
+      - main
 # 実行するジョブ（作業のまとまり）の定義
 jobs:
   deploy: # ジョブの識別名（任意の名前）
@@ -31,5 +32,25 @@ jobs:
           # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
           # （「|」は複数行の文字列を記述するためのYAMLの記法）
           script: |
-            cd ~/ECService
-            git pull origin main
+            echo "=== SSH Connection Successful ==="
+            echo "--- System Information ---"
+            uname -a # サーバーのOSやカーネル情報を出力し、Linuxであることを確認
+            echo "--- Current User ---"
+            whoami   # 実行ユーザーを出力し、指定したユーザーでログインできたか確認
+
+      - name: ASP.NET Core Runtime 8.0 のプロビジョニング
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          script: |
+            # 1. パッケージリストの最新化
+            echo "--- Updating Package List ---"
+            sudo apt-get update
+            # 2. ASP.NET Core ランタイムのインストール
+            echo "--- Installing ASP.NET Core Runtime 8.0 ---"
+            sudo apt-get install -y aspnetcore-runtime-8.0
+            # 3. インストール結果の確認
+            echo "--- Verifying Installation ---"
+            dotnet --list-runtimes
