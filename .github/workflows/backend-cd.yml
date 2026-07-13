@@ -58,3 +58,42 @@ jobs:
             # 3. インストール結果の確認
             echo "--- Verifying Installation ---"
             dotnet --list-runtimes
+    # --- アーティファクトの生成（ビルド） ---
+      - name: リポジトリのチェックアウト
+        uses: actions/checkout@v4
+
+      - name: .NET SDK のセットアップ
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: アプリケーションのビルドと発行 (Publish)
+        # FDD形式、Linux向けに最適化して ./publish フォルダに出力
+        run: dotnet publish -c Release -r linux-x64 --self-contained false -o ./publish
+
+      # --- 運用環境の事前準備（ディレクトリ作成とクリーンアップ） ---
+      - name: デプロイ先ディレクトリの準備
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          script: |
+            echo "--- Preparing Deployment Directory ---"
+            # 配置用ディレクトリの作成
+            sudo mkdir -p /var/www/myapp
+            # azureuserユーザーに所有権を変更（SCPでの書き込み許可のため）
+            sudo chown -R $(whoami):$(whoami) /var/www/myapp
+            # 前回デプロイ時の古いファイルを削除（冪等性の担保）
+            rm -rf /var/www/myapp/*
+
+      # --- アーティファクトの転送 ---
+      - name: SCPによるアーティファクトの転送
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          source: "./publish/*"       # 送信元（Runner上で生成した全ファイル）
+          target: "/var/www/myapp/"   # 送信先（VM上の配置ディレクトリ）
+          strip_components: 1         # 転送先に「publish」という親フォルダを作らず中身だけを展開
