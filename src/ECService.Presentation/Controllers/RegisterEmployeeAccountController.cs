@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace ECService.Presentation.Controllers;
 /// <summary>
-/// ユースケース:[アカウント名を登録する]を実現するコントローラ
+/// 担当者アカウント登録APIを扱うController
 /// </summary>
 //[Authorize]
 [ApiController]

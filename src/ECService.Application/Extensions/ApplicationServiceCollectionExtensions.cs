@@ -1,5 +1,6 @@
 using ECService.Application.Usecases.Imps;
 using ECService.Application.Usecases.Interfaces;
+using ECService.Application.Authentications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ECService.Application.Extensions;
@@ -21,6 +22,10 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IDeleteProductUsecase, DeleteProductUsecase>();
         services.AddScoped<ISearchProductsUsecase, SearchProductsUsecase>();
         services.AddScoped<IGetUnregisteredEmployeesUsecase, GetUnregisteredEmployeesUsecase>();
+        services.AddScoped<IRegisterEmployeeAccountUsecase, RegisterEmployeeAccountUsecase>();
+
+        services.AddScoped<IPasswordService, PasswordService>();
+
 
         return services;
     }

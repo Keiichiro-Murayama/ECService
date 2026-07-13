@@ -21,6 +21,7 @@ public static class PresentationServiceCollectionExtensions
         // 商品検索用ViewModelAdapter
         services.AddScoped<SearchProductsViewModelAdapter>();
 
+
         return services;
     }
 }

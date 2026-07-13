@@ -1,11 +1,11 @@
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using ECService.Application.Usecases.UnitOfWorks;
-using ECService.Application.Security;
+using ECService.Application.Authentications;
 using ECService.Application.Usecases.Interfaces;
 using ECService.Application.Exceptions;
 
-namespace ECService.Application.Imps;
+namespace ECService.Application.Usecases.Imps;
 
 /// <summary>
 /// 担当者アカウント登録ユースケースの実装
