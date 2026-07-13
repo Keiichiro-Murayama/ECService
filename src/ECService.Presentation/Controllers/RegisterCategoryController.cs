@@ -17,6 +17,7 @@ namespace ECService.Presentation.Controllers;
 //[Authorize]
 [ApiController]
 [Route("api/admin/categories")]
+[SwaggerTag("カテゴリ登録API")]
 public class RegisterCategoryController : ControllerBase
 {
     private readonly IRegisterProductCategoryUsecase _usecase;
@@ -41,6 +42,13 @@ public class RegisterCategoryController : ControllerBase
     /// <param name="request">ユースケース:[カテゴリを登録する]を実現するViewModel</param>
     /// <returns></returns>
     [HttpPost]
+        [SwaggerOperation(Summary = "カテゴリ登録",
+                      Description = "カテゴリを登録する")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "カテゴリ名が既に存在する場合")]
+    [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(EmployeeAccount))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
     public async Task<IActionResult> Register(
         RegisterCategoryRequest request)
     {

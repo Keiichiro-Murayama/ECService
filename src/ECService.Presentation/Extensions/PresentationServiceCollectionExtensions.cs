@@ -20,6 +20,15 @@ public static class PresentationServiceCollectionExtensions
 
         // 商品検索用ViewModelAdapter
         services.AddScoped<SearchProductsViewModelAdapter>();
+        
+        // カテゴリ登録用ViewModelAdapter
+        services.AddScoped<RegisterCategoryViewModelAdapter>();
+
+        // 商品登録用ViewModelAdapter
+        services.AddScoped<RegisterProductViewModelAdapter>();
+        
+        // カテゴリ取得用ViewModelAdapter
+        services.AddScoped<GetCategoriesViewModelAdapter>();
 
 
         return services;

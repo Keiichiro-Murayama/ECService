@@ -23,8 +23,10 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<ISearchProductsUsecase, SearchProductsUsecase>();
         services.AddScoped<IGetUnregisteredEmployeesUsecase, GetUnregisteredEmployeesUsecase>();
         services.AddScoped<IRegisterEmployeeAccountUsecase, RegisterEmployeeAccountUsecase>();
-
         services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<IGetCategoriesUsecase, GetCategoriesUsecase>();
+        services.AddScoped<IRegisterProductCategoryUsecase, RegisterProductCategoryUsecase>();
+        services.AddScoped<IRegisterProductUsecase, RegisterProductUsecase>();
 
 
         return services;

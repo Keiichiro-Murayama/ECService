@@ -5,7 +5,7 @@ using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 // using ECService.Domains.Repositories;
 
-namespace ECService.Applications.Usecases.Imps;
+namespace ECService.Application.Usecases.Imps;
 
 public class GetCategoriesUsecase : IGetCategoriesUsecase
 {

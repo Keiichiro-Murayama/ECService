@@ -17,6 +17,7 @@ namespace ECService.Presentation.Controllers;
 //[Authorize]
 [ApiController]
 [Route("api/admin/products")]
+[SwaggerTag("商品登録API")]
 public class RegisterProductController : ControllerBase
 {
     private readonly IRegisterProductUsecase _usecase;
@@ -41,6 +42,13 @@ public class RegisterProductController : ControllerBase
     /// <param name="request">ユースケース:[アカウント名を登録する]を実現するViewModel</param>
     /// <returns></returns>
     [HttpPost]
+        [SwaggerOperation(Summary = "商品を登録",
+                      Description = "商品ID、商品カテゴリ、商品名、在庫を登録する")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "アカウント名が既に存在する場合")]
+    [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(EmployeeAccount))]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
     public async Task<IActionResult> Register(
         RegisterProductRequest request)
     {
