@@ -37,6 +37,16 @@ public class EmployeeAccount : Entity
     public Employee Employee { get; private set; }
 
     /// <summary>
+    /// アカウントロックアウトの状態
+    /// </summary>
+    public DateTime? LockoutEnd { get; private set; }
+
+    /// <summary>
+    /// アカウントロック回数
+    /// </summary>
+    public int AccessFailedCount { get; private set; }
+
+    /// <summary>
     /// 同一性判定に使用する識別子
     /// </summary>
     protected override string Identity => AccountUuid;
@@ -65,7 +75,9 @@ public class EmployeeAccount : Entity
         string accountName,
         string password,
         string passwordHash,
-        Employee employee)
+        Employee employee,
+        DateTime? lockoutEnd,
+        int accessFailedCount)
     {
         ValidateUuid(accountUuid);
         ValidateAccountName(accountName);
@@ -78,6 +90,8 @@ public class EmployeeAccount : Entity
         Password = password;
         PasswordHash = passwordHash;
         Employee = employee;
+        LockoutEnd = lockoutEnd;
+        AccessFailedCount = accessFailedCount;
     }
 
     public EmployeeAccount(
@@ -113,7 +127,9 @@ public class EmployeeAccount : Entity
             name,
             password,
             passwordHash,
-            employee);
+            employee,
+            lockoutEnd: null,
+            accessFailedCount: 0);
     }
 
     /// <summary>
@@ -223,4 +239,6 @@ public class EmployeeAccount : Entity
             throw new DomainException("識別Idの形式が不正です。", nameof(accountUuid));
         }
     }
+
+    
 }

@@ -40,30 +40,43 @@ public class LoginUsecase : ILoginUsecase
     /// <returns>発行された JWT を含むログイン結果</returns>
     /// <exception cref="AuthenticationFailedException">認証に失敗した場合</exception>
     public async Task<(string AccessToken, EmployeeAccount EmployeeAccount)> ExecuteAsync((string Username, string Password) input)
+{
+    // 1. ユーザー名でユーザーを検索する
+    var employeeAccount = await _employeeAccountRepository.SelectByAccountNameAsync(input.Username);
 
+    if (employeeAccount is null)
     {
-        // ユーザー名でユーザーを検索する
-        var employeeAccount = await _employeeAccountRepository.SelectByAccountNameAsync(input.Username);
-
-        // ユーザーが存在しない場合も、パスワードが一致しない場合も、
-        // 区別せずに同一の認証失敗として扱う(列挙攻撃を防ぐ:UC-02 BR-04)
-        if (employeeAccount is null)
-        {
-            throw new AuthenticationException(
-                "AuthenticationFailed", "ユーザー名またはパスワードが正しくありません。");
-        }
-
-        // LoginInteractor の Verify 呼び出しを修正
-        var isValid = _passwordService.Verify(employeeAccount.PasswordHash, input.Password);
-        if (!isValid)
-        {
-            throw new AuthenticationException(
-                "AuthenticationFailed", "ユーザー名またはパスワードが正しくありません。");
-        }
-
-        // 認証成功 → JWT を発行する
-        var accessToken = _jwtTokenProvider.IssueAccessToken(employeeAccount);
-
-        return (accessToken, employeeAccount);
+        throw new AuthenticationException(
+            "AuthenticationFailed", "ユーザー名またはパスワードが正しくありません。");
     }
+
+    // 現在アカウントがロック中かどうかを判定
+    var now = DateTime.UtcNow;
+    if (employeeAccount.LockoutEnd.HasValue && employeeAccount.LockoutEnd.Value > now)
+    {
+        var remainingMinutes = Math.Ceiling((employeeAccount.LockoutEnd.Value - now).TotalMinutes);
+        throw new AuthenticationException(
+            "AccountLocked", $"アカウントはロックされています。残り約 {remainingMinutes} 分後に再度お試しください。");
+    }
+
+    // 3. パスワードの検証
+    var isValid = _passwordService.Verify(employeeAccount.PasswordHash, input.Password);
+    
+    if (!isValid)
+    {
+        // 失敗回数のカウントアップやロック処理
+        await _employeeAccountRepository.RecordLoginFailureAsync(input.Username);
+
+        throw new AuthenticationException(
+            "AuthenticationFailed", "ユーザー名またはパスワードが正しくありません。");
+    }
+
+    // 認証成功時は、次回のためにリポジトリ経由で失敗カウントをリセットする
+    await _employeeAccountRepository.ResetLoginFailureAsync(input.Username);
+
+    // 5. 認証成功 → JWT を発行する
+    var accessToken = _jwtTokenProvider.IssueAccessToken(employeeAccount);
+
+    return (accessToken, employeeAccount);
+}
 }

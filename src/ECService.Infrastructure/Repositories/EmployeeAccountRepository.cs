@@ -79,4 +79,66 @@ public class EmployeeAccountRepository : IEmployeeAccountRepository
         await _context.EmployeeAccounts.AddAsync(entity);
         await _context.SaveChangesAsync();
     }
+
+    /// <summary>
+    /// アカウントロックアウトの状態を更新する。
+    /// </summary>
+    public async Task<EmployeeAccount?> FindByUsernameAsync(string name)
+    {
+        // 1. まずはDBから「Entity型」で取得する
+        var entity = await _context.EmployeeAccounts
+        .FirstOrDefaultAsync(a => a.Name == name);
+
+         if (entity == null) return null;
+
+         // 2. EntityからドメインのModelへ詰め替えて返す（プロジェクト共通の変換メソッドがあればそれを使う）
+        return await _adapter.RestoreAsync(entity);
+    }
+
+    public async Task UpdateAsync(EmployeeAccount account)
+    {
+        // ドメインモデルをインフラ層のEntity型に逆変換する
+        var entity = await _adapter.ConvertAsync(account); 
+
+         // 変換後のEntityをUpdateに渡す
+         _context.EmployeeAccounts.Update(entity);
+         await _context.SaveChangesAsync();
+    }
+
+    public async Task RecordLoginFailureAsync(string name)
+{
+    // DBから直接インフラ層のEntityを引っ張る
+    var entity = await _context.EmployeeAccounts
+        .FirstOrDefaultAsync(a => a.Name == name);
+
+    if (entity != null)
+    {
+        var now = DateTime.UtcNow;
+
+        // 1. カウントを増やす
+        entity.AccessFailedCount++;
+
+        // 2. 5回に達したら10分ロック
+        if (entity.AccessFailedCount >= 5)
+        {
+            entity.LockoutEnd = now.AddMinutes(10);
+        }
+
+        // 3. DBに保存
+        await _context.SaveChangesAsync();
+    }
+}
+
+public async Task ResetLoginFailureAsync(string name)
+{
+    var entity = await _context.EmployeeAccounts
+        .FirstOrDefaultAsync(a => a.Name == name);
+
+    if (entity != null)
+    {
+        entity.AccessFailedCount = 0;
+        entity.LockoutEnd = null;
+        await _context.SaveChangesAsync();
+    }
+}
 }

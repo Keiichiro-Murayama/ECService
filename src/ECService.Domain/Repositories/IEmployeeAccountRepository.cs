@@ -26,4 +26,22 @@ public interface IEmployeeAccountRepository
     /// </summary>
     /// <param name="employeeAccount">担当者アカウント。</param>
     Task CreateAsync(EmployeeAccount employeeAccount);
+
+    /// <summary>
+    /// 指定したアカウント名に一致する担当者アカウントを取得する。
+    /// </summary>
+    Task<EmployeeAccount?> FindByUsernameAsync(string employeeName);
+    
+    /// <summary>
+    /// アカウントロックアウトの状態を更新する。
+    /// </summary>
+    /// <param name="account"></param>
+    /// <returns></returns>
+    Task UpdateAsync(EmployeeAccount account);
+
+    // ログイン失敗を記録する
+    Task RecordLoginFailureAsync(string username);
+
+    // ログイン成功時にカウンタをリセットする
+    Task ResetLoginFailureAsync(string username);
 }
