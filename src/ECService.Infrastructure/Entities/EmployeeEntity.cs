@@ -44,7 +44,7 @@ namespace ECService.Infrastructure.Entities
         /// 社員名（かな）
         /// </summary>
         [Required]
-        [Column("kana")]
+        [Column("name_kana")]//石原:kanaからname_kanaに変更
         [MaxLength(100)]
         public string Kana { get; set; } = string.Empty;
 
