@@ -1,58 +1,54 @@
 using ECService.Application.Usecases.Interfaces;
+using ECService.Domain.Exceptions;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECService.Presentation.Controllers;
 
-/// <summary>
-/// 商品詳細取得APIを提供するController。
-/// </summary>
 [ApiController]
 [Route("api/admin/products/info")]
 public class GetProductInfoByIdController : ControllerBase
 {
     private readonly IGetProductInfoUsecase _getProductInfoUsecase;
-    private readonly GetProductViewModelAdapter _getProductViewModelAdapter;
+    private readonly GetProductViewModelAdapter _adapter;
 
     public GetProductInfoByIdController(
         IGetProductInfoUsecase getProductInfoUsecase,
-        GetProductViewModelAdapter getProductViewModelAdapter)
+        GetProductViewModelAdapter adapter)
     {
         _getProductInfoUsecase = getProductInfoUsecase;
-        _getProductViewModelAdapter = getProductViewModelAdapter;
+        _adapter = adapter;
     }
 
-    /// <summary>
-    /// 商品UUIDに一致する商品詳細を取得する。
-    /// </summary>
-    /// <param name="productUuId">商品UUID。</param>
-    /// <returns>商品詳細。</returns>
     [HttpGet]
     public async Task<ActionResult<GetProductInfoResponse>> GetInfoById(
         [FromQuery] string productUuId)
     {
-        if (string.IsNullOrWhiteSpace(productUuId) ||
-            !Guid.TryParse(productUuId, out _))
+        try
         {
-            return BadRequest(new
+            if (string.IsNullOrWhiteSpace(productUuId) ||
+                !Guid.TryParse(productUuId, out _))
             {
-                message = "商品UUIDの形式が不正です。"
-            });
+                throw new DomainException(
+                    "商品UUIDの形式が不正です。",
+                    nameof(productUuId));
+            }
+
+            var product = await _getProductInfoUsecase.ExecuteAsync(productUuId);
+
+            if (product is null)
+            {
+                return NotFound(new { message = "商品が見つかりません。" });
+            }
+
+            var response = _adapter.Convert(product);
+
+            return Ok(response);
         }
-
-        var product = await _getProductInfoUsecase.ExecuteAsync(productUuId);
-
-        if (product is null)
+        catch (DomainException ex)
         {
-            return NotFound(new
-            {
-                message = "商品が見つかりません。"
-            });
+            return BadRequest(new { message = ex.Message });
         }
-
-        var response = _getProductViewModelAdapter.Convert(product);
-
-        return Ok(response);
     }
 }

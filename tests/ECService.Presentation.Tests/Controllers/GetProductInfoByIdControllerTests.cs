@@ -105,7 +105,7 @@ public class GetProductInfoByIdControllerTests
     public async Task GetInfoById_UsecaseでDomainExceptionが発生した場合_BadRequestを返す()
     {
         // Arrange
-        var productUuid = "invalid-uuid";
+        var productUuid = Guid.NewGuid().ToString();
 
         _getProductInfoUsecaseMock
             .Setup(usecase => usecase.ExecuteAsync(productUuid))
@@ -195,7 +195,7 @@ public class GetProductInfoByIdControllerTests
                 $"想定した例外は {typeof(TException).Name} でしたが、実際は {exception.GetType().Name} でした。");
         }
 
-        Assert.Fail($"想定した例外 {typeof(TException).Name} が送出されませんでした。");
+        Assert.Fail($"想定した例外 {typeof(TException).Name} が送出されませんでした。");//
         return null!;
     }
 }
