@@ -9,7 +9,7 @@ using ECService.Application.Exceptions;
 using ECService.Application.Usecases.UnitOfWorks;
 using ECService.Application.Usecases.Imps;
 using Moq;
-namespace ECService.Application.Tests.Usecase.Interactors;
+namespace ECService.Application.Tests.Usecase;
 /// <summary>
 /// ユースケース:[ユーザーを登録する]を実現するインターフェイス実装のテストドライバ
 /// </summary>

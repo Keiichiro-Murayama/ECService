@@ -6,7 +6,7 @@ namespace ECService.Presentation.Adapters;
 /// <summary>
 /// 商品カテゴリドメインオブジェクトをViewModelへ変換するアダプタ
 /// </summary>
-public class UnregisteredViewModelAdapter
+public class UnregisteredEmployeesViewModelAdapter
 {
     /// <summary>
     /// カテゴリリストをViewModelへ変換する

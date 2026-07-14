@@ -34,7 +34,7 @@ public static class PresentationServiceCollectionExtensions
         services.AddScoped<LoginViewModelAdapter>();
         
         // 未登録用ViewModelAdapter
-        services.AddScoped<UnregisteredViewModelAdapter>();
+        services.AddScoped<UnregisteredEmployeesViewModelAdapter>();
         
 
         return services;

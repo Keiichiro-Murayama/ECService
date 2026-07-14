@@ -17,11 +17,11 @@ namespace ECService.Presentation.Controllers;
 public class GetUnregisteredEmployeesController : ControllerBase
 {
     private readonly IGetUnregisteredEmployeesUsecase _usecase;
-    private readonly UnregisteredViewModelAdapter _adapter;
+    private readonly UnregisteredEmployeesViewModelAdapter _adapter;
 
     public GetUnregisteredEmployeesController(
         IGetUnregisteredEmployeesUsecase usecase,
-        UnregisteredViewModelAdapter adapter)
+        UnregisteredEmployeesViewModelAdapter adapter)
     {
         _usecase = usecase;
         _adapter = adapter;

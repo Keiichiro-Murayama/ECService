@@ -81,7 +81,7 @@ public class RegisterEmployeeAccountUsecase : IRegisterEmployeeAccountUsecase
         catch
         {
             await _unitOfWork.RollbackAsync();
-            throw;
+            //throw;
         }
     }
 }
