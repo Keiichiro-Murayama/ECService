@@ -15,6 +15,11 @@ namespace ECService.Infrastructure.Contexts
         public DbSet<ProductCategoryEntity> ProductCategories => Set<ProductCategoryEntity>();
         public DbSet<ProductEntity> Products => Set<ProductEntity>();
         public DbSet<ProductStockEntity> ProductStocks => Set<ProductStockEntity>();
+        public DbSet<CustomerEntity> CustomerEntities => Set<CustomerEntity>();
+        public DbSet<OrderStatusEntity> OrderStatuses => Set<OrderStatusEntity>();
+        public DbSet<OrdersEntity> Orders => Set<OrdersEntity>();
+        public DbSet<OrdersDetailEntity> OrdersDetails => Set<OrdersDetailEntity>();
+        public DbSet<PaymentMethodEntity> PaymentMethods => Set<PaymentMethodEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -81,6 +86,64 @@ namespace ECService.Infrastructure.Contexts
                 entity.HasOne(s => s.Product)
                       .WithOne(p => p.ProductStock)
                       .HasForeignKey<ProductStockEntity>(s => s.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+            // ########### 注文関連 ###########
+            //注文
+            modelBuilder.Entity<OrdersEntity>(entity =>
+            {
+                entity.HasIndex(e => e.OrderUuid).IsUnique();
+
+                entity.HasOne(e => e.OrderStatus)
+                      .WithMany()
+                      .HasForeignKey(e => e.OrderStatusId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.PaymentMethod)
+                      .WithMany()
+                      .HasForeignKey(e => e.PaymentMethodId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(o => o.OrdersDetails)
+                      .WithOne(d => d.Order)
+                      .HasForeignKey(d => d.OrderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //注文明細
+            modelBuilder.Entity<OrdersDetailEntity>(entity =>
+            {
+                entity.HasOne(e => e.Product)
+                      .WithMany()
+                      .HasForeignKey(e => e.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            //注文ステータス
+            modelBuilder.Entity<OrderStatusEntity>(entity =>
+            {
+                entity.HasIndex(e => e.Name).IsUnique();
+
+            });
+
+            //支払方法
+            modelBuilder.Entity<PaymentMethodEntity>(entity =>
+            {
+                entity.HasIndex(p => p.Name).IsUnique();
+            });
+
+            // ########### 顧客関連 ###########
+            modelBuilder.Entity<CustomerEntity>(entity =>
+            {
+                entity.HasIndex(e => e.CustomerUuid).IsUnique();
+                entity.HasIndex(e => e.Username).IsUnique();
+                entity.HasIndex(e => e.MailAddress).IsUnique();
+
+                entity.HasMany(e => e.OrdersEntities)
+                      .WithOne(o => o.Customer)
+                      .HasForeignKey(o => o.CustomerId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }
