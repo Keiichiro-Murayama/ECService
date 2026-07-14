@@ -13,7 +13,7 @@ public class GetCategoriesViewModelAdapter
     /// </summary>
     /// <param name="categories">カテゴリドメインオブジェクトのリスト</param>
     /// <returns>ViewModel</returns>
-    public GetCategoriesResponse Convert(List<CategoriesItem> categories)
+    public async Task<GetCategoriesResponse> Convert(List<ProductCategory> categories)
     {
         return new GetCategoriesResponse
         {
@@ -21,7 +21,6 @@ public class GetCategoriesViewModelAdapter
                 .Select(categories => new CategoriesItem
                 {
                     CategoryUuid = categories.CategoryUuid,
-                    CategoryId = categories.CategoryId,
                     Name = categories.Name
                 })
                 .ToList()
