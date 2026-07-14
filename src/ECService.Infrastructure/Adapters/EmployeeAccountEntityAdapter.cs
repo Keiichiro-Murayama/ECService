@@ -20,7 +20,9 @@ public class EmployeeAccountEntityAdapter :
         {
             AccountUuid = Guid.Parse(domain.AccountUuid),
             Name = domain.AccountName,
-            Password = domain.PasswordHash
+            Password = domain.PasswordHash,
+            LockoutEnd = domain.LockoutEnd,
+            AccessFailedCount = domain.AccessFailedCount
         };
 
         return Task.FromResult(entity);
@@ -47,7 +49,9 @@ public class EmployeeAccountEntityAdapter :
             target.AccountUuid.ToString(),
             target.Name,
             target.Password,
-            employee
+            employee,
+            target.LockoutEnd,
+            target.AccessFailedCount
         );
 
         return Task.FromResult(account);

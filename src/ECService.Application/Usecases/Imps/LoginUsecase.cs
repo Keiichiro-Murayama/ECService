@@ -52,11 +52,20 @@ public class LoginUsecase : ILoginUsecase
 
     // 現在アカウントがロック中かどうかを判定
     var now = DateTime.UtcNow;
+//     Console.WriteLine($"[DEBUG] DBのLockoutEnd: {employeeAccount.LockoutEnd}, 現在時刻(Utc): {now}");
+//     if (employeeAccount.LockoutEnd.HasValue)
+// {
+//     // ★検証用ログ：どっちが大きいか出す
+//     Console.WriteLine($"[DEBUG] ロック終了時刻 > 現在時刻 か？ : {employeeAccount.LockoutEnd.Value > now}");
+// }
     if (employeeAccount.LockoutEnd.HasValue && employeeAccount.LockoutEnd.Value > now)
     {
         var remainingMinutes = Math.Ceiling((employeeAccount.LockoutEnd.Value - now).TotalMinutes);
         throw new AuthenticationException(
-            "AccountLocked", $"アカウントはロックされています。残り約 {remainingMinutes} 分後に再度お試しください。");
+                "AccountLocked", 
+                $"アカウントはロックされています。残り約 {remainingMinutes} 分後に再度お試しください。", 
+                remainingMinutes
+            );
     }
 
     // 3. パスワードの検証
@@ -79,4 +88,5 @@ public class LoginUsecase : ILoginUsecase
 
     return (accessToken, employeeAccount);
 }
+
 }

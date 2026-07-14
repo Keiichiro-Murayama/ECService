@@ -19,6 +19,18 @@ var connectionString = builder.Configuration.GetConnectionString("ECServiceDB")
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
     ?? throw new InvalidOperationException("JWT 設定 'Jwt' が設定されていません。");
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        // 開発環境のポート（例: 5245、あるいはフロントエンドが動作しているURL）を指定します
+        policy.WithOrigins("http://127.0.0.1:5245", "http://localhost:5245") 
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Cookie（access_token）の送受信を許可するために必須
+    });
+});
+
 // --- 認証(JWT Bearer)---
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
