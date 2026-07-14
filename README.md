@@ -136,11 +136,11 @@ Authorization: Bearer {JWTトークン}
 ```json
 [
   {
-    "employeeId": 1,
+    "employeeUuid": "550e8422-e29b-41d4-a716-44665544000b",
     "employeeName": "山田太郎"
   },
   {
-    "employeeId": 2,
+    "employeeUuid": "550e8411-e29b-41d4-a716-44665544000z",
     "employeeName": "佐藤花子"
   }
 ]
