@@ -5,7 +5,6 @@ using ECService.Presentation.Adapters;
 using ECService.Presentation.Controllers;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace ECService.Presentation.Tests.Controllers;

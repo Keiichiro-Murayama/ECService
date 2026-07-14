@@ -23,7 +23,7 @@ public class EmployeeAccount : Entity
     /// 画面入力値のバリデーション用
     /// DBには保存しない
     /// </summary>
-    public string Password { get; private set; }
+    public string Password { get; private set; } = string.Empty;
 
     /// <summary>
     /// ハッシュ化済みパスワード
