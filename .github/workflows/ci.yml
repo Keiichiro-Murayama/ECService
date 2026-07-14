@@ -1,4 +1,4 @@
-name: .NET CI/CD
+name: ECService Backend CI
 
 on:
   push:
@@ -11,23 +11,109 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-test:
+    name: ビルドとテスト
     runs-on: ubuntu-latest
 
+    # CI実行中だけ使用する、使い捨てのPostgreSQL
+    services:
+      postgres:
+        image: postgres:17
+
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ecservice_test
+
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ecservice_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    # appsettings.jsonの接続文字列をCI用の値で上書きする
+    env:
+      ConnectionStrings__ECServiceDB: "Host=localhost;Port=5432;Database=ecservice_test;Username=postgres;Password=postgres"
+
     steps:
-      - name: Checkout
+      # リポジトリのコードを取得
+      - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
 
-      - name: Setup .NET 10
+      # .NET 10 SDKを準備
+      - name: .NET SDKをセットアップ
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
 
-      - name: Restore
+      # NuGetパッケージを復元
+      - name: 依存パッケージを復元
         run: dotnet restore ECService.slnx
 
-      - name: Build
-        run: dotnet build ECService.slnx --no-restore --configuration Release
+      # Release構成でビルド
+      - name: ビルド
+        run: >
+          dotnet build ECService.slnx
+          --configuration Release
+          --no-restore
+          -warnaserror
 
-      - name: Test
-        run: dotnet test ECService.slnx --no-build --configuration Release
+      # EF Core Migrationを実行するためのツール
+      - name: dotnet-efをインストール
+        run: dotnet tool install --global dotnet-ef --version "10.0.*"
+
+      # Migrationを使って、使い捨てDBにテーブルを作成
+      - name: MigrationをテストDBに適用
+        run: >
+          dotnet ef database update
+          --project src/ECService.Infrastructure/ECService.Infrastructure.csproj
+          --startup-project src/ECService.Presentation/ECService.Presentation.csproj
+          --configuration Release
+          --no-build
+
+      # テストで必要な初期データを投入
+      - name: テストデータを投入
+        env:
+          PGPASSWORD: postgres
+        run: >
+          psql
+          -h localhost
+          -U postgres
+          -d ecservice_test
+          -v ON_ERROR_STOP=1
+          -f src/ECService.Infrastructure/Migrations/insert_testdata.sql
+
+      # コードの書式を確認
+      - name: 書式チェック
+        run: >
+          dotnet format ECService.slnx
+          --verify-no-changes
+          --severity warn
+          --no-restore
+
+      # ドメイン層のテスト
+      - name: テスト（ドメイン層）
+        run: >
+          dotnet test
+          tests/ECService.Domain.Tests/ECService.Domain.Tests.csproj
+          --configuration Release
+          --no-build
+
+      # アプリケーション層のテスト
+      - name: テスト（アプリケーション層）
+        run: >
+          dotnet test
+          tests/ECService.Application.Tests/ECService.Application.Tests.csproj
+          --configuration Release
+          --no-build
+
+      # インフラストラクチャ層のテスト
+      - name: テスト（インフラストラクチャ層）
+        run: >
+          dotnet test
+          tests/ECService.Infrastructure.Tests/ECService.Infrastructure.Tests.csproj
+          --configuration Release
+          --no-build
