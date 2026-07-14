@@ -9,7 +9,6 @@ namespace ECService.Presentation.ViewModels;
 /// </summary>
 public class CategoriesItem
 {
-    public string? CategoryUuid;
-    public string? CategoryId;
-    public string? Name;
+    public string? CategoryUuid { get; set; }
+    public string? Name { get; set; }
 }

@@ -11,6 +11,7 @@ public class AuthenticationException : Exception
     /// エラーの種類を表すコード(例:AuthenticationFailed)
     /// </summary>
     public string ErrorCode { get; }
+    public double? RemainingMinutes { get; }
 
     /// <summary>
     /// コンストラクタ
@@ -21,6 +22,12 @@ public class AuthenticationException : Exception
     {
         ErrorCode = errorCode;
     }
+    public AuthenticationException(string errorCode, string message, double remainingMinutes) 
+            : base(message)
+        {
+            ErrorCode = errorCode;
+            RemainingMinutes = remainingMinutes;
+        }
 
     
 }

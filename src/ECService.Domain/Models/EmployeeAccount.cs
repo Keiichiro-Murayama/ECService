@@ -107,6 +107,30 @@ public class EmployeeAccount : Entity
     }
 
     /// <summary>
+    /// 復元用のコンストラクタ（平文パスワードを要求しない）
+    /// </summary>
+    public EmployeeAccount(
+        string accountUuid,
+        string accountName,
+        string passwordHash,
+        Employee employee,
+        DateTime? lockoutEnd,
+        int accessFailedCount)
+    {
+        ValidateUuid(accountUuid);
+        ValidateAccountName(accountName);
+        ValidatePasswordHash(passwordHash);
+        ValidateEmployee(employee);
+
+        AccountUuid = accountUuid;
+        AccountName = accountName;
+        PasswordHash = passwordHash;
+        Employee = employee;
+        LockoutEnd = lockoutEnd;
+        AccessFailedCount = accessFailedCount;
+    }
+
+    /// <summary>
     /// 社員アカウントを生成する
     /// </summary>
     public static EmployeeAccount Create(

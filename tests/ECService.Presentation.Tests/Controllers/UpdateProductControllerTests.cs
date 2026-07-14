@@ -4,7 +4,6 @@ using ECService.Domain.Models;
 using ECService.Presentation.Controllers;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace ECService.Presentation.Tests.Controllers;
@@ -160,10 +159,19 @@ public class UpdateProductControllerTests
             .ThrowsAsync(new InvalidOperationException("想定外エラー"));
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
-            _controller.UpdateProduct(productUuid, request));
+        InvalidOperationException? exception = null;
+
+        try
+        {
+            await _controller.UpdateProduct(productUuid, request);
+        }
+        catch (InvalidOperationException ex)
+        {
+            exception = ex;
+        }
 
         // Assert
+        Assert.IsNotNull(exception);
         Assert.AreEqual("想定外エラー", exception.Message);
 
         _updateProductUsecaseMock.Verify(usecase => usecase.ExecuteAsync(

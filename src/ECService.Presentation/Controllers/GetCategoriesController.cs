@@ -47,11 +47,16 @@ public class GetCategoriesController : ControllerBase
         var categories = await _getCategoriesUsecase.ExecuteAsync();
 
         // プルダウンに必要な項目だけ返す
-        var response = categories.Select(categories => new
-        {
-            categoriUuid = categories.CategoryUuid,
-            categoryName = categories.Name
-        });
+        // var response = categories.Select(categories => new
+        // {
+        //     categoriUuid = categories.CategoryUuid,
+        //     categoryName = categories.Name
+        // });
+
+        // GetCategoriesResponse response = new GetCategoriesResponse();
+
+
+        var response = await _getCategoriesViewModelAdapter.Convert(categories);
 
         return Ok(response);
     }

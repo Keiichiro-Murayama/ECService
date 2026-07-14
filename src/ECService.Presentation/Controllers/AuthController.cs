@@ -1,6 +1,5 @@
 using ECService.Application.Usecases.Interfaces;
-using ECService.Domain.Adapters;
-using ECService.Domain.Models;
+using ECService.Application.Exceptions;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ namespace ECService.Presentations.Controllers;
 /// 認証(ログイン・ログアウト)に関する API を提供する
 /// </summary>
 [ApiController]
-[Route("/api/admin/login")]
+[Route("/api/admin")]
 [Tags("認証")]
 public class AuthController : ControllerBase
 {
@@ -31,19 +30,43 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<TokenResponse>> Login([FromBody] LoginRequest model)
     {
-        var input = (model.Username, model.Password);
-        var result = await _loginUsecase.ExecuteAsync(input);
-
-        // 発行された JWT を HttpOnly Cookie にセットする
-        Response.Cookies.Append(AuthCookieName, result.AccessToken, new CookieOptions
+        try
         {
-            HttpOnly = true,
-            Secure = false,                  // ★開発はHTTPのため false
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddMinutes(60),
-        });
+            var input = (model.Username, model.Password);
+            // ★このユースケース実行で例外が発生する可能性があるため、tryの中で実行します
+            var result = await _loginUsecase.ExecuteAsync(input);
 
-        return Ok(new TokenResponse { Message = "ログインに成功しました。" });
+            // 発行された JWT を HttpOnly Cookie にセットする
+            Response.Cookies.Append(AuthCookieName, result.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false,                  // ★開発はHTTPのため false
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(60),
+            });
+
+            return Ok(new TokenResponse { Message = "ログインに成功しました。" });
+        }
+        catch (AuthenticationException ex)
+        {
+            // 1. アカウントロック状態の場合 (HTTP 423 Locked)
+            if (ex.ErrorCode == "AccountLocked")
+            {
+                return StatusCode(StatusCodes.Status423Locked, new
+                {
+                    error = ex.ErrorCode,
+                    message = ex.Message,
+                    remainingMinutes = ex.RemainingMinutes // 画面表示用に残り時間を返す
+                });
+            }
+
+            // 2. 通常の認証失敗（パスワード間違いなど）の場合 (HTTP 401 Unauthorized)
+            return Unauthorized(new
+            {
+                error = ex.ErrorCode,
+                message = ex.Message
+            });
+        }
     }
 
 
