@@ -3,6 +3,7 @@ using ECService.Application.Usecases.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
+using ECService.Presentation.Adapters;
 
 namespace ECService.Presentation.Controllers;
 
@@ -16,11 +17,14 @@ namespace ECService.Presentation.Controllers;
 public class GetUnregisteredEmployeesController : ControllerBase
 {
     private readonly IGetUnregisteredEmployeesUsecase _usecase;
+    private readonly UnregisteredViewModelAdapter _adapter;
 
     public GetUnregisteredEmployeesController(
-        IGetUnregisteredEmployeesUsecase usecase)
+        IGetUnregisteredEmployeesUsecase usecase,
+        UnregisteredViewModelAdapter adapter)
     {
         _usecase = usecase;
+        _adapter = adapter;
     }
 
     /// <summary>
@@ -41,11 +45,7 @@ public class GetUnregisteredEmployeesController : ControllerBase
         var employees = await _usecase.ExecuteAsync();
 
         // プルダウンに必要な項目だけ返す
-        var response = employees.Select(employee => new
-        {
-            employeeUuid = employee.EmployeeUuid,
-            employeeName = employee.Name
-        });
+        var response = await _adapter.Convert(employees);
 
         return Ok(response);
     }
