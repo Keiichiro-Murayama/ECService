@@ -13,11 +13,11 @@ namespace ECService.Domain.Tests.Models;
 /// 商品のバリデーションチェックおよび
 /// 削除フラグなどの業務ルールを検証する。
 /// </summary>
-public class ProductDomainTests
+public class ProductTests
 {
     private readonly ITestOutputHelper _output;
 
-    public ProductDomainTests(ITestOutputHelper output)
+    public ProductTests(ITestOutputHelper output)
     {
         _output = output;
     }
