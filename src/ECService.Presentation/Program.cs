@@ -12,8 +12,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // 接続文字列
-var connectionString = builder.Configuration.GetConnectionString("LibraryDb")
-    ?? throw new InvalidOperationException("接続文字列 'LibraryDb' が設定されていません。");
+var connectionString = builder.Configuration.GetConnectionString("ECServiceDB")
+    ?? throw new InvalidOperationException("接続文字列 'ECServiceDB' が設定されていません。");
 
 // JWT 設定(アプリケーション層へ渡す)
 var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
