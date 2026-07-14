@@ -59,12 +59,13 @@ public class DeleteProductUsecaseTests
         var usecase = new DeleteProductUsecase(repositoryMock.Object);
 
         // Act
-        var exception = await Assert.ThrowsExactlyAsync<InvalidOperationException>(
-            () => usecase.ExecuteAsync(ProductUuid));
+        var exception =
+            await Assert.ThrowsExactlyAsync<InvalidOperationException>(
+                () => usecase.ExecuteAsync(ProductUuid));
 
         // Assert
         Assert.AreEqual(
-            "削除対象の商品が見つかりませんでした。",
+            "指定された商品が見つかりません。",
             exception.Message);
 
         repositoryMock.Verify(
@@ -92,8 +93,9 @@ public class DeleteProductUsecaseTests
         var usecase = new DeleteProductUsecase(repositoryMock.Object);
 
         // Act
-        var actualException = await Assert.ThrowsExactlyAsync<Exception>(
-            () => usecase.ExecuteAsync(ProductUuid));
+        var actualException =
+            await Assert.ThrowsExactlyAsync<Exception>(
+                () => usecase.ExecuteAsync(ProductUuid));
 
         // Assert
         Assert.AreSame(expectedException, actualException);

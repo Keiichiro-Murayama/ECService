@@ -30,7 +30,7 @@ public class DeleteProductUsecase : IDeleteProductUsecase
         if (!result)
         {
             throw new InvalidOperationException(
-                "削除対象の商品が見つかりませんでした。");
+                "指定された商品が見つかりません。");
         }
     }
 }
