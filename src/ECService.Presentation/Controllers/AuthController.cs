@@ -37,20 +37,12 @@ public class AuthController : ControllerBase
         try
         {
             var input = (model.Username, model.Password);
-            // このユースケース実行で例外が発生する可能性があるため、tryの中で実行します
+
             var result = await _loginUsecase.ExecuteAsync(input);
 
-            // 発行された JWT を HttpOnly Cookie にセットする
-            Response.Cookies.Append(AuthCookieName, result.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,                  // ★開発はHTTPのため false
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddMinutes(60),
-            });
+            AppendAuthCookie(result.AccessToken);
 
-            var response =
-            await _loginViewModelAdapter.ConvertAsync(result);
+            var response = await _loginViewModelAdapter.ConvertAsync(result);
 
             return Ok(response);
         }
@@ -76,6 +68,23 @@ public class AuthController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// 認証Cookieを設定する。
+    /// </summary>
+    /// <param name="accessToken">JWTアクセストークン</param>
+    private void AppendAuthCookie(string accessToken)
+    {
+        Response.Cookies.Append(
+        AuthCookieName,
+        accessToken,
+        new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = false,          // 開発環境ではHTTPのためfalse
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddMinutes(60)
+        });
+    }
 
     /// <summary>
     /// ログアウトする
