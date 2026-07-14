@@ -3,6 +3,7 @@ using ECService.Application.Exceptions;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ECService.Presentation.Adapters;
 namespace ECService.Presentations.Controllers;
 /// <summary>
 /// 認証(ログイン・ログアウト)に関する API を提供する
@@ -16,11 +17,14 @@ public class AuthController : ControllerBase
     private const string AuthCookieName = "access_token";
 
     private readonly ILoginUsecase _loginUsecase;
+    private readonly LoginViewModelAdapter _loginViewModelAdapter;
 
     public AuthController(
-        ILoginUsecase loginUsecase)
+        ILoginUsecase loginUsecase,LoginViewModelAdapter loginViewModelAdapter)
     {
-        _loginUsecase = loginUsecase;}
+        _loginUsecase = loginUsecase;
+        _loginViewModelAdapter = loginViewModelAdapter;
+    }
 
     /// <summary>
     /// ログインする
@@ -33,7 +37,7 @@ public class AuthController : ControllerBase
         try
         {
             var input = (model.Username, model.Password);
-            // ★このユースケース実行で例外が発生する可能性があるため、tryの中で実行します
+            // このユースケース実行で例外が発生する可能性があるため、tryの中で実行します
             var result = await _loginUsecase.ExecuteAsync(input);
 
             // 発行された JWT を HttpOnly Cookie にセットする
@@ -45,7 +49,10 @@ public class AuthController : ControllerBase
                 Expires = DateTimeOffset.UtcNow.AddMinutes(60),
             });
 
-            return Ok(new TokenResponse { Message = "ログインに成功しました。" });
+            var response =
+            await _loginViewModelAdapter.ConvertAsync(result);
+
+            return Ok(response);
         }
         catch (AuthenticationException ex)
         {
@@ -79,8 +86,7 @@ public class AuthController : ControllerBase
 [Authorize]
 public IActionResult Logout()
 {
-    Response.Cookies.Delete("access_token");
-
+    Response.Cookies.Delete(AuthCookieName);
     return Ok(new
     {
         Message = "ログアウトしました。"
