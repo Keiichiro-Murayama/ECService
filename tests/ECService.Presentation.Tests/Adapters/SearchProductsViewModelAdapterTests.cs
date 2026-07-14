@@ -1,7 +1,8 @@
 using System.Reflection;
-using System.Runtime.Serialization;
+using System.Runtime.CompilerServices;
 using ECService.Domain.Models;
 using ECService.Presentation.Adapters;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ECService.Presentation.Tests.Adapters;
 
@@ -14,14 +15,24 @@ namespace ECService.Presentation.Tests.Adapters;
 [TestClass]
 public class SearchProductsViewModelAdapterTests
 {
+    /// <summary>
+    /// テスト出力用
+    /// </summary>
     public TestContext TestContext { get; set; } = null!;
 
+    /// <summary>
+    /// ターミナルとテスト結果にログを出力する
+    /// </summary>
+    /// <param name="message">出力メッセージ</param>
     private void Log(string message)
     {
         Console.WriteLine(message);
         TestContext.WriteLine(message);
     }
 
+    /// <summary>
+    /// Product一覧1件をSearchProductsResponseへ変換できること
+    /// </summary>
     [TestMethod]
     public void Convert_ProductList_ReturnsSearchProductsResponse()
     {
@@ -33,10 +44,10 @@ public class SearchProductsViewModelAdapterTests
         var products = new List<Product>
         {
             CreateProduct(
-                "b7af7239-108b-4698-b2a7-2fe4469b275a",
-                "エコバッグ",
-                880,
-                "https://example.com/images/bag.jpg")
+                productUuid: "b7af7239-108b-4698-b2a7-2fe4469b275a",
+                name: "エコバッグ",
+                price: 880,
+                imageUrl: "https://example.com/images/bag.jpg")
         };
 
         // Act
@@ -45,7 +56,7 @@ public class SearchProductsViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Products);
-        Assert.AreEqual(1, result.Products.Count);
+        Assert.HasCount(1, result.Products);
 
         Assert.AreEqual("b7af7239-108b-4698-b2a7-2fe4469b275a", result.Products[0].ProductUuid);
         Assert.AreEqual("エコバッグ", result.Products[0].ProductName);
@@ -55,6 +66,9 @@ public class SearchProductsViewModelAdapterTests
         Log("Product 1件を SearchProductsResponse へ正しく変換できることを確認しました。");
     }
 
+    /// <summary>
+    /// Product一覧複数件をSearchProductsResponseへ変換できること
+    /// </summary>
     [TestMethod]
     public void Convert_MultipleProducts_ReturnsMultipleProductsItems()
     {
@@ -66,16 +80,16 @@ public class SearchProductsViewModelAdapterTests
         var products = new List<Product>
         {
             CreateProduct(
-                "b7af7239-108b-4698-b2a7-2fe4469b275a",
-                "エコバッグ",
-                880,
-                "https://example.com/images/bag.jpg"),
+                productUuid: "b7af7239-108b-4698-b2a7-2fe4469b275a",
+                name: "エコバッグ",
+                price: 880,
+                imageUrl: "https://example.com/images/bag.jpg"),
 
             CreateProduct(
-                "9374cfe6-bc67-4147-92e6-9f8afab3c06b",
-                "耐水ノート",
-                450,
-                "https://example.com/images/note.jpg")
+                productUuid: "9374cfe6-bc67-4147-92e6-9f8afab3c06b",
+                name: "耐水ノート",
+                price: 450,
+                imageUrl: "https://example.com/images/note.jpg")
         };
 
         // Act
@@ -84,7 +98,7 @@ public class SearchProductsViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Products);
-        Assert.AreEqual(2, result.Products.Count);
+        Assert.HasCount(2, result.Products);
 
         Assert.AreEqual("エコバッグ", result.Products[0].ProductName);
         Assert.AreEqual("耐水ノート", result.Products[1].ProductName);
@@ -92,6 +106,9 @@ public class SearchProductsViewModelAdapterTests
         Log("Product 複数件を SearchProductsResponse へ正しく変換できることを確認しました。");
     }
 
+    /// <summary>
+    /// 空の商品一覧を渡した場合、空のproductsが返ること
+    /// </summary>
     [TestMethod]
     public void Convert_EmptyProductList_ReturnsEmptyProducts()
     {
@@ -108,11 +125,14 @@ public class SearchProductsViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Products);
-        Assert.AreEqual(0, result.Products.Count);
+        Assert.IsEmpty(result.Products);
 
         Log("空の List<Product> を渡した場合、空の products が返ることを確認しました。");
     }
 
+    /// <summary>
+    /// Productの各項目がProductsItemへ正しく詰め替えられること
+    /// </summary>
     [TestMethod]
     public void Convert_Product_MapsEachPropertyCorrectly()
     {
@@ -122,10 +142,10 @@ public class SearchProductsViewModelAdapterTests
         var adapter = new SearchProductsViewModelAdapter();
 
         var product = CreateProduct(
-            "45c24c9f-a494-4e75-afb8-794c5c66135f",
-            "充電式マウス",
-            2480,
-            "https://example.com/images/mouse.jpg");
+            productUuid: "45c24c9f-a494-4e75-afb8-794c5c66135f",
+            name: "充電式マウス",
+            price: 2480,
+            imageUrl: "https://example.com/images/mouse.jpg");
 
         var products = new List<Product> { product };
 
@@ -134,7 +154,8 @@ public class SearchProductsViewModelAdapterTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Products.Count);
+        Assert.IsNotNull(result.Products);
+        Assert.HasCount(1, result.Products);
 
         var item = result.Products[0];
 
@@ -146,6 +167,9 @@ public class SearchProductsViewModelAdapterTests
         Log("Product の ProductUuid、Name、Price、ImageUrl が正しく ProductsItem に詰め替えられることを確認しました。");
     }
 
+    /// <summary>
+    /// テスト用のProductを作成する
+    /// </summary>
     private static Product CreateProduct(
         string productUuid,
         string name,
@@ -153,7 +177,7 @@ public class SearchProductsViewModelAdapterTests
         string imageUrl)
     {
         var product =
-            (Product)FormatterServices.GetUninitializedObject(typeof(Product));
+            (Product)RuntimeHelpers.GetUninitializedObject(typeof(Product));
 
         SetProperty(product, nameof(Product.ProductUuid), productUuid);
         SetProperty(product, nameof(Product.Name), name);
@@ -163,6 +187,9 @@ public class SearchProductsViewModelAdapterTests
         return product;
     }
 
+    /// <summary>
+    /// private set のプロパティにテスト用の値を設定する
+    /// </summary>
     private static void SetProperty<T>(
         T target,
         string propertyName,

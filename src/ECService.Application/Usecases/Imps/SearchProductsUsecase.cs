@@ -5,10 +5,13 @@ using ECService.Domain.Repositories;
 namespace ECService.Application.Usecases.Imps;
 
 /// <summary>
-/// 商品検索ユースケースの実装クラス
+/// 商品検索ユースケース
 /// </summary>
 public class SearchProductsUsecase : ISearchProductsUsecase
 {
+    /// <summary>
+    /// 商品リポジトリ
+    /// </summary>
     private readonly IProductRepository _productRepository;
 
     /// <summary>
@@ -21,19 +24,22 @@ public class SearchProductsUsecase : ISearchProductsUsecase
     }
 
     /// <summary>
-    /// 商品を検索する
+    /// 商品検索を実行する
     /// </summary>
-    /// <param name="categoryUuid">検索対象の商品カテゴリUUID</param>
-    /// <returns>検索結果の商品一覧</returns>
+    /// <param name="categoryUuid">
+    /// 商品カテゴリUUID。
+    /// 指定されない場合は全商品を検索する。
+    /// </param>
+    /// <returns>商品一覧</returns>
     public async Task<List<Product>> ExecuteAsync(string? categoryUuid)
     {
-        // カテゴリUUIDが未指定の場合は全商品を取得する
+        // categoryUuid が null・空文字・空白の場合は全商品を取得する
         if (string.IsNullOrWhiteSpace(categoryUuid))
         {
             return await _productRepository.SelectAllAsync();
         }
 
-        // カテゴリUUIDが指定されている場合はカテゴリ別に商品を取得する
+        // categoryUuid が指定されている場合はカテゴリで絞り込む
         return await _productRepository.SelectByCategoryAsync(categoryUuid);
     }
 }

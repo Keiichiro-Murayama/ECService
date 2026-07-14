@@ -6,6 +6,7 @@ using ECService.Presentation.Adapters;
 using ECService.Presentation.Controllers;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace ECService.Presentation.Tests.Controllers;
@@ -14,19 +15,29 @@ namespace ECService.Presentation.Tests.Controllers;
 /// SearchProductsController の単体テスト
 ///
 /// 商品検索APIにおいて、ControllerがUsecaseを呼び出し、
-/// 正しいレスポンスを返すことを検証する。
+/// READMEの仕様どおり、商品一覧の配列を返すことを検証する。
 /// </summary>
 [TestClass]
 public class SearchProductsControllerTests
 {
+    /// <summary>
+    /// テスト出力用
+    /// </summary>
     public TestContext TestContext { get; set; } = null!;
 
+    /// <summary>
+    /// ターミナルとテスト結果にログを出力する
+    /// </summary>
+    /// <param name="message">出力メッセージ</param>
     private void Log(string message)
     {
         Console.WriteLine(message);
         TestContext.WriteLine(message);
     }
 
+    /// <summary>
+    /// カテゴリ指定なしで検索した場合、200 OK と商品一覧が返ること
+    /// </summary>
     [TestMethod]
     public async Task Search_CategoryIsNull_ReturnsOkObjectResult()
     {
@@ -36,10 +47,10 @@ public class SearchProductsControllerTests
         var products = new List<Product>
         {
             CreateProduct(
-                "b7af7239-108b-4698-b2a7-2fe4469b275a",
-                "エコバッグ",
-                880,
-                "https://example.com/images/bag.jpg")
+                productUuid: "b7af7239-108b-4698-b2a7-2fe4469b275a",
+                name: "エコバッグ",
+                price: 880,
+                imageUrl: "https://example.com/images/bag.jpg")
         };
 
         var usecaseMock = new Mock<ISearchProductsUsecase>();
@@ -63,17 +74,25 @@ public class SearchProductsControllerTests
         Assert.IsNotNull(okResult);
         Assert.AreEqual(200, okResult.StatusCode);
 
-        var response = okResult.Value as SearchProductsResponse;
+        var response = okResult.Value as List<ProductsItem>;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(1, response.Products.Count);
-        Assert.AreEqual("エコバッグ", response.Products[0].ProductName);
+        Assert.AreEqual(1, response.Count);
+        Assert.AreEqual("b7af7239-108b-4698-b2a7-2fe4469b275a", response[0].ProductUuid);
+        Assert.AreEqual("エコバッグ", response[0].ProductName);
+        Assert.AreEqual(880, response[0].Price);
+        Assert.AreEqual("https://example.com/images/bag.jpg", response[0].ImageUrl);
 
-        usecaseMock.Verify(usecase => usecase.ExecuteAsync(null), Times.Once);
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(null),
+            Times.Once);
 
-        Log("カテゴリ指定なしの場合、200 OK と商品検索レスポンスが返ることを確認しました。");
+        Log("カテゴリ指定なしの場合、200 OK と商品一覧の配列が返ることを確認しました。");
     }
 
+    /// <summary>
+    /// カテゴリ指定ありで検索した場合、200 OK と商品一覧が返ること
+    /// </summary>
     [TestMethod]
     public async Task Search_CategoryExists_ReturnsOkObjectResult()
     {
@@ -85,10 +104,10 @@ public class SearchProductsControllerTests
         var products = new List<Product>
         {
             CreateProduct(
-                "eb07baff-7f28-4356-abfb-020c31e04dc7",
-                "Type-Cハブ",
-                3980,
-                "https://example.com/images/hub.jpg")
+                productUuid: "eb07baff-7f28-4356-abfb-020c31e04dc7",
+                name: "Type-Cハブ",
+                price: 3980,
+                imageUrl: "https://example.com/images/hub.jpg")
         };
 
         var usecaseMock = new Mock<ISearchProductsUsecase>();
@@ -112,17 +131,25 @@ public class SearchProductsControllerTests
         Assert.IsNotNull(okResult);
         Assert.AreEqual(200, okResult.StatusCode);
 
-        var response = okResult.Value as SearchProductsResponse;
+        var response = okResult.Value as List<ProductsItem>;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(1, response.Products.Count);
-        Assert.AreEqual("Type-Cハブ", response.Products[0].ProductName);
+        Assert.AreEqual(1, response.Count);
+        Assert.AreEqual("eb07baff-7f28-4356-abfb-020c31e04dc7", response[0].ProductUuid);
+        Assert.AreEqual("Type-Cハブ", response[0].ProductName);
+        Assert.AreEqual(3980, response[0].Price);
+        Assert.AreEqual("https://example.com/images/hub.jpg", response[0].ImageUrl);
 
-        usecaseMock.Verify(usecase => usecase.ExecuteAsync(categoryUuid), Times.Once);
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(categoryUuid),
+            Times.Once);
 
-        Log("カテゴリ指定ありの場合、200 OK と商品検索レスポンスが返ることを確認しました。");
+        Log("カテゴリ指定ありの場合、200 OK と商品一覧の配列が返ることを確認しました。");
     }
 
+    /// <summary>
+    /// 検索結果が0件の場合、200 OK と空の配列が返ること
+    /// </summary>
     [TestMethod]
     public async Task Search_ResultIsEmpty_ReturnsEmptyProducts()
     {
@@ -152,16 +179,21 @@ public class SearchProductsControllerTests
         Assert.IsNotNull(okResult);
         Assert.AreEqual(200, okResult.StatusCode);
 
-        var response = okResult.Value as SearchProductsResponse;
+        var response = okResult.Value as List<ProductsItem>;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(0, response.Products.Count);
+        Assert.AreEqual(0, response.Count);
 
-        usecaseMock.Verify(usecase => usecase.ExecuteAsync(categoryUuid), Times.Once);
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(categoryUuid),
+            Times.Once);
 
-        Log("検索結果が0件の場合でも、空の products を持つレスポンスが返ることを確認しました。");
+        Log("検索結果が0件の場合でも、200 OK と空の配列が返ることを確認しました。");
     }
 
+    /// <summary>
+    /// ControllerからUsecaseへカテゴリUUIDが正しく渡されること
+    /// </summary>
     [TestMethod]
     public async Task Search_CategoryUuid_IsPassedToUsecase()
     {
@@ -190,9 +222,17 @@ public class SearchProductsControllerTests
             usecase => usecase.ExecuteAsync(categoryUuid),
             Times.Once);
 
-        Log("ControllerからUsecaseへカテゴリUUIDが正しく渡されることを確認しました。");
+        Log("ControllerからUsecaseへ categoryUuid が正しく渡されることを確認しました。");
     }
 
+    /// <summary>
+    /// テスト用のProductを作成する
+    /// </summary>
+    /// <param name="productUuid">商品UUID</param>
+    /// <param name="name">商品名</param>
+    /// <param name="price">価格</param>
+    /// <param name="imageUrl">画像URL</param>
+    /// <returns>Product</returns>
     private static Product CreateProduct(
         string productUuid,
         string name,
@@ -210,6 +250,13 @@ public class SearchProductsControllerTests
         return product;
     }
 
+    /// <summary>
+    /// private set のプロパティにテスト用の値を設定する
+    /// </summary>
+    /// <typeparam name="T">対象型</typeparam>
+    /// <param name="target">対象オブジェクト</param>
+    /// <param name="propertyName">プロパティ名</param>
+    /// <param name="value">設定値</param>
     private static void SetProperty<T>(
         T target,
         string propertyName,

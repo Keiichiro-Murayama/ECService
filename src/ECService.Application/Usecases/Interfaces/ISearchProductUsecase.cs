@@ -3,16 +3,17 @@ using ECService.Domain.Models;
 namespace ECService.Application.Usecases.Interfaces;
 
 /// <summary>
-/// 商品検索ユースケースのインターフェイス
+/// 商品検索ユースケースインターフェイス
 /// </summary>
 public interface ISearchProductsUsecase
 {
     /// <summary>
-    /// 商品を検索する
-    /// カテゴリUUIDが未指定の場合は全商品を取得する
-    /// カテゴリUUIDが指定されている場合はカテゴリ別の商品を取得する
+    /// 商品検索を実行する
     /// </summary>
-    /// <param name="categoryUuid">検索対象の商品カテゴリUUID</param>
-    /// <returns>検索結果の商品一覧</returns>
+    /// <param name="categoryUuid">
+    /// 商品カテゴリUUID。
+    /// 指定されない場合は全商品を検索する。
+    /// </param>
+    /// <returns>商品一覧</returns>
     Task<List<Product>> ExecuteAsync(string? categoryUuid);
 }

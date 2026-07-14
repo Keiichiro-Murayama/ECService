@@ -1,46 +1,61 @@
 using ECService.Application.Usecases.Interfaces;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECService.Presentation.Controllers;
 
 /// <summary>
-/// 商品検索機能のController
+/// 商品検索APIコントローラー
 /// </summary>
 [ApiController]
-[Route("admin/product/search")]
+[Authorize]
+[Route("api/admin/products")]
 public class SearchProductsController : ControllerBase
 {
-    private readonly ISearchProductsUsecase _searchProductsUseCase;
+    /// <summary>
+    /// 商品検索ユースケース
+    /// </summary>
+    private readonly ISearchProductsUsecase _searchProductsUsecase;
+
+    /// <summary>
+    /// 商品検索レスポンス変換アダプタ
+    /// </summary>
     private readonly SearchProductsViewModelAdapter _searchProductsViewModelAdapter;
 
     /// <summary>
     /// コンストラクタ
     /// </summary>
-    /// <param name="searchProductsUseCase">商品検索ユースケース</param>
-    /// <param name="searchProductsViewModelAdapter">商品検索ViewModel変換アダプタ</param>
+    /// <param name="searchProductsUsecase">商品検索ユースケース</param>
+    /// <param name="searchProductsViewModelAdapter">商品検索レスポンス変換アダプタ</param>
     public SearchProductsController(
-        ISearchProductsUsecase searchProductsUseCase,
+        ISearchProductsUsecase searchProductsUsecase,
         SearchProductsViewModelAdapter searchProductsViewModelAdapter)
     {
-        _searchProductsUseCase = searchProductsUseCase;
+        _searchProductsUsecase = searchProductsUsecase;
         _searchProductsViewModelAdapter = searchProductsViewModelAdapter;
     }
 
     /// <summary>
     /// 商品を検索する
     /// </summary>
-    /// <param name="categoryUuid">商品カテゴリUUID</param>
-    /// <returns>商品検索結果</returns>
+    /// <param name="categoryUuid">
+    /// 商品カテゴリUUID。
+    /// 指定されない場合は全商品を検索する。
+    /// </param>
+    /// <returns>商品一覧</returns>
     [HttpGet]
-    public async Task<ActionResult<SearchProductsResponse>> Search(
+    public async Task<ActionResult<List<ProductsItem>>> Search(
         [FromQuery] string? categoryUuid)
     {
-        var products = await _searchProductsUseCase.ExecuteAsync(categoryUuid);
+        // 商品検索ユースケースを実行する
+        var products = await _searchProductsUsecase.ExecuteAsync(categoryUuid);
 
+        // DomainのProduct一覧をレスポンス用ViewModelへ変換する
         var response = _searchProductsViewModelAdapter.Convert(products);
 
-        return Ok(response);
+        // READMEに合わせて、productsプロパティではなく商品一覧の配列を返す
+        return Ok(response.Products);
     }
 }
