@@ -3,6 +3,7 @@ using ECService.Application.Usecases.UnitOfWorks;
 using ECService.Domain.Exceptions;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace ECService.Application.Tests.Usecases;
@@ -111,7 +112,7 @@ public class UpdateProductUsecaseTests
     public async Task ExecuteAsync_商品UUIDが空の場合_DomainExceptionを送出する()
     {
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 "",
                 "修正商品",
@@ -139,7 +140,7 @@ public class UpdateProductUsecaseTests
     public async Task ExecuteAsync_商品UUIDの形式が不正な場合_DomainExceptionを送出する()
     {
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 "invalid-uuid",
                 "修正商品",
@@ -174,7 +175,7 @@ public class UpdateProductUsecaseTests
             .ReturnsAsync((Product?)null);
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -223,7 +224,7 @@ public class UpdateProductUsecaseTests
             });
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -271,7 +272,7 @@ public class UpdateProductUsecaseTests
             });
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "",
@@ -315,7 +316,7 @@ public class UpdateProductUsecaseTests
             });
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "A",
@@ -359,7 +360,7 @@ public class UpdateProductUsecaseTests
             });
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -403,7 +404,7 @@ public class UpdateProductUsecaseTests
             });
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -447,7 +448,7 @@ public class UpdateProductUsecaseTests
             });
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -495,7 +496,7 @@ public class UpdateProductUsecaseTests
             .ReturnsAsync(false);
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<DomainException>(() =>
+        var exception = await ThrowsAsync<DomainException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -551,7 +552,7 @@ public class UpdateProductUsecaseTests
             .ThrowsAsync(new InvalidOperationException("DB更新エラー"));
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<InvalidOperationException>(() =>
+        var exception = await ThrowsAsync<InvalidOperationException>(() =>
             _usecase.ExecuteAsync(
                 productUuid,
                 "修正商品",
@@ -605,5 +606,29 @@ public class UpdateProductUsecaseTests
             productCategory,
             0,
             ProductStock.Restore(Guid.NewGuid().ToString(), 10));
+    }
+
+    /// <summary>
+    /// 指定した例外が送出されることを確認する。
+    /// </summary>
+    private static async Task<TException> ThrowsAsync<TException>(Func<Task> action)
+        where TException : Exception
+    {
+        try
+        {
+            await action();
+        }
+        catch (TException exception)
+        {
+            return exception;
+        }
+        catch (Exception exception)
+        {
+            Assert.Fail(
+                $"想定した例外は {typeof(TException).Name} でしたが、実際は {exception.GetType().Name} でした。");
+        }
+
+        Assert.Fail($"想定した例外 {typeof(TException).Name} が送出されませんでした。");
+        return null!;
     }
 }
