@@ -21,7 +21,7 @@ public class UnregisteredEmployeesViewModelAdapter
                 .Select(unregistered => new UnregisteredEmployeesItem
                 {
                     EmployeeUuid = unregistered.EmployeeUuid,
-                    AccountName = unregistered.Name,
+                    EmployeeName = unregistered.Name,
                 })
                 .ToList()
         };

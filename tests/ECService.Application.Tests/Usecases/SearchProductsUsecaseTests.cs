@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using ECService.Application.Usecases.Imps;
+using ECService.Domain.Exceptions;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,8 +12,8 @@ namespace ECService.Application.Tests.Usecases;
 /// <summary>
 /// SearchProductsUsecase の単体テスト
 ///
-/// 商品検索機能において、カテゴリUUIDの有無により
-/// 全商品検索・カテゴリ検索が正しく呼び分けられることを検証する。
+/// 商品検索機能において、カテゴリUUIDの有無による検索処理の分岐、
+/// カテゴリUUIDの形式チェック、カテゴリ存在チェックを検証する。
 /// </summary>
 [TestClass]
 public class SearchProductsUsecaseTests
@@ -25,7 +26,6 @@ public class SearchProductsUsecaseTests
     /// <summary>
     /// ターミナルとテスト結果にログを出力する
     /// </summary>
-    /// <param name="message">出力メッセージ</param>
     private void Log(string message)
     {
         Console.WriteLine(message);
@@ -50,13 +50,16 @@ public class SearchProductsUsecaseTests
                 imageUrl: "https://example.com/images/bag.jpg")
         };
 
-        var repositoryMock = new Mock<IProductRepository>();
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
 
-        repositoryMock
+        productRepositoryMock
             .Setup(repository => repository.SelectAllAsync())
             .ReturnsAsync(products);
 
-        var usecase = new SearchProductsUsecase(repositoryMock.Object);
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
 
         // Act
         var result = await usecase.ExecuteAsync(null);
@@ -66,12 +69,16 @@ public class SearchProductsUsecaseTests
         Assert.HasCount(1, result);
         Assert.AreEqual("エコバッグ", result[0].Name);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectAllAsync(),
             Times.Once);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectByCategoryAsync(It.IsAny<string>()),
+            Times.Never);
+
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
             Times.Never);
 
         Log("categoryUuid が null の場合、SelectAllAsync が1回呼ばれることを確認しました。");
@@ -95,13 +102,16 @@ public class SearchProductsUsecaseTests
                 imageUrl: "https://example.com/images/note.jpg")
         };
 
-        var repositoryMock = new Mock<IProductRepository>();
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
 
-        repositoryMock
+        productRepositoryMock
             .Setup(repository => repository.SelectAllAsync())
             .ReturnsAsync(products);
 
-        var usecase = new SearchProductsUsecase(repositoryMock.Object);
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
 
         // Act
         var result = await usecase.ExecuteAsync("");
@@ -111,12 +121,16 @@ public class SearchProductsUsecaseTests
         Assert.HasCount(1, result);
         Assert.AreEqual("耐水ノート", result[0].Name);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectAllAsync(),
             Times.Once);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectByCategoryAsync(It.IsAny<string>()),
+            Times.Never);
+
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
             Times.Never);
 
         Log("categoryUuid が空文字の場合、SelectAllAsync が1回呼ばれることを確認しました。");
@@ -140,13 +154,16 @@ public class SearchProductsUsecaseTests
                 imageUrl: "https://example.com/images/mouse.jpg")
         };
 
-        var repositoryMock = new Mock<IProductRepository>();
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
 
-        repositoryMock
+        productRepositoryMock
             .Setup(repository => repository.SelectAllAsync())
             .ReturnsAsync(products);
 
-        var usecase = new SearchProductsUsecase(repositoryMock.Object);
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
 
         // Act
         var result = await usecase.ExecuteAsync("   ");
@@ -156,19 +173,23 @@ public class SearchProductsUsecaseTests
         Assert.HasCount(1, result);
         Assert.AreEqual("充電式マウス", result[0].Name);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectAllAsync(),
             Times.Once);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectByCategoryAsync(It.IsAny<string>()),
+            Times.Never);
+
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
             Times.Never);
 
         Log("categoryUuid が空白の場合、SelectAllAsync が1回呼ばれることを確認しました。");
     }
 
     /// <summary>
-    /// categoryUuid が指定されている場合、カテゴリ検索が呼ばれること
+    /// categoryUuid が指定され、カテゴリが存在する場合、カテゴリ検索が呼ばれること
     /// </summary>
     [TestMethod]
     public async Task ExecuteAsync_CategoryUuidExists_CallsSelectByCategoryAsync()
@@ -177,6 +198,13 @@ public class SearchProductsUsecaseTests
         Log("ExecuteAsync_CategoryUuidExists_CallsSelectByCategoryAsync：テスト開始");
 
         var categoryUuid = "11111111-1111-1111-1111-111111111111";
+
+        var categories = new List<ProductCategory>
+        {
+            CreateProductCategory(
+                categoryUuid: categoryUuid,
+                name: "雑貨")
+        };
 
         var products = new List<Product>
         {
@@ -187,13 +215,20 @@ public class SearchProductsUsecaseTests
                 imageUrl: "https://example.com/images/hub.jpg")
         };
 
-        var repositoryMock = new Mock<IProductRepository>();
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
 
-        repositoryMock
+        productCategoryRepositoryMock
+            .Setup(repository => repository.SelectAllAsync())
+            .ReturnsAsync(categories);
+
+        productRepositoryMock
             .Setup(repository => repository.SelectByCategoryAsync(categoryUuid))
             .ReturnsAsync(products);
 
-        var usecase = new SearchProductsUsecase(repositoryMock.Object);
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
 
         // Act
         var result = await usecase.ExecuteAsync(categoryUuid);
@@ -203,15 +238,19 @@ public class SearchProductsUsecaseTests
         Assert.HasCount(1, result);
         Assert.AreEqual("Type-Cハブ", result[0].Name);
 
-        repositoryMock.Verify(
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
+            Times.Once);
+
+        productRepositoryMock.Verify(
             repository => repository.SelectByCategoryAsync(categoryUuid),
             Times.Once);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectAllAsync(),
             Times.Never);
 
-        Log("categoryUuid が指定された場合、SelectByCategoryAsync が1回呼ばれることを確認しました。");
+        Log("categoryUuid が指定され、カテゴリが存在する場合、SelectByCategoryAsync が1回呼ばれることを確認しました。");
     }
 
     /// <summary>
@@ -223,13 +262,16 @@ public class SearchProductsUsecaseTests
         // Arrange
         Log("ExecuteAsync_SelectAllReturnsEmptyList_ReturnsEmptyList：テスト開始");
 
-        var repositoryMock = new Mock<IProductRepository>();
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
 
-        repositoryMock
+        productRepositoryMock
             .Setup(repository => repository.SelectAllAsync())
             .ReturnsAsync(new List<Product>());
 
-        var usecase = new SearchProductsUsecase(repositoryMock.Object);
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
 
         // Act
         var result = await usecase.ExecuteAsync(null);
@@ -238,12 +280,16 @@ public class SearchProductsUsecaseTests
         Assert.IsNotNull(result);
         Assert.IsEmpty(result);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectAllAsync(),
             Times.Once);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectByCategoryAsync(It.IsAny<string>()),
+            Times.Never);
+
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
             Times.Never);
 
         Log("全商品検索結果が0件の場合、空のリストが返ることを確認しました。");
@@ -258,15 +304,29 @@ public class SearchProductsUsecaseTests
         // Arrange
         Log("ExecuteAsync_SelectByCategoryReturnsEmptyList_ReturnsEmptyList：テスト開始");
 
-        var categoryUuid = "99999999-9999-9999-9999-999999999999";
+        var categoryUuid = "11111111-1111-1111-1111-111111111111";
 
-        var repositoryMock = new Mock<IProductRepository>();
+        var categories = new List<ProductCategory>
+        {
+            CreateProductCategory(
+                categoryUuid: categoryUuid,
+                name: "雑貨")
+        };
 
-        repositoryMock
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
+
+        productCategoryRepositoryMock
+            .Setup(repository => repository.SelectAllAsync())
+            .ReturnsAsync(categories);
+
+        productRepositoryMock
             .Setup(repository => repository.SelectByCategoryAsync(categoryUuid))
             .ReturnsAsync(new List<Product>());
 
-        var usecase = new SearchProductsUsecase(repositoryMock.Object);
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
 
         // Act
         var result = await usecase.ExecuteAsync(categoryUuid);
@@ -275,15 +335,112 @@ public class SearchProductsUsecaseTests
         Assert.IsNotNull(result);
         Assert.IsEmpty(result);
 
-        repositoryMock.Verify(
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
+            Times.Once);
+
+        productRepositoryMock.Verify(
             repository => repository.SelectByCategoryAsync(categoryUuid),
             Times.Once);
 
-        repositoryMock.Verify(
+        productRepositoryMock.Verify(
             repository => repository.SelectAllAsync(),
             Times.Never);
 
-        Log("カテゴリ検索結果が0件の場合、空のリストが返ることを確認しました。");
+        Log("カテゴリが存在し、検索結果が0件の場合、空のリストが返ることを確認しました。");
+    }
+
+    /// <summary>
+    /// categoryUuid がUUID形式ではない場合、DomainExceptionが発生すること
+    /// </summary>
+    [TestMethod]
+    public async Task ExecuteAsync_CategoryUuidIsInvalidFormat_ThrowsDomainException()
+    {
+        // Arrange
+        Log("ExecuteAsync_CategoryUuidIsInvalidFormat_ThrowsDomainException：テスト開始");
+
+        var invalidCategoryUuid = "invalid-category-uuid";
+
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
+
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsExactlyAsync<DomainException>(async () =>
+            await usecase.ExecuteAsync(invalidCategoryUuid));
+
+        Assert.AreEqual(
+            "指定されたカテゴリID（UUID）が存在しません。",
+            exception.Message);
+
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
+            Times.Never);
+
+        productRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
+            Times.Never);
+
+        productRepositoryMock.Verify(
+            repository => repository.SelectByCategoryAsync(It.IsAny<string>()),
+            Times.Never);
+
+        Log("categoryUuid がUUID形式ではない場合、DomainException が発生することを確認しました。");
+    }
+
+    /// <summary>
+    /// categoryUuid がカテゴリマスタに存在しない場合、DomainExceptionが発生すること
+    /// </summary>
+    [TestMethod]
+    public async Task ExecuteAsync_CategoryUuidDoesNotExist_ThrowsDomainException()
+    {
+        // Arrange
+        Log("ExecuteAsync_CategoryUuidDoesNotExist_ThrowsDomainException：テスト開始");
+
+        var notExistsCategoryUuid = "99999999-9999-9999-9999-999999999999";
+
+        var categories = new List<ProductCategory>
+        {
+            CreateProductCategory(
+                categoryUuid: "11111111-1111-1111-1111-111111111111",
+                name: "雑貨")
+        };
+
+        var productRepositoryMock = new Mock<IProductRepository>();
+        var productCategoryRepositoryMock = new Mock<IProductCategoryRepository>();
+
+        productCategoryRepositoryMock
+            .Setup(repository => repository.SelectAllAsync())
+            .ReturnsAsync(categories);
+
+        var usecase = new SearchProductsUsecase(
+            productRepositoryMock.Object,
+            productCategoryRepositoryMock.Object);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsExactlyAsync<DomainException>(async () =>
+            await usecase.ExecuteAsync(notExistsCategoryUuid));
+
+        Assert.AreEqual(
+            "指定されたカテゴリID（UUID）が存在しません。",
+            exception.Message);
+
+        productCategoryRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
+            Times.Once);
+
+        productRepositoryMock.Verify(
+            repository => repository.SelectAllAsync(),
+            Times.Never);
+
+        productRepositoryMock.Verify(
+            repository => repository.SelectByCategoryAsync(It.IsAny<string>()),
+            Times.Never);
+
+        Log("categoryUuid がカテゴリマスタに存在しない場合、DomainException が発生することを確認しました。");
     }
 
     /// <summary>
@@ -304,6 +461,22 @@ public class SearchProductsUsecaseTests
         SetProperty(product, nameof(Product.ImageUrl), imageUrl);
 
         return product;
+    }
+
+    /// <summary>
+    /// テスト用のProductCategoryを作成する
+    /// </summary>
+    private static ProductCategory CreateProductCategory(
+        string categoryUuid,
+        string name)
+    {
+        var category =
+            (ProductCategory)RuntimeHelpers.GetUninitializedObject(typeof(ProductCategory));
+
+        SetProperty(category, nameof(ProductCategory.CategoryUuid), categoryUuid);
+        SetProperty(category, nameof(ProductCategory.Name), name);
+
+        return category;
     }
 
     /// <summary>

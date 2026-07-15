@@ -1,5 +1,5 @@
 using System.Reflection;
-using System.Runtime.Serialization;
+using System.Runtime.CompilerServices;
 using ECService.Application.Usecases.Interfaces;
 using ECService.Domain.Models;
 using ECService.Presentation.Adapters;
@@ -9,13 +9,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
+using DomainException = ECService.Domain.Exceptions.DomainException;
+using InternalException = ECService.Infrastructure.Exceptions.InternalException;
+
 namespace ECService.Presentation.Tests.Controllers;
 
 /// <summary>
 /// SearchProductsController の単体テスト
 ///
 /// 商品検索APIにおいて、ControllerがUsecaseを呼び出し、
-/// READMEの仕様どおり、商品一覧の配列を返すことを検証する。
+/// READMEの仕様どおり、商品一覧の配列・404・500レスポンスを返すことを検証する。
 /// </summary>
 [TestClass]
 public class SearchProductsControllerTests
@@ -28,7 +31,6 @@ public class SearchProductsControllerTests
     /// <summary>
     /// ターミナルとテスト結果にログを出力する
     /// </summary>
-    /// <param name="message">出力メッセージ</param>
     private void Log(string message)
     {
         Console.WriteLine(message);
@@ -59,11 +61,7 @@ public class SearchProductsControllerTests
             .Setup(usecase => usecase.ExecuteAsync(null))
             .ReturnsAsync(products);
 
-        var adapter = new SearchProductsViewModelAdapter();
-
-        var controller = new SearchProductsController(
-            usecaseMock.Object,
-            adapter);
+        var controller = CreateController(usecaseMock);
 
         // Act
         var actionResult = await controller.Search(null);
@@ -77,7 +75,7 @@ public class SearchProductsControllerTests
         var response = okResult.Value as List<ProductsItem>;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(1, response.Count);
+        Assert.HasCount(1, response);
         Assert.AreEqual("b7af7239-108b-4698-b2a7-2fe4469b275a", response[0].ProductUuid);
         Assert.AreEqual("エコバッグ", response[0].ProductName);
         Assert.AreEqual(880, response[0].Price);
@@ -116,11 +114,7 @@ public class SearchProductsControllerTests
             .Setup(usecase => usecase.ExecuteAsync(categoryUuid))
             .ReturnsAsync(products);
 
-        var adapter = new SearchProductsViewModelAdapter();
-
-        var controller = new SearchProductsController(
-            usecaseMock.Object,
-            adapter);
+        var controller = CreateController(usecaseMock);
 
         // Act
         var actionResult = await controller.Search(categoryUuid);
@@ -134,7 +128,7 @@ public class SearchProductsControllerTests
         var response = okResult.Value as List<ProductsItem>;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(1, response.Count);
+        Assert.HasCount(1, response);
         Assert.AreEqual("eb07baff-7f28-4356-abfb-020c31e04dc7", response[0].ProductUuid);
         Assert.AreEqual("Type-Cハブ", response[0].ProductName);
         Assert.AreEqual(3980, response[0].Price);
@@ -156,7 +150,7 @@ public class SearchProductsControllerTests
         // Arrange
         Log("Search_ResultIsEmpty_ReturnsEmptyProducts：テスト開始");
 
-        var categoryUuid = "99999999-9999-9999-9999-999999999999";
+        var categoryUuid = "11111111-1111-1111-1111-111111111111";
 
         var usecaseMock = new Mock<ISearchProductsUsecase>();
 
@@ -164,11 +158,7 @@ public class SearchProductsControllerTests
             .Setup(usecase => usecase.ExecuteAsync(categoryUuid))
             .ReturnsAsync(new List<Product>());
 
-        var adapter = new SearchProductsViewModelAdapter();
-
-        var controller = new SearchProductsController(
-            usecaseMock.Object,
-            adapter);
+        var controller = CreateController(usecaseMock);
 
         // Act
         var actionResult = await controller.Search(categoryUuid);
@@ -182,7 +172,7 @@ public class SearchProductsControllerTests
         var response = okResult.Value as List<ProductsItem>;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(0, response.Count);
+        Assert.IsEmpty(response);
 
         usecaseMock.Verify(
             usecase => usecase.ExecuteAsync(categoryUuid),
@@ -208,11 +198,7 @@ public class SearchProductsControllerTests
             .Setup(usecase => usecase.ExecuteAsync(categoryUuid))
             .ReturnsAsync(new List<Product>());
 
-        var adapter = new SearchProductsViewModelAdapter();
-
-        var controller = new SearchProductsController(
-            usecaseMock.Object,
-            adapter);
+        var controller = CreateController(usecaseMock);
 
         // Act
         await controller.Search(categoryUuid);
@@ -226,13 +212,171 @@ public class SearchProductsControllerTests
     }
 
     /// <summary>
+    /// DomainException が発生した場合、404 NotFound が返ること
+    /// </summary>
+    [TestMethod]
+    public async Task Search_UsecaseThrowsDomainException_ReturnsNotFound()
+    {
+        // Arrange
+        Log("Search_UsecaseThrowsDomainException_ReturnsNotFound：テスト開始");
+
+        var categoryUuid = "99999999-9999-9999-9999-999999999999";
+
+        var usecaseMock = new Mock<ISearchProductsUsecase>();
+
+        usecaseMock
+            .Setup(usecase => usecase.ExecuteAsync(categoryUuid))
+            .ThrowsAsync(new DomainException(
+                "指定されたカテゴリID（UUID）が存在しません。",
+                nameof(categoryUuid)));
+
+        var controller = CreateController(usecaseMock);
+
+        // Act
+        var actionResult = await controller.Search(categoryUuid);
+
+        // Assert
+        var notFoundResult = actionResult.Result as NotFoundObjectResult;
+
+        Assert.IsNotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+        Assert.AreEqual(
+            "指定されたカテゴリID（UUID）が存在しません。",
+            GetMessage(notFoundResult.Value));
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(categoryUuid),
+            Times.Once);
+
+        Log("DomainException が発生した場合、404 NotFound が返ることを確認しました。");
+    }
+
+    /// <summary>
+    /// カテゴリ/UUID関連のInternalExceptionが発生した場合、404 NotFound が返ること
+    /// </summary>
+    [TestMethod]
+    public async Task Search_InternalExceptionAboutCategory_ReturnsNotFound()
+    {
+        // Arrange
+        Log("Search_InternalExceptionAboutCategory_ReturnsNotFound：テスト開始");
+
+        var categoryUuid = "99999999-9999-9999-9999-999999999999";
+
+        var usecaseMock = new Mock<ISearchProductsUsecase>();
+
+        usecaseMock
+            .Setup(usecase => usecase.ExecuteAsync(categoryUuid))
+            .ThrowsAsync(new InternalException("カテゴリUUIDが存在しません。"));
+
+        var controller = CreateController(usecaseMock);
+
+        // Act
+        var actionResult = await controller.Search(categoryUuid);
+
+        // Assert
+        var notFoundResult = actionResult.Result as NotFoundObjectResult;
+
+        Assert.IsNotNull(notFoundResult);
+        Assert.AreEqual(404, notFoundResult.StatusCode);
+        Assert.AreEqual(
+            "指定されたカテゴリID（UUID）が存在しません。",
+            GetMessage(notFoundResult.Value));
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(categoryUuid),
+            Times.Once);
+
+        Log("カテゴリ/UUID関連の InternalException の場合、404 NotFound が返ることを確認しました。");
+    }
+
+    /// <summary>
+    /// カテゴリ/UUID以外のInternalExceptionが発生した場合、500 Internal Server Error が返ること
+    /// </summary>
+    [TestMethod]
+    public async Task Search_InternalExceptionOtherReason_ReturnsInternalServerError()
+    {
+        // Arrange
+        Log("Search_InternalExceptionOtherReason_ReturnsInternalServerError：テスト開始");
+
+        var usecaseMock = new Mock<ISearchProductsUsecase>();
+
+        usecaseMock
+            .Setup(usecase => usecase.ExecuteAsync(null))
+            .ThrowsAsync(new InternalException("DB接続エラーが発生しました。"));
+
+        var controller = CreateController(usecaseMock);
+
+        // Act
+        var actionResult = await controller.Search(null);
+
+        // Assert
+        var statusCodeResult = actionResult.Result as ObjectResult;
+
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode);
+        Assert.AreEqual(
+            "InternalException: サーバー内部で予期せぬエラーが発生しました。",
+            GetMessage(statusCodeResult.Value));
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(null),
+            Times.Once);
+
+        Log("カテゴリ/UUID以外の InternalException の場合、500 が返ることを確認しました。");
+    }
+
+    /// <summary>
+    /// 想定外のExceptionが発生した場合、500 Internal Server Error が返ること
+    /// </summary>
+    [TestMethod]
+    public async Task Search_UnexpectedException_ReturnsInternalServerError()
+    {
+        // Arrange
+        Log("Search_UnexpectedException_ReturnsInternalServerError：テスト開始");
+
+        var usecaseMock = new Mock<ISearchProductsUsecase>();
+
+        usecaseMock
+            .Setup(usecase => usecase.ExecuteAsync(null))
+            .ThrowsAsync(new Exception("想定外のエラー"));
+
+        var controller = CreateController(usecaseMock);
+
+        // Act
+        var actionResult = await controller.Search(null);
+
+        // Assert
+        var statusCodeResult = actionResult.Result as ObjectResult;
+
+        Assert.IsNotNull(statusCodeResult);
+        Assert.AreEqual(500, statusCodeResult.StatusCode);
+        Assert.AreEqual(
+            "InternalException: サーバー内部で予期せぬエラーが発生しました。",
+            GetMessage(statusCodeResult.Value));
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(null),
+            Times.Once);
+
+        Log("想定外の Exception の場合、500 が返ることを確認しました。");
+    }
+
+    /// <summary>
+    /// テスト用のControllerを作成する
+    /// </summary>
+    private static SearchProductsController CreateController(
+        Mock<ISearchProductsUsecase> usecaseMock)
+    {
+        var adapter = new SearchProductsViewModelAdapter();
+
+        return new SearchProductsController(
+            usecaseMock.Object,
+            adapter);
+    }
+
+    /// <summary>
     /// テスト用のProductを作成する
     /// </summary>
-    /// <param name="productUuid">商品UUID</param>
-    /// <param name="name">商品名</param>
-    /// <param name="price">価格</param>
-    /// <param name="imageUrl">画像URL</param>
-    /// <returns>Product</returns>
     private static Product CreateProduct(
         string productUuid,
         string name,
@@ -240,7 +384,7 @@ public class SearchProductsControllerTests
         string imageUrl)
     {
         var product =
-            (Product)FormatterServices.GetUninitializedObject(typeof(Product));
+            (Product)RuntimeHelpers.GetUninitializedObject(typeof(Product));
 
         SetProperty(product, nameof(Product.ProductUuid), productUuid);
         SetProperty(product, nameof(Product.Name), name);
@@ -253,10 +397,6 @@ public class SearchProductsControllerTests
     /// <summary>
     /// private set のプロパティにテスト用の値を設定する
     /// </summary>
-    /// <typeparam name="T">対象型</typeparam>
-    /// <param name="target">対象オブジェクト</param>
-    /// <param name="propertyName">プロパティ名</param>
-    /// <param name="value">設定値</param>
     private static void SetProperty<T>(
         T target,
         string propertyName,
@@ -273,5 +413,20 @@ public class SearchProductsControllerTests
         }
 
         property.SetValue(target, value);
+    }
+
+    /// <summary>
+    /// 匿名オブジェクトの message プロパティを取得する
+    /// </summary>
+    private static string? GetMessage(object? response)
+    {
+        if (response is null)
+        {
+            return null;
+        }
+
+        var property = response.GetType().GetProperty("message");
+
+        return property?.GetValue(response)?.ToString();
     }
 }
