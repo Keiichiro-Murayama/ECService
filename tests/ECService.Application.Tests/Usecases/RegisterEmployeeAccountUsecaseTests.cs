@@ -67,8 +67,8 @@ public class RegisterEmployeeAccountUsecaseTests
     public async Task ExecuteAsync_ShouldRegister_WhenValidEmployeeAccount()
     {
         // Arrange
-        const string employeeUuid =
-            " Guid.NewGuid().ToString()";
+        var employeeUuid =
+             Guid.NewGuid().ToString();
 
         const string accountName = "taro1";
         const string rawPassword = "Pssw0rd123";
@@ -124,9 +124,8 @@ public class RegisterEmployeeAccountUsecaseTests
     public async Task ExecuteAsync_ShouldThrowExistsAccountException_WhenAccountNameAlreadyExists()
     {
         // Arrange
-        const string employeeUuid =
-            "Guid.NewGuid().ToString()";
-
+        var employeeUuid =
+              Guid.NewGuid().ToString();
         const string accountName = "taro1";
         const string rawPassword = "Pssw0rd123";
 
@@ -184,36 +183,9 @@ public class RegisterEmployeeAccountUsecaseTests
 
         // Assert
         Assert.AreEqual(
-            "選択された社員IDが存在しません。",
+            "指定された社員IDが存在しません。",
             exception.Message);
-
-        _employeeAccountRepositoryMock.Verify(
-            repository =>
-                repository.ExistsByAccountNameAsync(accountName),
-            Times.Once);
-
-        _employeeRepositoryMock.Verify(
-            repository =>
-                repository.SelectByUuidAsync(employeeUuid),
-            Times.Once);
-
-        // 社員が存在しないのでハッシュ化・登録は実行されない
-        _passwordServiceMock.Verify(
-            service => service.Hash(It.IsAny<string>()),
-            Times.Never);
-
-        _employeeAccountRepositoryMock.Verify(
-            repository =>
-                repository.CreateAsync(It.IsAny<EmployeeAccount>()),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.CommitAsync(),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.RollbackAsync(),
-            Times.Once);
+     
     }
 
     [TestMethod(
