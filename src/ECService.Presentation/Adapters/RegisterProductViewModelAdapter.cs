@@ -6,14 +6,15 @@ using ECService.Presentation.ViewModels;
 namespace ECService.Presentation.Adapters;
 
 /// <summary>
-/// 商品登録リクエストから商品ドメインへ変換するアダプタ
+/// RegisterProductViewModelからドメインオブジェクト:Productへ変換するアダプタ
 /// </summary>
-public class RegisterProductViewModelAdapter :
-    IRestorer<Product, RegisterProductRequest>
+public class RegisterProductViewModelAdapter : IRestorer<Product, RegisterProductRequest>
 {
     /// <summary>
-    /// 商品登録リクエストから商品ドメインを復元する
+    /// RegisterProductViewModelからドメインオブジェクト:Productを復元する
     /// </summary>
+    /// <param name="target">ユースケース:[新商品を登録する]を実現するViewModel</param>
+    /// <returns>商品ドメイン</returns>
     public Task<Product> RestoreAsync(RegisterProductRequest target)
     {
         if (target.Price is null ||
@@ -21,10 +22,12 @@ public class RegisterProductViewModelAdapter :
             string.IsNullOrWhiteSpace(target.CategoryUuid) ||
             !Guid.TryParse(target.CategoryUuid, out _))
         {
-            throw new DomainException("入力値に不備があります。");
+            throw new DomainException(
+                "入力値に不備があります。",
+                nameof(target.CategoryUuid));
         }
 
-        var productCategory = new ProductCategory(
+        var category = new ProductCategory(
             target.CategoryUuid,
             string.Empty);
 
@@ -34,7 +37,7 @@ public class RegisterProductViewModelAdapter :
             target.ProductName,
             target.Price.Value,
             target.ImageUrl,
-            productCategory,
+            category,
             productStock);
 
         return Task.FromResult(product);

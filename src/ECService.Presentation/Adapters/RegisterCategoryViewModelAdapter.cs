@@ -17,7 +17,7 @@ public class RegisterCategoryViewModelAdapter : IRestorer<ProductCategory, Regis
 
         // 商品カテゴリを生成する
         var category = ProductCategory.Create(
-                                        target.categoryName!
+                                        target.CategoryName!
                                     );
         // 商品カテゴリと商品在庫を設定する
         return Task.FromResult(category);

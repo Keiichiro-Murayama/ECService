@@ -5,6 +5,7 @@ using ECService.Presentation.Extensions;
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;//石原:追加
 using System.Text;
 
 
@@ -95,7 +96,11 @@ builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddAuthorization();
 
 // Controller
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>//石原:追加
+    {
+        options.SuppressModelStateInvalidFilter = true;//400errorを自動で返さないようにする
+    });
 
 // 各層のDI登録
 builder.Services.AddInfrastructure(connectionString);
