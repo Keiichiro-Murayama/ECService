@@ -47,11 +47,19 @@ public class GetCategoriesUsecaseTests
         var result = await _usecase.ExecuteAsync();
 
         // Assert
+        Assert.IsNotNull(result);
         Assert.AreEqual(3, result.Count);
-        Assert.AreEqual(categories[0].CategoryUuid, result[0].CategoryUuid);
-        Assert.AreEqual(categories[0].Name, result[0].Name);
+
+        CollectionAssert.AreEqual(
+            categories.Select(c => c.CategoryUuid).ToList(),
+            result.Select(c => c.CategoryUuid).ToList());
+
+        CollectionAssert.AreEqual(
+            categories.Select(c => c.Name).ToList(),
+            result.Select(c => c.Name).ToList());
 
         _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
+        _repositoryMock.VerifyNoOtherCalls();
     }
 
     /// <summary>
@@ -61,9 +69,11 @@ public class GetCategoriesUsecaseTests
     public async Task ExecuteAsync_ReturnEmptyList()
     {
         // Arrange
+        var categories = new List<ProductCategory>();
+
         _repositoryMock
             .Setup(x => x.SelectAllAsync())
-            .ReturnsAsync(new List<ProductCategory>());
+            .ReturnsAsync(categories);
 
         // Act
         var result = await _usecase.ExecuteAsync();
@@ -73,6 +83,7 @@ public class GetCategoriesUsecaseTests
         Assert.AreEqual(0, result.Count);
 
         _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
+        _repositoryMock.VerifyNoOtherCalls();
     }
 
     /// <summary>
@@ -87,17 +98,24 @@ public async Task ExecuteAsync_RepositoryThrowsException()
         .ThrowsAsync(new Exception("DB Error"));
 
     // Act
+    Exception? exception = null;
+
     try
     {
         await _usecase.ExecuteAsync();
-        Assert.Fail("例外が発生しませんでした。");
     }
     catch (Exception ex)
     {
-        // Assert
-        Assert.AreEqual("DB Error", ex.Message);
+        exception = ex;
     }
 
+    
+
+    // Assert
+    Assert.IsNotNull(exception);
+    Assert.AreEqual("DB Error", exception.Message);
+
     _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
+    _repositoryMock.VerifyNoOtherCalls();
 }
 }
