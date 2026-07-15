@@ -174,7 +174,7 @@ public class RegisterEmployeeAccountUsecaseTests
 
         // Assert
         Assert.AreEqual(
-            "このアカウント名は既に使用されています。",
+            "このアカウント名は既に登録されています。",
             exception.Message);
 
         _unitOfWorkMock.Verify(
@@ -244,7 +244,7 @@ public class RegisterEmployeeAccountUsecaseTests
 
         // Assert
         Assert.AreEqual(
-            "選択された社員が存在しません。",
+            "選択された社員IDが存在しません。",
             exception.Message);
 
         _employeeAccountRepositoryMock.Verify(

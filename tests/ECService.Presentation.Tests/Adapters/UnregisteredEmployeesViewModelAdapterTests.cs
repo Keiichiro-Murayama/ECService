@@ -52,7 +52,7 @@ public class UnregisteredEmployeesViewModelAdapterTests
 
         Assert.AreEqual(
             "山田太郎",
-            result.Employees[0].AccountName);
+            result.Employees[0].EmployeeName);
 
         Assert.AreEqual(
             "33333333-3333-3333-3333-333333333333",
@@ -60,7 +60,7 @@ public class UnregisteredEmployeesViewModelAdapterTests
 
         Assert.AreEqual(
             "佐藤花子",
-            result.Employees[1].AccountName);
+            result.Employees[1].EmployeeName);
     }
 
     [TestMethod(DisplayName = "未登録社員が0件の場合は空の一覧を返す")]

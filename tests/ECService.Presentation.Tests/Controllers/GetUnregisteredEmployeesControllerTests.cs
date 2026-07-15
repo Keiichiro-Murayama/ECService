@@ -82,7 +82,7 @@ public class GetUnregisteredEmployeesControllerTests
 
         Assert.AreEqual(
             "山田太郎",
-            response.Employees[0].AccountName);
+            response.Employees[0].EmployeeName);
 
         Assert.AreEqual(
             "33333333-3333-3333-3333-333333333333",
@@ -90,7 +90,7 @@ public class GetUnregisteredEmployeesControllerTests
 
         Assert.AreEqual(
             "佐藤花子",
-            response.Employees[1].AccountName);
+            response.Employees[1].EmployeeName);
 
         _usecaseMock.Verify(
             usecase => usecase.ExecuteAsync(),
