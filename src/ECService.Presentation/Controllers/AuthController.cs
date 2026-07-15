@@ -34,17 +34,31 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<TokenResponse>> Login([FromBody] LoginRequest model)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new
+            {
+                message = "username、passwordを入力してください。"
+            });
+        }
         try
         {
             var input = (model.Username, model.Password);
 
-            var result = await _loginUsecase.ExecuteAsync(input);
+
+            var result = await _loginUsecase.ExecuteAsync((model.Username, model.Password));
 
             AppendAuthCookie(result.AccessToken);
 
-            var response = await _loginViewModelAdapter.ConvertAsync(result);
+            var response = new TokenResponse
+            {
+              Token = result.AccessToken,
+              AccountUuid = result.EmployeeAccount.AccountUuid,
+              AccountName = result.EmployeeAccount.AccountName,
+              Message = "ログインに成功しました。"
+            };
 
-            return Ok(response);
+return Ok(response);
         }
         catch (AuthenticationException ex)
         {
@@ -91,21 +105,14 @@ public class AuthController : ControllerBase
     /// 
     /// </summary>
     /// <returns>成功メッセージ(200 OK)</returns>
-[HttpPost("logout")]
-[Authorize]
-public IActionResult Logout()
-{
-    Response.Cookies.Delete(AuthCookieName);
-    return Ok(new
-    {
-        Message = "ログアウトしました。"
-    });
-}
-
+    [HttpPost("logout")]
     [Authorize]
-[HttpGet("test")]
-public IActionResult Test()
-{
-    return Ok("ログインしています");
-}
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete(AuthCookieName);
+        return Ok(new
+        {
+            Message = "ログアウトしました。"
+        });
+    }
 }

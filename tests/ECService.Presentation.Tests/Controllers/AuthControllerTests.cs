@@ -215,4 +215,150 @@ public class AuthControllerTests
 
         usecaseMock.Verify(usecase => usecase.ExecuteAsync(It.Is<(string, string)>(p => p.Item1 == Username && p.Item2 == Password)), Times.Once);
     }
+    /// <summary>
+/// ユーザー名未入力の場合、
+/// 400 BadRequestが返却されることを確認する。
+/// </summary>
+[TestMethod]
+public async Task Login_UsernameIsEmpty_ReturnsBadRequest()
+{
+    // Arrange
+    var usecaseMock = new Mock<ILoginUsecase>();
+
+    var controller = new AuthController(
+        usecaseMock.Object,
+        new LoginViewModelAdapter());
+
+    controller.ControllerContext = new ControllerContext
+    {
+        HttpContext = new DefaultHttpContext()
+    };
+
+    controller.ModelState.AddModelError(
+        nameof(LoginRequest.Username),
+        "ユーザー名は必須項目です");
+
+    var request = new LoginRequest
+    {
+        Username = "",
+        Password = Password
+    };
+
+    // Act
+    var result = await controller.Login(request);
+
+    // Assert
+    Assert.IsInstanceOfType(
+        result.Result,
+        typeof(ObjectResult));
+
+    var badRequest =
+        result.Result as ObjectResult;
+
+    Assert.IsNotNull(badRequest);
+
+    Assert.AreEqual(
+        StatusCodes.Status400BadRequest,
+        badRequest.StatusCode);
+
+    usecaseMock.Verify(
+        usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
+        Times.Never);
+}
+[TestMethod]
+public async Task Login_PasswordIsEmpty_ReturnsBadRequest()
+{
+    // Arrange
+    var usecaseMock = new Mock<ILoginUsecase>();
+
+    var controller = new AuthController(
+        usecaseMock.Object,
+        new LoginViewModelAdapter());
+
+    controller.ControllerContext = new ControllerContext
+    {
+        HttpContext = new DefaultHttpContext()
+    };
+
+    controller.ModelState.AddModelError(
+        nameof(LoginRequest.Password),
+        "パスワードは必須項目です");
+
+    var request = new LoginRequest
+    {
+        Username = Username,
+        Password = ""
+    };
+
+    // Act
+    var result = await controller.Login(request);
+
+    // Assert
+    Assert.IsInstanceOfType(
+        result.Result,
+        typeof(ObjectResult));
+
+    var badRequest =
+        result.Result as ObjectResult;
+
+    Assert.IsNotNull(badRequest);
+
+    Assert.AreEqual(
+        StatusCodes.Status400BadRequest,
+        badRequest.StatusCode);
+
+    usecaseMock.Verify(
+        usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
+        Times.Never);
+}
+[TestMethod]
+public async Task Login_UsernameAndPasswordAreEmpty_ReturnsBadRequest()
+{
+    // Arrange
+    var usecaseMock = new Mock<ILoginUsecase>();
+
+    var controller = new AuthController(
+        usecaseMock.Object,
+        new LoginViewModelAdapter());
+
+    controller.ControllerContext = new ControllerContext
+    {
+        HttpContext = new DefaultHttpContext()
+    };
+
+    controller.ModelState.AddModelError(
+        nameof(LoginRequest.Username),
+        "ユーザー名は必須項目です");
+
+    controller.ModelState.AddModelError(
+        nameof(LoginRequest.Password),
+        "パスワードは必須項目です");
+
+    var request = new LoginRequest
+    {
+        Username = "",
+        Password = ""
+    };
+
+    // Act
+    var result = await controller.Login(request);
+
+    // Assert
+    Assert.IsInstanceOfType(
+        result.Result,
+        typeof(ObjectResult));
+
+    var badRequest =
+        result.Result as ObjectResult;
+
+    Assert.IsNotNull(badRequest);
+
+    Assert.AreEqual(
+        StatusCodes.Status400BadRequest,
+        badRequest.StatusCode);
+
+    usecaseMock.Verify(
+        usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
+        Times.Never);
+}
 }
