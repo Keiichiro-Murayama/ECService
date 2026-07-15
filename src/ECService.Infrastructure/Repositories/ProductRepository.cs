@@ -1,6 +1,5 @@
 using ECService.Infrastructure.Exceptions;
 using ECService.Domain.Models;
-// using ECService.Domain.Exceptions;//石原:exception2個あるから変かも
 using ECService.Domain.Repositories;
 using ECService.Infrastructure.Adapters;
 using ECService.Infrastructure.Contexts;
@@ -31,6 +30,19 @@ public class ProductRepository : IProductRepository
     }
 
     /// <summary>
+    /// UUID文字列をGuidへ変換する。
+    /// </summary>
+    private static Guid ConvertToGuid(string uuid, string errorMessage)
+    {
+        if (!Guid.TryParse(uuid, out var parsedUuid))
+        {
+            throw new InternalException(errorMessage);
+        }
+
+        return parsedUuid;
+    }
+
+    /// <summary>
     /// すべての商品を取得する
     /// </summary>
     /// <returns>商品一覧</returns>
@@ -38,8 +50,6 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // 削除されていない商品を取得する
-            // 商品カテゴリも使用するため Include する
             var productEntities = await _context.Products
                 .AsNoTracking()
                 .Include(p => p.ProductCategory)
@@ -48,7 +58,6 @@ public class ProductRepository : IProductRepository
 
             var products = new List<Product>();
 
-            // 商品ごとに在庫を取得して、FactoryでProductに復元する
             foreach (var productEntity in productEntities)
             {
                 var stockEntity = await _context.ProductStocks
@@ -63,13 +72,16 @@ public class ProductRepository : IProductRepository
                 var product = await _factory.Factory(
                     productEntity,
                     stockEntity,
-                    productEntity.ProductCategory
-                );
+                    productEntity.ProductCategory);
 
                 products.Add(product);
             }
 
             return products;
+        }
+        catch (InternalException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -86,18 +98,20 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // 削除されていない商品かつ、指定カテゴリの商品だけ取得する
+            var parsedCategoryUuid = ConvertToGuid(
+                categoryUuid,
+                "カテゴリUUIDの形式が不正です。");
+
             var productEntities = await _context.Products
                 .AsNoTracking()
                 .Include(p => p.ProductCategory)
                 .Where(p =>
                     p.DeleteFlag == 0 &&
-                    p.ProductCategory.CategoryUuid == Guid.Parse(categoryUuid))
+                    p.ProductCategory.CategoryUuid == parsedCategoryUuid)
                 .ToListAsync();
 
             var products = new List<Product>();
 
-            // 商品ごとに在庫を取得して、FactoryでProductに復元する
             foreach (var productEntity in productEntities)
             {
                 var stockEntity = await _context.ProductStocks
@@ -112,17 +126,22 @@ public class ProductRepository : IProductRepository
                 var product = await _factory.Factory(
                     productEntity,
                     stockEntity,
-                    productEntity.ProductCategory
-                );
+                    productEntity.ProductCategory);
 
                 products.Add(product);
             }
 
             return products;
         }
+        catch (InternalException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            throw new InternalException($"カテゴリUUID:{categoryUuid}の商品取得中に予期しないエラーが発生しました。", ex);
+            throw new InternalException(
+                $"カテゴリUUID:{categoryUuid}の商品取得中に予期しないエラーが発生しました。",
+                ex);
         }
     }
 
@@ -135,12 +154,15 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // 商品UUIDで商品を1件取得する
+            var parsedProductUuid = ConvertToGuid(
+                productUuid,
+                "商品UUIDの形式が不正です。");
+
             var productEntity = await _context.Products
                 .AsNoTracking()
                 .Include(p => p.ProductCategory)
                 .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == Guid.Parse(productUuid) &&
+                    p.ProductUuid == parsedProductUuid &&
                     p.DeleteFlag == 0);
 
             if (productEntity is null)
@@ -148,7 +170,6 @@ public class ProductRepository : IProductRepository
                 return null;
             }
 
-            // 商品IDで在庫を取得する
             var stockEntity = await _context.ProductStocks
                 .AsNoTracking()
                 .SingleOrDefaultAsync(s => s.ProductId == productEntity.Id);
@@ -158,16 +179,20 @@ public class ProductRepository : IProductRepository
                 return null;
             }
 
-            // EntityたちからProductを復元する
             return await _factory.Factory(
                 productEntity,
                 stockEntity,
-                productEntity.ProductCategory
-            );
+                productEntity.ProductCategory);
+        }
+        catch (InternalException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
-            throw new InternalException($"商品UUID:{productUuid}の商品取得中に予期しないエラーが発生しました。", ex);
+            throw new InternalException(
+                $"商品UUID:{productUuid}の商品取得中に予期しないエラーが発生しました。",
+                ex);
         }
     }
 
@@ -180,7 +205,6 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // 削除されていない商品の中に、同じ商品名が存在するか確認する
             return await _context.Products
                 .AsNoTracking()
                 .AnyAsync(p =>
@@ -189,7 +213,9 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception ex)
         {
-            throw new InternalException($"商品名:{name}の商品存在確認中に予期しないエラーが発生しました。", ex);
+            throw new InternalException(
+                $"商品名:{name}の商品存在確認中に予期しないエラーが発生しました。",
+                ex);
         }
     }
 
@@ -201,39 +227,36 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // ProductをProductEntityへ変換する
             var productEntity = await _productEntityAdapter.ConvertAsync(product);
 
-            // カテゴリUUIDからカテゴリEntityを取得する
+            var parsedCategoryUuid = ConvertToGuid(
+                product.ProductCategory.CategoryUuid,
+                "商品カテゴリUUIDの形式が不正です。");
+
             var categoryEntity = await _context.ProductCategories
                 .SingleOrDefaultAsync(c =>
-                    c.CategoryUuid == Guid.Parse(product.ProductCategory.CategoryUuid));
+                    c.CategoryUuid == parsedCategoryUuid);
 
             if (categoryEntity is null)
             {
                 throw new InternalException("指定された商品カテゴリが存在しません。");
             }
 
-            // 商品EntityへカテゴリIDを設定する
             productEntity.ProductCategoryId = categoryEntity.Id;
 
-            // 商品を登録する
             await _context.Products.AddAsync(productEntity);
-
-            // SaveChangesして商品IDを採番する
             await _context.SaveChangesAsync();
 
-            // 商品在庫Entityを作成する
             var stockEntity = await _productStockAdapter.ConvertAsync(product.ProductStock);
 
-            // 商品IDを設定する
             stockEntity.ProductId = productEntity.Id;
 
-            // 在庫を登録する
             await _context.ProductStocks.AddAsync(stockEntity);
-
-            // DBへ保存する
             await _context.SaveChangesAsync();
+        }
+        catch (InternalException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -250,10 +273,13 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            // 更新対象の商品を取得する
+            var parsedProductUuid = ConvertToGuid(
+                product.ProductUuid,
+                "商品UUIDの形式が不正です。");
+
             var productEntity = await _context.Products
                 .SingleOrDefaultAsync(p =>
-                    p.ProductUuid == Guid.Parse(product.ProductUuid) &&
+                    p.ProductUuid == parsedProductUuid &&
                     p.DeleteFlag == 0);
 
             if (productEntity is null)
@@ -261,23 +287,24 @@ public class ProductRepository : IProductRepository
                 return false;
             }
 
-            // カテゴリを取得する
+            var parsedCategoryUuid = ConvertToGuid(
+                product.ProductCategory.CategoryUuid,
+                "商品カテゴリUUIDの形式が不正です。");
+
             var categoryEntity = await _context.ProductCategories
                 .SingleOrDefaultAsync(c =>
-                    c.CategoryUuid == Guid.Parse(product.ProductCategory.CategoryUuid));
+                    c.CategoryUuid == parsedCategoryUuid);
 
             if (categoryEntity is null)
             {
                 throw new InternalException("指定された商品カテゴリが存在しません。");
             }
 
-            // 商品情報を更新する
             productEntity.Name = product.Name;
             productEntity.Price = product.Price;
             productEntity.ImageUrl = product.ImageUrl;
             productEntity.ProductCategoryId = categoryEntity.Id;
 
-            // 在庫情報を取得する
             var stockEntity = await _context.ProductStocks
                 .SingleOrDefaultAsync(s => s.ProductId == productEntity.Id);
 
@@ -286,17 +313,21 @@ public class ProductRepository : IProductRepository
                 return false;
             }
 
-            // 在庫数を更新する
             stockEntity.Quantity = product.ProductStock.Quantity;
 
-            // DBに保存する
             await _context.SaveChangesAsync();
 
             return true;
         }
+        catch (InternalException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            throw new InternalException($"商品UUID:{product.ProductUuid}の商品更新中に予期しないエラーが発生しました。", ex);
+            throw new InternalException(
+                $"商品UUID:{product.ProductUuid}の商品更新中に予期しないエラーが発生しました。",
+                ex);
         }
     }
 
@@ -309,16 +340,22 @@ public class ProductRepository : IProductRepository
     {
         try
         {
-            var uuid = Guid.Parse(productUuid);
+            var parsedProductUuid = ConvertToGuid(
+                productUuid,
+                "商品UUIDの形式が不正です。");
 
             var updatedCount = await _context.Products
                 .Where(p =>
-                    p.ProductUuid == uuid &&
+                    p.ProductUuid == parsedProductUuid &&
                     p.DeleteFlag == 0)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(p => p.DeleteFlag, 1));
 
             return updatedCount > 0;
+        }
+        catch (InternalException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

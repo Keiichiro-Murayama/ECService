@@ -1,18 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
-using ECService.Domain.Models;
 using ECService.Application.Usecases.Interfaces;
+using ECService.Domain.Models;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
-using ECService.Domain.Exceptions;
-using ECService.Application.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authorization;
 
+using DomainException = ECService.Domain.Exceptions.DomainException;
+using InternalException = ECService.Infrastructure.Exceptions.InternalException;
 
 namespace ECService.Presentation.Controllers;
+
 /// <summary>
-/// ユースケース:[カテゴリを登録する]を実現するコントローラ
+/// カテゴリ登録APIを提供するController
 /// </summary>
 //[Authorize]
 [ApiController]
@@ -27,7 +26,7 @@ public class RegisterCategoryController : ControllerBase
     /// コンストラクタ
     /// </summary>
     /// <param name="usecase">ユースケース:[カテゴリを登録する]を実現するインターフェイス</param>
-    /// <param name="adapter">ユースケース:変換を実現するインターフェイス</param>
+    /// <param name="adapter">カテゴリ登録リクエストをカテゴリドメインへ変換するアダプタ</param>
     public RegisterCategoryController(
         IRegisterProductCategoryUsecase usecase,
         RegisterCategoryViewModelAdapter adapter)
@@ -40,56 +39,86 @@ public class RegisterCategoryController : ControllerBase
     /// カテゴリの登録
     /// </summary>
     /// <param name="request">ユースケース:[カテゴリを登録する]を実現するViewModel</param>
-    /// <returns></returns>
+    /// <returns>登録結果</returns>
     [HttpPost]
-        [SwaggerOperation(Summary = "カテゴリ登録",
-                      Description = "カテゴリを登録する")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー")]
+    [SwaggerOperation(
+        Summary = "カテゴリ登録",
+        Description = "カテゴリを登録する")]
+    [SwaggerResponse(StatusCodes.Status201Created, "登録成功")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー / 未入力エラー")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "カテゴリ名が既に存在する場合")]
-    [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(EmployeeAccount))]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
     public async Task<IActionResult> Register(
-        RegisterCategoryRequest request)
+        [FromBody] RegisterCategoryRequest request)
     {
+        if (request is null ||
+            !ModelState.IsValid ||
+            string.IsNullOrWhiteSpace(request.CategoryName))
+        {
+            return BadRequest(new
+            {
+                message = "カテゴリ名を入力してください。"
+            });
+        }
+
         try
         {
-            //RequestをProductに変換
+            request.CategoryName = request.CategoryName.Trim();
+
             ProductCategory category = await _adapter.RestoreAsync(request);
-            // DataAnnotationsのエラーは通常ここへ来る前に自動で400になる
-            await _usecase.ExecuteAsync(
-                category);
+
+            await _usecase.ExecuteAsync(category);
 
             return StatusCode(
                 StatusCodes.Status201Created,
                 new
                 {
+                    categoryUuid = category.CategoryUuid,
                     message = "商品カテゴリを登録しました。"
                 });
         }
-        catch (ExistsAccountException ex)
-        {
-            return Conflict(new
-            {
-                code = "ACCOUNT_ALREADY_EXISTS",
-                message = ex.Message
-            });
-        }
-        catch (ExistsEmployeeException ex)
-        {
-            return NotFound(new
-            {
-                code = "EMPLOYEE_NOT_FOUND",
-                message = ex.Message
-            });
-        }
         catch (DomainException ex)
         {
+            if (ex.Message.Contains("既に") ||
+                ex.Message.Contains("重複"))
+            {
+                return Conflict(new
+                {
+                    message = "このカテゴリ名は既に登録されています。"
+                });
+            }
+
             return BadRequest(new
             {
-                code = "DOMAIN_RULE_VIOLATION",
-                message = ex.Message
+                message = "カテゴリ名を入力してください。"
             });
+        }
+        catch (InternalException)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new
+                {
+                    message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+                });
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("既に") ||
+                ex.Message.Contains("重複"))
+            {
+                return Conflict(new
+                {
+                    message = "このカテゴリ名は既に登録されています。"
+                });
+            }
+
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new
+                {
+                    message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+                });
         }
     }
 }

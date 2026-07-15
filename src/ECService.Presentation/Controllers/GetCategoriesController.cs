@@ -10,7 +10,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace ECService.Presentation.Controllers;
 
 /// <summary>
-/// 商品検索機能のController
+/// カテゴリ取得APIを提供するController
 /// </summary>
 [ApiController]
 [Route("api/admin/categories")]

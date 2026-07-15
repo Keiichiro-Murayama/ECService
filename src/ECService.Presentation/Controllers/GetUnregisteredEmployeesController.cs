@@ -8,7 +8,7 @@ using ECService.Presentation.Adapters;
 namespace ECService.Presentation.Controllers;
 
 /// <summary>
-/// 社員情報を扱うController
+/// 未登録社員取得APIを提供するController
 /// </summary>
 //[Authorize]
 [ApiController]

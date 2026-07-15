@@ -1,8 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using ECService.Domain;
-using ECService.Domain.Models;
-using Microsoft.Extensions.Validation;
 namespace ECService.Presentation.ViewModels;
 /// <summary>
 /// 商品登録ユースケース用ViewModelクラス
@@ -15,5 +11,5 @@ public class RegisterCategoryRequest
     [Required(ErrorMessage = "カテゴリ名を入力してください")]
     [StringLength(30,ErrorMessage = "カテゴリ名は30文字以内で入力してください。")]
     [Display(Name = "カテゴリ名")]
-    public string? categoryName { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
 }

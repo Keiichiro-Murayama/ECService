@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECService.Presentation.Controllers;
 
+/// <summary>
+/// 商品詳細取得APIを提供するController
+/// </summary>
 [ApiController]
 [Route("api/admin/products/info")]
 public class GetProductInfoByIdController : ControllerBase

@@ -1,16 +1,18 @@
 using ECService.Application.Usecases.Interfaces;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using DomainException = ECService.Domain.Exceptions.DomainException;
+using InternalException = ECService.Infrastructure.Exceptions.InternalException;
 
 namespace ECService.Presentation.Controllers;
 
 /// <summary>
-/// 商品検索APIコントローラー
+/// 商品検索APIを提供するController
 /// </summary>
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("api/admin/products")]
 public class SearchProductsController : ControllerBase
 {
@@ -49,13 +51,47 @@ public class SearchProductsController : ControllerBase
     public async Task<ActionResult<List<ProductsItem>>> Search(
         [FromQuery] string? categoryUuid)
     {
-        // 商品検索ユースケースを実行する
-        var products = await _searchProductsUsecase.ExecuteAsync(categoryUuid);
+        try
+        {
+            var products = await _searchProductsUsecase.ExecuteAsync(categoryUuid);
 
-        // DomainのProduct一覧をレスポンス用ViewModelへ変換する
-        var response = _searchProductsViewModelAdapter.Convert(products);
+            var response = _searchProductsViewModelAdapter.Convert(products);
 
-        // READMEに合わせて、productsプロパティではなく商品一覧の配列を返す
-        return Ok(response.Products);
+            return Ok(response.Products);
+        }
+        catch (DomainException)
+        {
+            return NotFound(new
+            {
+                message = "指定されたカテゴリID（UUID）が存在しません。"
+            });
+        }
+        catch (InternalException ex)
+        {
+            if (ex.Message.Contains("カテゴリ") ||
+                ex.Message.Contains("UUID"))
+            {
+                return NotFound(new
+                {
+                    message = "指定されたカテゴリID（UUID）が存在しません。"
+                });
+            }
+
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new
+                {
+                    message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+                });
+        }
+        catch (Exception)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new
+                {
+                    message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+                });
+        }
     }
 }

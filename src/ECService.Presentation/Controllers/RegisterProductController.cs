@@ -1,18 +1,17 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
-using ECService.Domain.Models;
 using ECService.Application.Usecases.Interfaces;
+using ECService.Domain.Models;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
-using ECService.Domain.Exceptions;
-using ECService.Application.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using Microsoft.AspNetCore.Authorization;
 
+using DomainException = ECService.Domain.Exceptions.DomainException;
+using InternalException = ECService.Infrastructure.Exceptions.InternalException;
 
 namespace ECService.Presentation.Controllers;
+
 /// <summary>
-/// ユースケース:[商品を登録する]を実現するコントローラ
+/// 商品登録APIを提供するController
 /// </summary>
 //[Authorize]
 [ApiController]
@@ -27,7 +26,7 @@ public class RegisterProductController : ControllerBase
     /// コンストラクタ
     /// </summary>
     /// <param name="usecase">ユースケース:[商品を登録する]を実現するインターフェイス</param>
-    /// <param name="adapter">ユースケース:[商品を登録する]を実現するインターフェイス</param>
+    /// <param name="adapter">商品登録リクエストを商品ドメインへ変換するアダプタ</param>
     public RegisterProductController(
         IRegisterProductUsecase usecase,
         RegisterProductViewModelAdapter adapter)
@@ -39,64 +38,110 @@ public class RegisterProductController : ControllerBase
     /// <summary>
     /// 商品の登録
     /// </summary>
-    /// <param name="request">ユースケース:[商品を登録する]を実現するViewModel</param>
-    /// <returns></returns>
+    /// <param name="request">ユースケース:[新商品を登録する]を実現するViewModel</param>
+    /// <returns>登録結果</returns>
     [HttpPost]
-        [SwaggerOperation(Summary = "商品を登録",
-                      Description = "商品ID、商品カテゴリ、商品名、在庫を登録する")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー")]
-    [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー")]
-    [SwaggerResponse(StatusCodes.Status409Conflict, "アカウント名が既に存在する場合")]
-    [SwaggerResponse(StatusCodes.Status201Created, "登録成功", typeof(EmployeeAccount))]
+    [SwaggerOperation(
+        Summary = "商品を登録",
+        Description = "商品名、価格、在庫数、商品カテゴリUUID、画像URLを登録する")]
+    [SwaggerResponse(StatusCodes.Status201Created, "登録成功")]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー / 入力値エラー")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "重複エラー")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-    public async Task<IActionResult> Register(
-        RegisterProductRequest request)
+    public async Task<IActionResult> RegisterProduct(
+        [FromBody] RegisterProductRequest request)
     {
+        if (!ModelState.IsValid)
+        {
+            if (HasRequiredError())
+            {
+                return BadRequest(new
+                {
+                    message = "productName、price、stock、categoryUuidを入力してください。"
+                });
+            }
+
+            return BadRequest(new
+            {
+                message = "入力値に不備があります。"
+            });
+        }
+
         try
         {
-            //RequestをProductに変換
             Product product = await _adapter.RestoreAsync(request);
-            // DataAnnotationsのエラーは通常ここへ来る前に自動で400になる
-            await _usecase.ExecuteAsync(
-                product);
+
+            await _usecase.ExecuteAsync(product);
 
             return StatusCode(
                 StatusCodes.Status201Created,
                 new
                 {
-                    message = "新規商品を登録しました。"
+                    productUuid = product.ProductUuid,
+                    message = "商品を登録しました。"
                 });
-        }
-        catch (ExistsAccountException ex)
-        {
-            return Conflict(new
-            {
-                code = "ACCOUNT_ALREADY_EXISTS",
-                message = ex.Message
-            });
-        }
-        catch (ExistsEmployeeException ex)
-        {
-            return NotFound(new
-            {
-                code = "EMPLOYEE_NOT_FOUND",
-                message = ex.Message
-            });
         }
         catch (DomainException ex)
         {
+            if (ex.Message.Contains("既に") ||
+                ex.Message.Contains("重複"))
+            {
+                return Conflict(new
+                {
+                    message = "同じ商品名が既に登録されています。"
+                });
+            }
+
             return BadRequest(new
             {
-                code = "DOMAIN_RULE_VIOLATION",
-                message = ex.Message
+                message = "入力値に不備があります。"
             });
         }
+        catch (InternalException ex)
+        {
+            if (ex.Message.Contains("カテゴリ") ||
+                ex.Message.Contains("UUID"))
+            {
+                return BadRequest(new
+                {
+                    message = "入力値に不備があります。"
+                });
+            }
+
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new
+                {
+                    message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+                });
+        }
+        catch (Exception)
+        {
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new
+                {
+                    message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
+                });
+        }
+    }
+
+    /// <summary>
+    /// 必須項目の未入力エラーがあるか判定する
+    /// </summary>
+    /// <returns>true: 未入力エラーあり false: 未入力エラーなし</returns>
+    private bool HasRequiredError()
+    {
+        var requiredMessages = new[]
+        {
+            "商品名を入力してください",
+            "価格を入力してください",
+            "在庫数を入力してください",
+            "カテゴリを選択してください"
+        };
+
+        return ModelState.Values
+            .SelectMany(value => value.Errors)
+            .Any(error => requiredMessages.Contains(error.ErrorMessage));
     }
 }
-
-
-
-
-
-
-
