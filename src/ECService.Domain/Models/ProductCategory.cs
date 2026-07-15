@@ -54,9 +54,18 @@ public class ProductCategory : Entity
     /// </summary>
     public static void ValidateName(string name)
     {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new DomainException(
+                "カテゴリ名を入力してください。",
+                nameof(name));
+        }
+
         if (name.Length > NameMaxLength)
         {
-            throw new DomainException("商品カテゴリ名は30文字以内で入力してください", nameof(name));
+            throw new DomainException(
+                "カテゴリ名は30文字以内で入力してください。",
+                nameof(name));
         }
     }
 }
