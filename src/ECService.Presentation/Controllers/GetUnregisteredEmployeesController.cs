@@ -12,7 +12,7 @@ namespace ECService.Presentation.Controllers;
 /// </summary>
 //[Authorize]
 [ApiController]
-[Route("api/admin/employees/unregisted")]
+[Route("api/admin/employees")]
 [SwaggerTag("未登録社員取得API")]
 public class GetUnregisteredEmployeesController : ControllerBase
 {
