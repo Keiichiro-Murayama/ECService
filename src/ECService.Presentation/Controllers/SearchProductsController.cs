@@ -10,7 +10,7 @@ namespace ECService.Presentation.Controllers;
 /// 商品検索APIコントローラー
 /// </summary>
 [ApiController]
-[Authorize]
+//[Authorize]
 [Route("api/admin/products")]
 public class SearchProductsController : ControllerBase
 {
