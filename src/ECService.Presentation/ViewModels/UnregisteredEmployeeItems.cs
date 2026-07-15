@@ -5,5 +5,5 @@ namespace ECService.Presentation.ViewModels;
 public class UnregisteredEmployeesItem
 {
     public string? EmployeeUuid { get; set; }
-    public string? EMployeeName { get; set; }
+    public string? EmployeeName { get; set; }
 }
