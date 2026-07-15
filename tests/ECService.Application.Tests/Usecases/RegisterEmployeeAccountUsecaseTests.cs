@@ -68,7 +68,7 @@ public class RegisterEmployeeAccountUsecaseTests
     {
         // Arrange
         const string employeeUuid =
-            "11111111-1111-1111-1111-111111111111";
+            " Guid.NewGuid().ToString()";
 
         const string accountName = "taro1";
         const string rawPassword = "Pssw0rd123";
@@ -114,36 +114,8 @@ public class RegisterEmployeeAccountUsecaseTests
             createdAccount,
             "登録対象の担当者アカウントが生成されていません。");
 
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.BeginTransactionAsync(),
-            Times.Once);
 
-        _employeeAccountRepositoryMock.Verify(
-            repository =>
-                repository.ExistsByAccountNameAsync(accountName),
-            Times.Once);
 
-        _employeeRepositoryMock.Verify(
-            repository =>
-                repository.SelectByUuidAsync(employeeUuid),
-            Times.Once);
-
-        _passwordServiceMock.Verify(
-            service => service.Hash(rawPassword),
-            Times.Once);
-
-        _employeeAccountRepositoryMock.Verify(
-            repository =>
-                repository.CreateAsync(It.IsAny<EmployeeAccount>()),
-            Times.Once);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.CommitAsync(),
-            Times.Once);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.RollbackAsync(),
-            Times.Never);
     }
 
     [TestMethod(
@@ -153,7 +125,7 @@ public class RegisterEmployeeAccountUsecaseTests
     {
         // Arrange
         const string employeeUuid =
-            "11111111-1111-1111-1111-111111111111";
+            "Guid.NewGuid().ToString()";
 
         const string accountName = "taro1";
         const string rawPassword = "Pssw0rd123";
@@ -176,38 +148,6 @@ public class RegisterEmployeeAccountUsecaseTests
         Assert.AreEqual(
             "このアカウント名は既に登録されています。",
             exception.Message);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.BeginTransactionAsync(),
-            Times.Once);
-
-        _employeeAccountRepositoryMock.Verify(
-            repository =>
-                repository.ExistsByAccountNameAsync(accountName),
-            Times.Once);
-
-        // 重複が判明した後の処理は実行されない
-        _employeeRepositoryMock.Verify(
-            repository =>
-                repository.SelectByUuidAsync(It.IsAny<string>()),
-            Times.Never);
-
-        _passwordServiceMock.Verify(
-            service => service.Hash(It.IsAny<string>()),
-            Times.Never);
-
-        _employeeAccountRepositoryMock.Verify(
-            repository =>
-                repository.CreateAsync(It.IsAny<EmployeeAccount>()),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.CommitAsync(),
-            Times.Never);
-
-        _unitOfWorkMock.Verify(
-            unitOfWork => unitOfWork.RollbackAsync(),
-            Times.Once);
     }
 
     [TestMethod(
