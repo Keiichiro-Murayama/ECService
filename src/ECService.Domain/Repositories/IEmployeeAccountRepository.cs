@@ -31,7 +31,9 @@ public interface IEmployeeAccountRepository
     /// 指定したアカウント名に一致する担当者アカウントを取得する。
     /// </summary>
     Task<EmployeeAccount?> FindByUsernameAsync(string employeeName);
-    
+    Task<bool> ExistsByEmployeeUuidAsync(string employeeUuid);//石原:追加 同じ社員に既に担当者アカウントが登録されているか確認する
+
+
     /// <summary>
     /// アカウントロックアウトの状態を更新する。
     /// </summary>

@@ -141,4 +141,16 @@ public async Task ResetLoginFailureAsync(string name)
         await _context.SaveChangesAsync();
     }
 }
+
+//石原:追加 同じ社員UUIDで既に担当者アカウントが登録されているか確認する
+public async Task<bool> ExistsByEmployeeUuidAsync(string employeeUuid)
+{
+    if (!Guid.TryParse(employeeUuid, out var parsedEmployeeUuid))
+    {
+        return false;
+    }
+
+    return await _context.EmployeeAccounts
+        .AnyAsync(account => account.Employee.EmployeeUuid == parsedEmployeeUuid);
+}
 }

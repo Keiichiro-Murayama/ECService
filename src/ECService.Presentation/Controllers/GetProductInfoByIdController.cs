@@ -42,7 +42,7 @@ public class GetProductInfoByIdController : ControllerBase
 
             if (product is null)
             {
-                return NotFound(new { message = "商品が見つかりません。" });
+                return NotFound(new { message = "指定された商品が見つかりません。" });
             }
 
             var response = _adapter.Convert(product);

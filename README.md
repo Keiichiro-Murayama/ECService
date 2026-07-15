@@ -295,6 +295,14 @@ Authorization: Bearer {JWTトークン}
 
 ### エラーレスポンス
 
+#### 400 Bad Request（UUID不正）
+
+```json
+{
+  "message": "商品UUIDの形式が不正です。"//石原:追加しました。
+}
+```
+
 #### 404 Not Found（UUIDが存在しない）
 
 ```json
