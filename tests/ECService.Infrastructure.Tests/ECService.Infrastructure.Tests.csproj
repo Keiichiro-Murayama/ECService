@@ -24,5 +24,9 @@
     <ProjectReference Include="..\..\src\ECService.Application\ECService.Application.csproj" />
     <ProjectReference Include="..\..\src\ECService.Domain\ECService.Domain.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup> 
 </Project>
