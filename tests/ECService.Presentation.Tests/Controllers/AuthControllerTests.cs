@@ -361,4 +361,35 @@ public async Task Login_UsernameAndPasswordAreEmpty_ReturnsBadRequest()
         usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
         Times.Never);
 }
+/// <summary>
+/// ログアウト時、
+/// 200 OKが返却されることを確認する。
+/// </summary>
+[TestMethod]
+public void Logout_ReturnsOk()
+{
+    // Arrange
+    var usecaseMock = new Mock<ILoginUsecase>();
+
+    var controller = new AuthController(
+        usecaseMock.Object,
+        new LoginViewModelAdapter());
+
+    controller.ControllerContext = new ControllerContext
+    {
+        HttpContext = new DefaultHttpContext()
+    };
+
+    // Act
+    var result = controller.Logout();
+
+    // Assert
+    Assert.IsInstanceOfType(
+        result,
+        typeof(OkObjectResult));
+
+    var okResult = result as OkObjectResult;
+
+    Assert.IsNotNull(okResult);
+}
 }

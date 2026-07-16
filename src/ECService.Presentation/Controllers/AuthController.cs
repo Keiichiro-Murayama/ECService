@@ -43,7 +43,6 @@ public class AuthController : ControllerBase
         }
         try
         {
-            var input = (model.Username, model.Password);
 
 
             var result = await _loginUsecase.ExecuteAsync((model.Username, model.Password));

@@ -37,6 +37,8 @@ public class DeleteProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize]
+
     public async Task<IActionResult> DeleteProduct(string productUuid)
     {
         if (!Guid.TryParse(productUuid, out _))

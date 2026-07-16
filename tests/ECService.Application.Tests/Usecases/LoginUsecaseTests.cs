@@ -3,7 +3,6 @@ using ECService.Application.Exceptions;
 using ECService.Application.Usecases.Imps;
 using ECService.Domain.Models;
 using ECService.Domain.Repositories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace ECService.Application.Tests.Usecases;

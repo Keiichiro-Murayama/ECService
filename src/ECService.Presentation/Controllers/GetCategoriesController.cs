@@ -6,6 +6,7 @@ using ECService.Domain.Models;
 using ECService.Domain.Exceptions;
 using ECService.Application.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ECService.Presentation.Controllers;
 
@@ -15,6 +16,7 @@ namespace ECService.Presentation.Controllers;
 [ApiController]
 [Route("api/admin/categories")]
 [SwaggerTag("カテゴリ取得API")]
+[Authorize]
 public class GetCategoriesController : ControllerBase
 {
     private readonly IGetCategoriesUsecase _getCategoriesUsecase;
@@ -41,6 +43,7 @@ public class GetCategoriesController : ControllerBase
         StatusCodes.Status200OK,
         "取得成功")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
+    
     public async Task<IActionResult> GetCategories()
     {
         // UseCaseから未登録社員一覧を取得する

@@ -2,7 +2,7 @@ using ECService.Application.Usecases.Interfaces;
 using ECService.Domain.Exceptions;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 namespace ECService.Presentation.Controllers;
 
 /// <summary>
@@ -26,6 +26,8 @@ public class UpdateProductController : ControllerBase
     /// <param name="model">商品修正リクエスト。</param>
     /// <returns>修正結果。</returns>
     [HttpPut]
+    [Authorize]
+
     public async Task<IActionResult> UpdateProduct(
         [FromQuery] string productUuid,
         [FromBody] UpdateProductRequest model)

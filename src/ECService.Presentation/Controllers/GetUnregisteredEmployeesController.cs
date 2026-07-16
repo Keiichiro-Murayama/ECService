@@ -38,6 +38,7 @@ public class GetUnregisteredEmployeesController : ControllerBase
         StatusCodes.Status200OK,
         "取得成功")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
+    [Authorize]
 
     public async Task<IActionResult> GetUnregisteredEmployees()
     {

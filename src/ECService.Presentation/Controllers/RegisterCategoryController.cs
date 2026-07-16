@@ -4,7 +4,7 @@ using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-
+using Microsoft.AspNetCore.Authorization;
 using DomainException = ECService.Domain.Exceptions.DomainException;
 using InternalException = ECService.Infrastructure.Exceptions.InternalException;
 
@@ -48,6 +48,8 @@ public class RegisterCategoryController : ControllerBase
     [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー / 未入力エラー")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "カテゴリ名が既に存在する場合")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
+    [Authorize]
+
     public async Task<IActionResult> Register(
         [FromBody] RegisterCategoryRequest request)
     {

@@ -2,7 +2,7 @@ using ECService.Application.Usecases.Interfaces;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 using DomainException = ECService.Domain.Exceptions.DomainException;
 using InternalException = ECService.Infrastructure.Exceptions.InternalException;
 
@@ -12,7 +12,6 @@ namespace ECService.Presentation.Controllers;
 /// 商品検索APIを提供するController
 /// </summary>
 [ApiController]
-//[Authorize]
 [Route("api/admin/products")]
 public class SearchProductsController : ControllerBase
 {
@@ -48,6 +47,8 @@ public class SearchProductsController : ControllerBase
     /// </param>
     /// <returns>商品一覧</returns>
     [HttpGet]
+    [Authorize]
+
     public async Task<ActionResult<List<ProductsItem>>> Search(
         [FromQuery] string? categoryUuid)
     {

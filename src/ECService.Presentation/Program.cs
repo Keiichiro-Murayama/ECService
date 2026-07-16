@@ -73,22 +73,33 @@ builder.Services
                 // 既定の応答(ボディ空・WWW-Authenticate ヘッダ)を抑制する
                 context.HandleResponse();
 
-                // 他のエラーと同じ形式(error/message)で 401 を返す
+                // 他のエラーと同じ形式(message)で 401 を返す
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 context.Response.ContentType = "application/json";
 
-                // var body = new ErrorResponse
-                // {
-                //     Error = "Unauthorized",
-                //     Message = "認証が必要です。ログインしてください。"
-                // };  
+                var body = new { message = "認証が必要です。ログインしてください。" };
 
-                // var json = System.Text.Json.JsonSerializer.Serialize(body, new System.Text.Json.JsonSerializerOptions
-                // {
-                //     PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
-                // });
+                var json = System.Text.Json.JsonSerializer.Serialize(body, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                });
 
-                // await context.Response.WriteAsync(json);
+                await context.Response.WriteAsync(json);
+            },
+
+            // 認可失敗(認証はあるが権限がない)のときの応答(将来のために用意)
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+
+                var body = new { message = "アクセスが許可されていません。" };
+                var json = System.Text.Json.JsonSerializer.Serialize(body, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                });
+
+                await context.Response.WriteAsync(json);
             }
         };
     });

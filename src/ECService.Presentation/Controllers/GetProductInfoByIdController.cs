@@ -3,6 +3,7 @@ using ECService.Domain.Exceptions;
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ECService.Presentation.Controllers;
 
@@ -25,6 +26,8 @@ public class GetProductInfoByIdController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
+
     public async Task<ActionResult<GetProductInfoResponse>> GetInfoById(
         [FromQuery] string productUuId)
     {
