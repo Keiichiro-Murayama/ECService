@@ -51,6 +51,15 @@ public class RegisterProductController : ControllerBase
     public async Task<IActionResult> RegisterProduct(
         [FromBody] RegisterProductRequest request)
     {
+        //石原:追加 request自体がnullの場合は未入力エラーとして返す
+        if (request is null)
+        {
+            return BadRequest(new
+            {
+                message = "productName、price、stock、categoryUuidを入力してください。"
+            });
+        }
+
         if (!ModelState.IsValid)
         {
             if (HasRequiredError())
@@ -67,8 +76,33 @@ public class RegisterProductController : ControllerBase
             });
         }
 
+        //石原:追加 空白だけの入力やnullable項目の未入力をControllerで判定する
+        if (string.IsNullOrWhiteSpace(request.ProductName) ||
+            request.Price is null ||
+            request.Stock is null ||
+            string.IsNullOrWhiteSpace(request.CategoryUuid))
+        {
+            return BadRequest(new
+            {
+                message = "productName、price、stock、categoryUuidを入力してください。"
+            });
+        }
+
+        //石原:追加 categoryUuidの形式チェックはAdapterではなくControllerで行う
+        if (!Guid.TryParse(request.CategoryUuid, out _))
+        {
+            return BadRequest(new
+            {
+                message = "入力値に不備があります。"
+            });
+        }
+
         try
         {
+            //石原:追加 Adapterへ渡す前に前後の空白を除去する
+            request.ProductName = request.ProductName.Trim();
+            request.CategoryUuid = request.CategoryUuid.Trim();
+
             Product product = await _adapter.RestoreAsync(request);
 
             await _usecase.ExecuteAsync(product);
