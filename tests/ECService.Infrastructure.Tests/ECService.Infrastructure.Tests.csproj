@@ -25,13 +25,6 @@
     <ProjectReference Include="..\..\src\ECService.Application\ECService.Application.csproj" />
     <ProjectReference Include="..\..\src\ECService.Domain\ECService.Domain.csproj" />
   </ItemGroup>
-<<<<<<< HEAD
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup> 
-=======
 
   <ItemGroup>
     <None Update="appsettingsTests.json">
@@ -39,5 +32,4 @@
     </None>
   </ItemGroup>
 
->>>>>>> refs/remotes/origin/dev
 </Project>
