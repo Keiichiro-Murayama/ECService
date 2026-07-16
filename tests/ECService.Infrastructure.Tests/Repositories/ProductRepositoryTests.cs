@@ -1,42 +1,44 @@
+using ECService.Domain.Repositories;
 using ECService.Domain.Models;
 using ECService.Infrastructure.Adapters;
 using ECService.Infrastructure.Contexts;
-using ECService.Infrastructure.Entities;
-using ECService.Infrastructure.Exceptions;
 using ECService.Infrastructure.Repositories;
+using ECService.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
+using ECService.Infrastructure.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ECService.Infrastructure.Tests.Repositories;
 
 [TestClass]
+[TestCategory("Repositories")]
+[DoNotParallelize]
 public class ProductRepositoryTests
 {
-    private AppDbContext _context = null!;
-    private ProductRepository _repository = null!;
-
-    // 各テストで作成したデータを削除するために保持する
-    private readonly List<Guid> _productUuids = [];
-    private readonly List<Guid> _categoryUuids = [];
+    private AppDbContext _dbContext = null!;
+    private IProductRepository _productRepository = null!;
 
     [TestInitialize]
-    public async Task Setup()
+    public async Task TestInit()
     {
-        var connectionString =
-            Environment.GetEnvironmentVariable("TEST_DB_CONNECTION_STRING")
-            ?? throw new InvalidOperationException(
-                "環境変数 TEST_DB_CONNECTION_STRING が設定されていません。");
+        const string connectionString =
+            "Host=localhost;" +
+            "Port=5432;" +
+            "Database=ec_service_manage_db_test;" +
+            "Username=postgres;" +
+            "Password=training";
 
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(connectionString)
-            .Options;
+        var options =
+            new DbContextOptionsBuilder<AppDbContext>()
+                .UseNpgsql(connectionString)
+                .Options;
 
-        _context = new AppDbContext(options);
+        _dbContext = new AppDbContext(options);
 
-        if (!await _context.Database.CanConnectAsync())
+        if (!await _dbContext.Database.CanConnectAsync())
         {
             throw new InvalidOperationException(
-                "テスト用PostgreSQLへ接続できません。");
+                "テスト用データベースに接続できません。");
         }
 
         var categoryAdapter =
@@ -45,7 +47,7 @@ public class ProductRepositoryTests
         var stockAdapter =
             new ProductStockEntityAdapter();
 
-        var productFactory =
+        var factory =
             new ProductFactory(
                 categoryAdapter,
                 stockAdapter);
@@ -53,631 +55,361 @@ public class ProductRepositoryTests
         var productEntityAdapter =
             new ProductEntityAdapter();
 
-        _repository = new ProductRepository(
-            _context,
-            productFactory,
-            productEntityAdapter,
-            stockAdapter);
+        _productRepository =
+            new ProductRepository(
+                _dbContext,
+                factory,
+                productEntityAdapter,
+                stockAdapter);
     }
 
     [TestCleanup]
-    public async Task Cleanup()
+    public async Task TestCleanup()
     {
-        // 追跡済みEntityの状態を一度破棄する
-        _context.ChangeTracker.Clear();
-
-        if (_productUuids.Count > 0)
+        if (_dbContext is not null)
         {
-            var products = await _context.Products
-                .Where(product =>
-                    _productUuids.Contains(product.ProductUuid))
-                .ToListAsync();
-
-            var productIds = products
-                .Select(product => product.Id)
-                .ToList();
-
-            if (productIds.Count > 0)
-            {
-                var stocks = await _context.ProductStocks
-                    .Where(stock =>
-                        productIds.Contains(stock.ProductId))
-                    .ToListAsync();
-
-                _context.ProductStocks.RemoveRange(stocks);
-            }
-
-            _context.Products.RemoveRange(products);
+            await _dbContext.DisposeAsync();
         }
-
-        if (_categoryUuids.Count > 0)
-        {
-            var categories = await _context.ProductCategories
-                .Where(category =>
-                    _categoryUuids.Contains(category.CategoryUuid))
-                .ToListAsync();
-
-            _context.ProductCategories.RemoveRange(categories);
-        }
-
-        await _context.SaveChangesAsync();
-        await _context.DisposeAsync();
     }
-
-    // =========================================================
-    // SelectAllAsync
-    // =========================================================
 
     [TestMethod(DisplayName = "削除されていない商品一覧を取得できる")]
-    public async Task SelectAllAsync_ShouldReturnActiveProducts()
+    public async Task SelectAllAsync_ShouldReturnAllActiveProducts()
     {
-        // Arrange
-        var category =
-            await InsertCategoryAsync("一覧テストカテゴリ");
+        // 商品一覧を取得する
+        var products = await _productRepository.SelectAllAsync();
 
-        var product =
-            await InsertProductAsync(
-                category,
-                "一覧テスト商品",
-                1000,
-                10);
+        // nullでないことを確認
+        Assert.IsNotNull(products);
 
-        // Act
-        var result = await _repository.SelectAllAsync();
+        // 未削除の商品件数を確認
+        Assert.HasCount(6, products);
 
-        // Assert
-        var actual = result.SingleOrDefault(
-            item => item.ProductUuid ==
-                    product.ProductUuid.ToString());
+        // 商品1が含まれることを確認
+        var product1 = products.Single(
+            product => product.ProductUuid ==
+                "11e6d2e9-e24d-4078-9552-3c5efaf62fdf");
 
-        Assert.IsNotNull(actual);
-        Assert.AreEqual("一覧テスト商品", actual.Name);
-        Assert.AreEqual(1000, actual.Price);
-        Assert.AreEqual(10, actual.ProductStock.Quantity);
-        Assert.AreEqual(
-            category.CategoryUuid.ToString(),
-            actual.ProductCategory.CategoryUuid);
+        Assert.AreEqual("高級ボールペン", product1.Name);
+        Assert.AreEqual(1200, product1.Price);
+        Assert.AreEqual(0, product1.DeleteFlg);
+
+        // 商品2が含まれることを確認
+        var product2 = products.Single(
+            product => product.ProductUuid ==
+                "e9ac3ed7-f21e-4bde-afc1-de9add2bdd41");
+
+        Assert.AreEqual("エコバッグ", product2.Name);
+        Assert.AreEqual(880, product2.Price);
+        Assert.AreEqual(0, product2.DeleteFlg);
+
+        // 商品3が含まれることを確認
+        var product3 = products.Single(
+            product => product.ProductUuid ==
+                "974f8010-9ad1-4cce-b1c3-72f2d8e45e43");
+        Assert.AreEqual("アロマキャンドル", product3.Name);
+        Assert.AreEqual(1500, product3.Price);
+        Assert.AreEqual(0, product3.DeleteFlg);
+
+        // 商品4が含まれることを確認
+        var product4 = products.Single(
+            product => product.ProductUuid ==
+                "8edb1714-54ad-4349-a64c-0341466ac94a");
+        Assert.AreEqual("8edb1714-54ad-4349-a64c-0341466ac94a", product4.Name);
+        Assert.AreEqual(3980, product4.Price);
+        Assert.AreEqual(0, product4.DeleteFlg);
+
+        // 商品5が含まれることを確認
+        var product5 = products.Single(
+            product => product.ProductUuid ==
+                "cf037f04-4992-42ef-8bbb-98673144f8b1");
+        Assert.AreEqual("充電式ワイヤレスマウス", product5.Name);
+        Assert.AreEqual(2480, product5.Price);
+        Assert.AreEqual(0, product5.DeleteFlg);
+
+        // 商品6が含まれることを確認
+        var product6 = products.Single(
+            product => product.ProductUuid ==
+                "eaec2628-9aea-42e3-9102-8cfaa8bb9484");
+        Assert.AreEqual("耐水ノート(A5)", product6.Name);
+        Assert.AreEqual(450, product6.Price);
+        Assert.AreEqual(0, product6.DeleteFlg);
+
     }
 
-    [TestMethod(DisplayName = "論理削除済みの商品は一覧に含まれない")]
-    public async Task SelectAllAsync_ShouldNotReturnDeletedProduct()
+    [TestMethod(DisplayName = "削除済み商品は商品一覧に含まれない")]
+    public async Task SelectAllAsync_WhenDeleteFlagIsOne_ShouldNotReturnProduct()
     {
         // Arrange
-        var category =
-            await InsertCategoryAsync("削除済み一覧カテゴリ");
-
-        var product =
-            await InsertProductAsync(
-                category,
-                "削除済み商品",
-                1000,
-                10,
-                deleteFlag: 1);
+        const string deletedProductUuid =
+            "c87a242f-aa62-48f2-ab04-e73c41447916";
 
         // Act
-        var result = await _repository.SelectAllAsync();
+        var products = await _productRepository.SelectAllAsync();
 
         // Assert
+        Assert.IsNotNull(products);
+
         Assert.IsFalse(
-            result.Any(item =>
-                item.ProductUuid ==
-                product.ProductUuid.ToString()));
+            products.Any(product =>
+                product.ProductUuid == deletedProductUuid));
     }
-
-    [TestMethod(DisplayName = "在庫が存在しない商品は一覧に含まれない")]
-    public async Task SelectAllAsync_ShouldSkipProduct_WhenStockDoesNotExist()
+    [TestMethod(DisplayName = "指定カテゴリの商品一覧を取得できる")]
+    public async Task SelectByCategoryAsync_WhenCategoryExists_ShouldReturnProducts()
     {
         // Arrange
-        var category =
-            await InsertCategoryAsync("在庫なしカテゴリ");
+        const string categoryUuid =
+            "4cfdd7d3-d002-40de-b4a9-ecffd3869924";
 
-        var productUuid = Guid.NewGuid();
-        _productUuids.Add(productUuid);
+        // Act
+        var products =
+            await _productRepository.SelectByCategoryAsync(categoryUuid);
 
-        var product = new ProductEntity
+        // Assert
+        Assert.IsNotNull(products);
+
+        // 対象カテゴリの商品件数に合わせて変更する
+        Assert.HasCount(2, products);
+
+        // 取得された商品がすべて指定カテゴリであることを確認
+        Assert.IsTrue(
+            products.All(product =>
+                product.ProductCategory.CategoryUuid == categoryUuid));
+
+        // 1件目の商品をUUIDで取得
+        var product1 = products.Single(
+            product =>
+                product.ProductUuid ==
+                "11e6d2e9-e24d-4078-9552-3c5efaf62fdf");
+
+        Assert.AreEqual("高級ボールペン", product1.Name);
+        Assert.AreEqual(1200, product1.Price);
+        Assert.AreEqual(categoryUuid, product1.ProductCategory.CategoryUuid);
+        Assert.AreEqual("文具", product1.ProductCategory.Name);
+        Assert.IsNotNull(product1.ProductStock);
+        Assert.AreEqual(50, product1.ProductStock.Quantity);
+
+        // 2件目の商品をUUIDで取得
+        var product2 = products.Single(
+            product =>
+                product.ProductUuid ==
+                "eaec2628-9aea-42e3-9102-8cfaa8bb9484");
+
+        Assert.AreEqual("耐水ノート(A5)", product2.Name);
+        Assert.AreEqual(450, product2.Price);
+        Assert.AreEqual(categoryUuid, product2.ProductCategory.CategoryUuid);
+        Assert.AreEqual("文具", product2.ProductCategory.Name);
+        Assert.IsNotNull(product2.ProductStock);
+        Assert.AreEqual(120, product2.ProductStock.Quantity);
+    }
+    [TestMethod(DisplayName = "指定カテゴリに商品が存在しない場合は空のリストが返る")]
+    public async Task SelectByCategoryAsync_WhenCategoryHasNoProducts_ShouldReturnEmptyList()
+    {
+        var strategy = _dbContext!.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
         {
-            ProductUuid = productUuid,
-            ProductCategoryId = category.Id,
-            Name = "在庫なし商品",
-            Price = 1000,
-            ImageUrl = "https://example.com/no-stock.png",
-            DeleteFlag = 0
-        };
+            await using var tx =
+                await _dbContext.Database.BeginTransactionAsync();
 
-        await _context.Products.AddAsync(product);
-        await _context.SaveChangesAsync();
+            try
+            {
+                // Arrange
+                // 商品を紐付けないカテゴリを作成する
+                var category = new ProductCategoryEntity
+                {
+                    CategoryUuid = Guid.NewGuid(),
+                    Name = "化粧品"
+                };
 
-        // Act
-        var result = await _repository.SelectAllAsync();
+                await _dbContext.ProductCategories.AddAsync(category);
+                await _dbContext.SaveChangesAsync();
 
-        // Assert
-        Assert.IsFalse(
-            result.Any(item =>
-                item.ProductUuid ==
-                productUuid.ToString()));
+                // Act
+                var products =
+                    await _productRepository.SelectByCategoryAsync(
+                        category.CategoryUuid.ToString());
+
+                // Assert
+                Assert.IsNotNull(products);
+                Assert.IsEmpty(products);
+            }
+            finally
+            {
+                // 作成したカテゴリをDBに残さない
+                await tx.RollbackAsync();
+            }
+        });
     }
-
-    // =========================================================
-    // SelectByCategoryAsync
-    // =========================================================
-
-    [TestMethod(DisplayName = "カテゴリUUIDで商品一覧を取得できる")]
-    public async Task SelectByCategoryAsync_ShouldReturnProductsInCategory()
+    [TestMethod(DisplayName = "カテゴリUUIDの形式が不正な場合はInternalExceptionをスローする")]
+    public async Task SelectByCategoryAsync_WhenCategoryUuidIsInvalid_ShouldThrowInternalException()
     {
-        // Arrange
-        var targetCategory =
-            await InsertCategoryAsync("検索対象カテゴリ");
+        try
+        {
+            // Act
+            await _productRepository.SelectByCategoryAsync("abc");
 
-        var otherCategory =
-            await InsertCategoryAsync("別カテゴリ");
-
-        var targetProduct =
-            await InsertProductAsync(
-                targetCategory,
-                "対象カテゴリ商品",
-                1500,
-                20);
-
-        await InsertProductAsync(
-            otherCategory,
-            "別カテゴリ商品",
-            2000,
-            30);
-
-        // Act
-        var result = await _repository.SelectByCategoryAsync(
-            targetCategory.CategoryUuid.ToString());
-
-        // Assert
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual(
-            targetProduct.ProductUuid.ToString(),
-            result[0].ProductUuid);
-        Assert.AreEqual("対象カテゴリ商品", result[0].Name);
+            Assert.Fail("InternalExceptionが発生しませんでした。");
+        }
+        catch (InternalException ex)
+        {
+            // Assert
+            Assert.AreEqual(
+                "カテゴリUUIDの形式が不正です。",
+                ex.Message);
+        }
     }
-
-    [TestMethod(DisplayName = "指定カテゴリに商品がない場合は空の一覧を返す")]
-    public async Task SelectByCategoryAsync_ShouldReturnEmptyList_WhenNoProductExists()
-    {
-        // Arrange
-        var category =
-            await InsertCategoryAsync("商品なしカテゴリ");
-
-        // Act
-        var result = await _repository.SelectByCategoryAsync(
-            category.CategoryUuid.ToString());
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(0, result.Count);
-    }
-
-    [TestMethod(DisplayName = "カテゴリUUID形式が不正な場合は例外を送出する")]
-    public async Task SelectByCategoryAsync_ShouldThrow_WhenUuidIsInvalid()
+    [TestMethod(DisplayName = "商品名が存在するとtrueが返る")]
+    public async Task ExistsByNameAsync_WhenNameExists_ShouldReturnTrue()
     {
         // Act
-        var exception =
-            await Assert.ThrowsExactlyAsync<InternalException>(
-                () => _repository.SelectByCategoryAsync(
-                    "invalid-category-uuid"));
-
-        // Assert
-        Assert.AreEqual(
-            "カテゴリUUIDの形式が不正です。",
-            exception.Message);
-    }
-
-    // =========================================================
-    // SelectByUuidAsync
-    // =========================================================
-
-    [TestMethod(DisplayName = "商品UUIDで商品を取得できる")]
-    public async Task SelectByUuidAsync_ShouldReturnProduct()
-    {
-        // Arrange
-        var category =
-            await InsertCategoryAsync("UUID検索カテゴリ");
-
-        var product =
-            await InsertProductAsync(
-                category,
-                "UUID検索商品",
-                2500,
-                15);
-
-        // Act
-        var result = await _repository.SelectByUuidAsync(
-            product.ProductUuid.ToString());
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(
-            product.ProductUuid.ToString(),
-            result.ProductUuid);
-        Assert.AreEqual("UUID検索商品", result.Name);
-        Assert.AreEqual(2500, result.Price);
-        Assert.AreEqual(15, result.ProductStock.Quantity);
-    }
-
-    [TestMethod(DisplayName = "商品が存在しない場合はnullを返す")]
-    public async Task SelectByUuidAsync_ShouldReturnNull_WhenProductDoesNotExist()
-    {
-        // Act
-        var result = await _repository.SelectByUuidAsync(
-            Guid.NewGuid().ToString());
-
-        // Assert
-        Assert.IsNull(result);
-    }
-
-    [TestMethod(DisplayName = "商品UUID形式が不正な場合は例外を送出する")]
-    public async Task SelectByUuidAsync_ShouldThrow_WhenUuidIsInvalid()
-    {
-        // Act
-        var exception =
-            await Assert.ThrowsExactlyAsync<InternalException>(
-                () => _repository.SelectByUuidAsync(
-                    "invalid-product-uuid"));
-
-        // Assert
-        Assert.AreEqual(
-            "商品UUIDの形式が不正です。",
-            exception.Message);
-    }
-
-    // =========================================================
-    // ExistsByNameAsync
-    // =========================================================
-
-    [TestMethod(DisplayName = "商品名が存在する場合はtrueを返す")]
-    public async Task ExistsByNameAsync_ShouldReturnTrue_WhenProductExists()
-    {
-        // Arrange
-        var category =
-            await InsertCategoryAsync("存在確認カテゴリ");
-
-        await InsertProductAsync(
-            category,
-            "存在確認商品",
-            1000,
-            10);
-
-        // Act
-        var result =
-            await _repository.ExistsByNameAsync("存在確認商品");
+        var result = await _productRepository.ExistsByNameAsync("高級ボールペン");
 
         // Assert
         Assert.IsTrue(result);
     }
-
-    [TestMethod(DisplayName = "商品名が存在しない場合はfalseを返す")]
-    public async Task ExistsByNameAsync_ShouldReturnFalse_WhenProductDoesNotExist()
+    [TestMethod(DisplayName = "商品名が存在しないとfalseが返る")]
+    public async Task ExistsByNameAsync_WhenNameDoesNotExist_ShouldReturnFalse()
     {
         // Act
-        var result =
-            await _repository.ExistsByNameAsync(
-                $"不存在商品{Guid.NewGuid():N}");
+        var result = await _productRepository.ExistsByNameAsync("弁当箱");
 
         // Assert
         Assert.IsFalse(result);
     }
-
-    [TestMethod(DisplayName = "論理削除済みの商品名はfalseを返す")]
-    public async Task ExistsByNameAsync_ShouldReturnFalse_WhenProductIsDeleted()
+    [TestMethod(DisplayName = "削除済みの商品名の場合はfalseが返る")]
+    public async Task ExistsByNameAsync_WhenProductIsDeleted_ShouldReturnFalse()
     {
-        // Arrange
-        var category =
-            await InsertCategoryAsync("削除済み存在確認");
+        var result = await _productRepository.ExistsByNameAsync("旧型USBメモリ 8GB");
 
-        await InsertProductAsync(
-            category,
-            "削除済み確認商品",
-            1000,
-            10,
-            deleteFlag: 1);
-
-        // Act
-        var result =
-            await _repository.ExistsByNameAsync(
-                "削除済み確認商品");
-
-        // Assert
         Assert.IsFalse(result);
     }
-
-    // =========================================================
-    // CreateAsync
-    // =========================================================
-
-    [TestMethod(DisplayName = "商品と在庫を登録できる")]
-    public async Task CreateAsync_ShouldCreateProductAndStock()
+    [TestMethod(DisplayName = "書籍と書籍在庫を永続化できる")]
+    public async Task CreateAsync_WithStock_ShouldPersistBoth()
     {
-        // Arrange
-        var categoryEntity =
-            await InsertCategoryAsync("登録テストカテゴリ");
+        // 登録データを用意する
+        var productCategory = new ProductCategory("e269c98c-61b7-4ca7-9fae-ecd74234989e", "児童書");
+        var productStock = new ProductStock(Guid.NewGuid().ToString(), 20);
+        var product = new Product(Guid.NewGuid().ToString(), "書籍-A", "草間彌生");
+        product.ChangeStock(productStock);
+        product.ChangeCategory(productCategory);
 
-        var category = new ProductCategory(
-            categoryEntity.CategoryUuid.ToString(),
-            categoryEntity.Name);
-
-        var stock = ProductStock.Create(25);
-
-        var product = Product.Create(
-            "登録テスト商品",
-            3000,
-            "https://example.com/create.png",
-            category,
-            stock);
-
-        _productUuids.Add(Guid.Parse(product.ProductUuid));
-
-        // Act
-        await _repository.CreateAsync(product);
-
-        // Assert
-        var savedProduct = await _context.Products
-            .AsNoTracking()
-            .SingleOrDefaultAsync(entity =>
-                entity.ProductUuid ==
-                Guid.Parse(product.ProductUuid));
-
-        Assert.IsNotNull(savedProduct);
-        Assert.AreEqual("登録テスト商品", savedProduct.Name);
-        Assert.AreEqual(3000, savedProduct.Price);
-        Assert.AreEqual(categoryEntity.Id,
-                        savedProduct.ProductCategoryId);
-
-        var savedStock = await _context.ProductStocks
-            .AsNoTracking()
-            .SingleOrDefaultAsync(entity =>
-                entity.ProductId == savedProduct.Id);
-
-        Assert.IsNotNull(savedStock);
-        Assert.AreEqual(25, savedStock.Quantity);
-        Assert.AreEqual(
-            Guid.Parse(stock.StockUuid),
-            savedStock.StockUuid);
+        var strategy = _dbContext!.Database.CreateExecutionStrategy();
+        await strategy!.ExecuteAsync(async () =>
+        {
+            // トランザクションを開始する
+            await using var tx = await _dbContext!.Database.BeginTransactionAsync();
+            try
+            {
+                // 書籍と書籍在庫を永続化する
+                await _productRepository.CreateAsync(product);
+                // 登録された書籍と書籍在庫を取得して値を検証する
+                var result = await _productRepository
+                     .SelectByIdWithProductStockAndCategoryAsync(product.ProductUuid);
+                // nullでないことを検証する
+                Assert.IsNotNull(result);
+                // 書籍Idを検証する
+                Assert.AreEqual(result.ProductUuid, product.ProductUuid);
+                // 図書名を検証する
+                Assert.AreEqual(result.Title, product.Title);
+                // 単価を検証する
+                Assert.AreEqual(result.Author, product.Author);
+                // 書籍在庫がnullでないことを検証する
+                Assert.IsNotNull(result.ProductStock);
+                // 書籍在庫Idを検証する
+                Assert.AreEqual(result.ProductStock.StockUuid, product.ProductStock!.StockUuid);
+                // 在庫数を検証する
+                Assert.AreEqual(result.ProductStock.Stock, product.ProductStock.Stock);
+            }
+            finally
+            {
+                tx.Rollback(); // トランザクションをロールバックする
+                tx.Dispose();  // トランザクションリソースを開放する
+                _testContext!.WriteLine("トランザクションをロールバックしました。");
+            }
+        });
     }
-
-    [TestMethod(DisplayName = "存在しないカテゴリを指定した場合は例外を送出する")]
-    public async Task CreateAsync_ShouldThrow_WhenCategoryDoesNotExist()
+    [TestMethod(DisplayName = "図書名が存在するとtrueが返される")]
+    public async Task ExistsByTitle_WhenTitleExists_ShouldReturnTrue()
     {
-        // Arrange
-        var category = new ProductCategory(
-            Guid.NewGuid().ToString(),
-            "存在しないカテゴリ");
-
-        var stock = ProductStock.Create(10);
-
-        var product = Product.Create(
-            "登録失敗商品",
-            1000,
-            "https://example.com/not-found.png",
-            category,
-            stock);
-
-        // Act
-        var exception =
-            await Assert.ThrowsExactlyAsync<InternalException>(
-                () => _repository.CreateAsync(product));
-
-        // Assert
-        Assert.AreEqual(
-            "指定された商品カテゴリが存在しません。",
-            exception.Message);
-    }
-
-    // =========================================================
-    // UpdateAsync
-    // =========================================================
-
-    [TestMethod(DisplayName = "商品情報と在庫を更新できる")]
-    public async Task UpdateAsync_ShouldUpdateProductAndStock()
-    {
-        // Arrange
-        var originalCategory =
-            await InsertCategoryAsync("更新前カテゴリ");
-
-        var newCategory =
-            await InsertCategoryAsync("更新後カテゴリ");
-
-        var savedProduct =
-            await InsertProductAsync(
-                originalCategory,
-                "更新前商品",
-                1000,
-                10);
-
-        var domainCategory = new ProductCategory(
-            newCategory.CategoryUuid.ToString(),
-            newCategory.Name);
-
-        var domainStock = ProductStock.Create(50);
-
-        var updatedProduct = Product.Restore(
-            savedProduct.ProductUuid.ToString(),
-            "更新後商品",
-            5000,
-            "https://example.com/updated.png",
-            domainCategory,
-            0,
-            domainStock);
-
-        // Act
-        var result =
-            await _repository.UpdateAsync(updatedProduct);
-
-        // Assert
+        var result = await _productRepository.ExistsByTitleAsync("はらぺこあおむし");
         Assert.IsTrue(result);
-
-        _context.ChangeTracker.Clear();
-
-        var actualProduct = await _context.Products
-            .AsNoTracking()
-            .SingleAsync(entity =>
-                entity.ProductUuid ==
-                savedProduct.ProductUuid);
-
-        Assert.AreEqual("更新後商品", actualProduct.Name);
-        Assert.AreEqual(5000, actualProduct.Price);
-        Assert.AreEqual(
-            "https://example.com/updated.png",
-            actualProduct.ImageUrl);
-        Assert.AreEqual(
-            newCategory.Id,
-            actualProduct.ProductCategoryId);
-
-        var actualStock = await _context.ProductStocks
-            .AsNoTracking()
-            .SingleAsync(entity =>
-                entity.ProductId == actualProduct.Id);
-
-        Assert.AreEqual(50, actualStock.Quantity);
     }
 
-    [TestMethod(DisplayName = "更新対象の商品が存在しない場合はfalseを返す")]
-    public async Task UpdateAsync_ShouldReturnFalse_WhenProductDoesNotExist()
+    [TestMethod(DisplayName = "図書名が存在しないとfalseが返される")]
+    public async Task ExistsByTitle_WhenTitleDoesNotExist_ShouldReturnFalse()
     {
-        // Arrange
-        var categoryEntity =
-            await InsertCategoryAsync("更新不存在カテゴリ");
+        var result = await _productRepository.ExistsByTitleAsync("かいけつゾロリ");
+        Assert.IsFalse(result);
+    }
+    [TestMethod(DisplayName = "存在する書籍のキーワードを指定すると、該当する書籍のリストが返される")]
+    public async Task SelectByTitleLikeWithProductStockAndCategoryAsync_WithExistingKeyword_ShouldReturnMatchingProducts()
+    {
+        var products = await _productRepository
+        .SelectByTitleLikeWithProductStockAndCategoryAsync("はらぺこ");
+        // nullでないことを検証する
+        Assert.IsNotNull(products);
+        // 件数が4件であることを検証する
+        Assert.AreEqual(1, products.Count);
+    }
+    [TestMethod(DisplayName = "存在しない書籍のキーワードを指定すると、空の書籍のリストが返される")]
+    public async Task SelectByTitleLikeWithProductStockAndCategoryAsync_WithNonExistingKeyword_ShouldReturnEmptyList()
+    {
+        var products = await _productRepository
+            .SelectByTitleLikeWithProductStockAndCategoryAsync("書籍-X");
+        // nullでないことを検証する
+        Assert.IsNotNull(products);
+        // 件数が0であることを検証する
+        Assert.AreEqual(0, products.Count);
+    }
+    [TestMethod(DisplayName = "存在する書籍を変更するとtrueが返される")]
+    public async Task UpdateProduct_WhenProductExists_ShouldReturnTrue()
+    {
+        // 変更データを準備する
+        var productStock = new ProductStock("8311a860-c63f-45d5-9b42-3bfd6ef886f3", 10);
+        var product = new Product("64b25512-6dfc-4034-9372-9030f118bdb9", "はらぺこあおむし", "エリック・カール");
+        product.ChangeStock(productStock);
 
-        var category = new ProductCategory(
-            categoryEntity.CategoryUuid.ToString(),
-            categoryEntity.Name);
+        var strategy = _dbContext!.Database.CreateExecutionStrategy();
+        await strategy!.ExecuteAsync(async () =>
+        {
+            // トランザクションを開始する
+            await using var tx = await _dbContext!.Database.BeginTransactionAsync();
+            try
+            {
+                // 書籍を変更する
+                var result = await _productRepository.UpdateByIdAsync(product);
+                // trueであることを検証する
+                Assert.IsTrue(result);
+                // 変更された書籍を取得する
+                var updateResult = await _productRepository
+                    .SelectByIdWithProductStockAndCategoryAsync(product.ProductUuid);
+                // 図書名を検証する
+                Assert.AreEqual(product.Title, updateResult!.Title);
+                // 単価を検証する
+                Assert.AreEqual(product.Author, updateResult!.Author);
+                // 書籍在庫数を検証する
+                Assert.AreEqual(product.ProductStock!.Stock, updateResult.ProductStock!.Stock);
+            }
+            finally
+            {
+                tx.Rollback(); // トランザクションをロールバックする
+                tx.Dispose();  // トランザクションリソースを開放する
+                _testContext!.WriteLine("トランザクションをロールバックしました。");
+            }
+        });
+    }
 
-        var product = Product.Restore(
-            Guid.NewGuid().ToString(),
-            "存在しない商品",
-            1000,
-            "https://example.com/not-exist.png",
-            category,
-            0,
-            ProductStock.Create(10));
-
-        // Act
-        var result =
-            await _repository.UpdateAsync(product);
-
-        // Assert
+    [TestMethod(DisplayName = "存在しない書籍を変更するとfalseが返される")]
+    public async Task UpdateProduct_WhenProductDoesNotExist_ShouldReturnFalse()
+    {
+        // 変更データを準備する
+        var productStock = new ProductStock("828fb567-6f6b-11f0-954a-00155d1bd30a", 50);
+        var product = new Product("ac413f22-0cf1-490a-9635-7e9ca810e555", "かいけつゾロリ", "草間彌生");
+        product.ChangeStock(productStock);
+        // 書籍を変更する
+        var result = await _productRepository.UpdateByIdAsync(product);
+        // falseが返されることを検証する
         Assert.IsFalse(result);
     }
 
-    // =========================================================
-    // DeleteAsync
-    // =========================================================
-
-    [TestMethod(DisplayName = "商品を論理削除できる")]
-    public async Task DeleteAsync_ShouldSoftDeleteProduct()
-    {
-        // Arrange
-        var category =
-            await InsertCategoryAsync("削除テストカテゴリ");
-
-        var product =
-            await InsertProductAsync(
-                category,
-                "削除テスト商品",
-                1000,
-                10);
-
-        // Act
-        var result = await _repository.DeleteAsync(
-            product.ProductUuid.ToString());
-
-        // Assert
-        Assert.IsTrue(result);
-
-        _context.ChangeTracker.Clear();
-
-        var actual = await _context.Products
-            .AsNoTracking()
-            .SingleAsync(entity =>
-                entity.ProductUuid ==
-                product.ProductUuid);
-
-        Assert.AreEqual(1, actual.DeleteFlag);
-    }
-
-    [TestMethod(DisplayName = "存在しない商品を削除する場合はfalseを返す")]
-    public async Task DeleteAsync_ShouldReturnFalse_WhenProductDoesNotExist()
-    {
-        // Act
-        var result = await _repository.DeleteAsync(
-            Guid.NewGuid().ToString());
-
-        // Assert
-        Assert.IsFalse(result);
-    }
-
-    [TestMethod(DisplayName = "削除対象UUIDの形式が不正な場合は例外を送出する")]
-    public async Task DeleteAsync_ShouldThrow_WhenUuidIsInvalid()
-    {
-        // Act
-        var exception =
-            await Assert.ThrowsExactlyAsync<InternalException>(
-                () => _repository.DeleteAsync(
-                    "invalid-product-uuid"));
-
-        // Assert
-        Assert.AreEqual(
-            "商品UUIDの形式が不正です。",
-            exception.Message);
-    }
-
-    // =========================================================
-    // テストデータ作成用メソッド
-    // =========================================================
-
-    private async Task<ProductCategoryEntity> InsertCategoryAsync(
-        string name)
-    {
-        var category = new ProductCategoryEntity
-        {
-            CategoryUuid = Guid.NewGuid(),
-            Name = name
-        };
-
-        _categoryUuids.Add(category.CategoryUuid);
-
-        await _context.ProductCategories.AddAsync(category);
-        await _context.SaveChangesAsync();
-
-        return category;
-    }
-
-    private async Task<ProductEntity> InsertProductAsync(
-        ProductCategoryEntity category,
-        string name,
-        int price,
-        int quantity,
-        int deleteFlag = 0)
-    {
-        var product = new ProductEntity
-        {
-            ProductUuid = Guid.NewGuid(),
-            ProductCategoryId = category.Id,
-            Name = name,
-            Price = price,
-            ImageUrl = "https://example.com/test.png",
-            DeleteFlag = deleteFlag
-        };
-
-        _productUuids.Add(product.ProductUuid);
-
-        await _context.Products.AddAsync(product);
-        await _context.SaveChangesAsync();
-
-        var stock = new ProductStockEntity
-        {
-            StockUuid = Guid.NewGuid(),
-            ProductId = product.Id,
-            Quantity = quantity
-        };
-
-        await _context.ProductStocks.AddAsync(stock);
-        await _context.SaveChangesAsync();
-
-        return product;
-    }
 }
