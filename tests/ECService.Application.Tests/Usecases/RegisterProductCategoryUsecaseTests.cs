@@ -9,7 +9,7 @@ using Moq;
 namespace ECService.Application.Tests.Usecases;
 
 [TestClass]
-public class RegisterCategoryUsecaseTests
+public class RegisterProductCategoryUsecaseTests
 {
     private Mock<IUnitOfWork> _unitOfWork = null!;
     private Mock<IProductCategoryRepository> _repository = null!;
