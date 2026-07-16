@@ -21,7 +21,7 @@ namespace ECService.Infrastructure.Entities
         /// </summary>
         [Required]
         [Column("order_uuid")]
-        public Guid OrderUuid { get; set; } = Guid.NewGuid();
+        public Guid OrderUuid { get; set; }
 
         /// <summary>
         /// 注文日
