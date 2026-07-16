@@ -50,7 +50,8 @@ public class GetCategoriesControllerTests
         var result = await _controller.GetCategories();
 
         // Assert
-        var okResult = result as OkObjectResult;
+        // var okResult = result as OkObjectResult;
+        var okResult = result.Result as OkObjectResult; // 修正: ActionResult<T> の場合、Result プロパティを使用して OkObjectResult にアクセスする必要があります。
 
         Assert.IsNotNull(okResult);
         Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
@@ -80,7 +81,7 @@ public class GetCategoriesControllerTests
         var result = await _controller.GetCategories();
 
         // Assert
-        var okResult = result as OkObjectResult;
+        var okResult = result.Result as OkObjectResult; // 修正: ActionResult<T> の場合、Result プロパティを使用して OkObjectResult にアクセスする必要があります。
 
         Assert.IsNotNull(okResult);
         Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
@@ -96,18 +97,18 @@ public class GetCategoriesControllerTests
     /// <summary>
     /// Usecaseで例外が発生した場合、例外が送出されること
     /// </summary>
-[TestMethod]
-public async Task GetCategories_ThrowException()
-{
-    // Arrange
-    _usecaseMock
-        .Setup(x => x.ExecuteAsync())
-        .ThrowsAsync(new Exception("DB Error"));
+    [TestMethod]
+    public async Task GetCategories_ThrowException()
+    {
+        // Arrange
+        _usecaseMock
+            .Setup(x => x.ExecuteAsync())
+            .ThrowsAsync(new Exception("DB Error"));
 
-    // Act & Assert
-    var ex = await Assert.ThrowsAsync<Exception>(
-        async () => await _controller.GetCategories());
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<Exception>(
+            async () => await _controller.GetCategories());
 
-    Assert.AreEqual("DB Error", ex.Message);
-}
+        Assert.AreEqual("DB Error", ex.Message);
+    }
 }

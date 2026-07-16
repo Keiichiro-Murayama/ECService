@@ -37,16 +37,16 @@ public class GetCategoriesController : ControllerBase
 
     [HttpGet]
     [SwaggerOperation(
-        Summary = "未登録社員一覧を取得",
-        Description = "担当者アカウントが未登録の社員一覧を取得する")]
+        Summary = "カテゴリ一覧を取得",
+        Description = "登録されているカテゴリ一覧を取得する")]
     [SwaggerResponse(
         StatusCodes.Status200OK,
         "取得成功")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-    
-    public async Task<IActionResult> GetCategories()
+
+    public async Task<ActionResult<GetCategoriesResponse>> GetCategories()
     {
-        // UseCaseから未登録社員一覧を取得する
+        // UseCaseからカテゴリ一覧を取得する
         var categories = await _getCategoriesUsecase.ExecuteAsync();
 
         // プルダウンに必要な項目だけ返す
