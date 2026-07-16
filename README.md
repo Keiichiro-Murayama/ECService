@@ -263,6 +263,14 @@ Authorization: Bearer {JWTトークン}
 
 ### エラーレスポンス
 
+#### 400 Bad Request (不正なUUID)
+
+```json
+{
+  "message": ""
+}
+```
+
 #### 404 Not Found（カテゴリIDが登録されていない）
 
 ```json
@@ -392,6 +400,15 @@ Authorization: Bearer {JWTトークン}
 ```
 
 ### エラーレスポンス
+
+
+#### 400 Bad Request (不正なUUID)
+
+```json
+{
+  "message": ""
+}
+```
 
 #### 404 Not Found（UUIDが存在しない）
 

@@ -64,9 +64,14 @@ public static ProductStock Restore(string stockUuid,int quantity)
     /// </summary>
     public static void ValidateQuantity(int quantity)
     {
-        if (quantity < QuantityMinValue || quantity > QuantityMaxValue)
+        if (quantity > QuantityMaxValue)
         {
             throw new DomainException("在庫数は1000個以下で入力してください", nameof(quantity));
+        }
+
+        if (quantity < QuantityMinValue)
+        {
+            throw new DomainException("在庫数は0個以上で入力してください", nameof(quantity));
         }
     }
 
