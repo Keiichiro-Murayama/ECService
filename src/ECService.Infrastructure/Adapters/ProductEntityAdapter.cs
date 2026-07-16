@@ -30,4 +30,4 @@ IConverter<Product, ProductEntity>
         return Task.FromResult(entity);
 
     }
-}
+}//石原:疑問　ここのRestoreは今Factoryでやっているが、ここで不要ではないのか？このAdapterだけ特殊なのが違和感
