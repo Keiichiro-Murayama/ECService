@@ -12,11 +12,13 @@ public class LoginRequest
     /// ユーザー名(必須)
     /// </summary>
     [Required(ErrorMessage = "ユーザー名は必須項目です")]
+    [StringLength(20, MinimumLength = 5)]
     public string Username { get; set; } = string.Empty;
 
     /// <summary>
     /// パスワード(必須)
     /// </summary>
     [Required(ErrorMessage = "パスワードは必須項目です")]
+    [StringLength(20, MinimumLength = 5)]
     public string Password { get; set; } = string.Empty;
 }

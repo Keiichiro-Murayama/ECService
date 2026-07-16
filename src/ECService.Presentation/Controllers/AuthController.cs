@@ -17,13 +17,11 @@ public class AuthController : ControllerBase
     private const string AuthCookieName = "access_token";
 
     private readonly ILoginUsecase _loginUsecase;
-    private readonly LoginViewModelAdapter _loginViewModelAdapter;
 
     public AuthController(
-        ILoginUsecase loginUsecase,LoginViewModelAdapter loginViewModelAdapter)
+        ILoginUsecase loginUsecase)
     {
         _loginUsecase = loginUsecase;
-        _loginViewModelAdapter = loginViewModelAdapter;
     }
 
     /// <summary>
@@ -38,7 +36,7 @@ public class AuthController : ControllerBase
         {
             return BadRequest(new
             {
-                message = "username、passwordを入力してください。"
+                message = "アカウント名またはパスワードを入力してください。"
             });
         }
         try

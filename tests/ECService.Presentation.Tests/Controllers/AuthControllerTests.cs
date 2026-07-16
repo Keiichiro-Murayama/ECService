@@ -6,7 +6,6 @@ using ECService.Presentation.ViewModels;
 using ECService.Presentations.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace ECService.Presentation.Tests.Controllers;
@@ -68,8 +67,8 @@ public class AuthControllerTests
             .ReturnsAsync((AccessToken, account));
         var controller =
             new AuthController(
-                usecaseMock.Object,
-                new LoginViewModelAdapter());
+                usecaseMock.Object
+            );
 
         controller.ControllerContext =
             new ControllerContext
@@ -89,27 +88,43 @@ public class AuthControllerTests
             await controller.Login(request);
 
         // Assert
-        Assert.IsInstanceOfType(
-            result.Result,
-            typeof(OkObjectResult));
+Assert.IsInstanceOfType(
+    result.Result,
+    typeof(OkObjectResult));
 
-        var okResult =
-            result.Result as OkObjectResult;
+var okResult =
+    result.Result as OkObjectResult;
 
-        Assert.IsNotNull(okResult);
+Assert.IsNotNull(okResult);
 
-        Assert.IsInstanceOfType(
-            okResult.Value,
-            typeof(TokenResponse));
+Assert.IsInstanceOfType(
+    okResult.Value,
+    typeof(TokenResponse));
 
-        var response =
-            okResult.Value as TokenResponse;
+var response =
+    okResult.Value as TokenResponse;
 
-        Assert.AreEqual(
-            "ログインに成功しました。",
-            response!.Message);
+Assert.AreEqual(
+    "ログインに成功しました。",
+    response!.Message);
 
-        usecaseMock.Verify(usecase => usecase.ExecuteAsync(It.Is<(string, string)>(p => p.Item1 == Username && p.Item2 == Password)), Times.Once);
+// Cookieが発行されていることを確認
+Assert.IsTrue(
+    controller.Response.Headers.ContainsKey("Set-Cookie"));
+
+var cookie =
+    controller.Response.Headers["Set-Cookie"].ToString();
+
+StringAssert.Contains(cookie, "access_token=");
+StringAssert.Contains(cookie, "httponly");;
+
+// UseCaseが1回だけ呼ばれたことを確認
+usecaseMock.Verify(
+    usecase => usecase.ExecuteAsync(
+        It.Is<(string, string)>(p =>
+            p.Item1 == Username &&
+            p.Item2 == Password)),
+    Times.Once);
     }
 
     /// <summary>
@@ -131,8 +146,7 @@ public class AuthControllerTests
 
         var controller =
             new AuthController(
-                usecaseMock.Object,
-                new LoginViewModelAdapter());
+                usecaseMock.Object);
 
         controller.ControllerContext =
             new ControllerContext
@@ -179,8 +193,7 @@ public class AuthControllerTests
 
         var controller =
             new AuthController(
-                usecaseMock.Object,
-                new LoginViewModelAdapter());
+                usecaseMock.Object);
 
         controller.ControllerContext =
             new ControllerContext
@@ -226,8 +239,7 @@ public async Task Login_UsernameIsEmpty_ReturnsBadRequest()
     var usecaseMock = new Mock<ILoginUsecase>();
 
     var controller = new AuthController(
-        usecaseMock.Object,
-        new LoginViewModelAdapter());
+        usecaseMock.Object);
 
     controller.ControllerContext = new ControllerContext
     {
@@ -265,6 +277,11 @@ public async Task Login_UsernameIsEmpty_ReturnsBadRequest()
         usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
         Times.Never);
 }
+/// <summary>
+/// パスワード未入力の場合、
+/// 400 BadRequestが返却されることを確認する。
+/// </summary>
+/// <returns></returns>
 [TestMethod]
 public async Task Login_PasswordIsEmpty_ReturnsBadRequest()
 {
@@ -272,8 +289,7 @@ public async Task Login_PasswordIsEmpty_ReturnsBadRequest()
     var usecaseMock = new Mock<ILoginUsecase>();
 
     var controller = new AuthController(
-        usecaseMock.Object,
-        new LoginViewModelAdapter());
+        usecaseMock.Object);
 
     controller.ControllerContext = new ControllerContext
     {
@@ -311,6 +327,12 @@ public async Task Login_PasswordIsEmpty_ReturnsBadRequest()
         usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
         Times.Never);
 }
+/// <summary>
+/// ユーザー名とパスワードが未入力の場合、
+/// 400 BadRequestが返却されることを確認する。
+/// </summary>
+/// <returns></returns>
+
 [TestMethod]
 public async Task Login_UsernameAndPasswordAreEmpty_ReturnsBadRequest()
 {
@@ -318,8 +340,7 @@ public async Task Login_UsernameAndPasswordAreEmpty_ReturnsBadRequest()
     var usecaseMock = new Mock<ILoginUsecase>();
 
     var controller = new AuthController(
-        usecaseMock.Object,
-        new LoginViewModelAdapter());
+        usecaseMock.Object);
 
     controller.ControllerContext = new ControllerContext
     {
@@ -372,8 +393,7 @@ public void Logout_ReturnsOk()
     var usecaseMock = new Mock<ILoginUsecase>();
 
     var controller = new AuthController(
-        usecaseMock.Object,
-        new LoginViewModelAdapter());
+        usecaseMock.Object);
 
     controller.ControllerContext = new ControllerContext
     {
