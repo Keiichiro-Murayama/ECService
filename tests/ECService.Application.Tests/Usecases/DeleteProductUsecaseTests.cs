@@ -12,56 +12,90 @@ namespace ECService.Application.Tests.Usecases;
 public class DeleteProductUsecaseTests
 {
     /// <summary>
-    /// テスト対象の商品UUID
+    /// テスト結果出力用
     /// </summary>
-    private const string ProductUuid =
-        "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
+    public TestContext TestContext { get; set; } = null!;
+
+    /// <summary>
+    /// コンソールとテスト結果へメッセージを出力する
+    /// </summary>
+    private void Log(string message)
+    {
+        Console.WriteLine(message);
+        TestContext.WriteLine(message);
+    }
 
     /// <summary>
     /// Repositoryがtrueを返した場合、
-    /// 例外なく処理が完了することを確認する
+    /// 商品削除処理が正常終了すること
     /// </summary>
     [TestMethod]
     public async Task ExecuteAsync_DeleteSucceeds_CompletesNormally()
     {
         // Arrange
-        var repositoryMock = new Mock<IProductRepository>();
+        Log(
+            "ExecuteAsync_DeleteSucceeds_CompletesNormally："
+            + "テスト開始");
+
+        const string productUuid =
+            "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
+
+        var repositoryMock =
+            new Mock<IProductRepository>();
 
         repositoryMock
-            .Setup(repository => repository.DeleteAsync(ProductUuid))
+            .Setup(repository =>
+                repository.DeleteAsync(productUuid))
             .ReturnsAsync(true);
 
-        var usecase = new DeleteProductUsecase(repositoryMock.Object);
+        var usecase =
+            new DeleteProductUsecase(repositoryMock.Object);
 
         // Act
-        await usecase.ExecuteAsync(ProductUuid);
+        await usecase.ExecuteAsync(productUuid);
 
         // Assert
         repositoryMock.Verify(
-            repository => repository.DeleteAsync(ProductUuid),
+            repository =>
+                repository.DeleteAsync(productUuid),
             Times.Once);
+
+        Log(
+            "Repositoryがtrueを返した場合、"
+            + "例外なく削除処理が完了することを確認しました。");
     }
 
     /// <summary>
     /// Repositoryがfalseを返した場合、
-    /// InvalidOperationExceptionが発生することを確認する
+    /// InvalidOperationExceptionが発生すること
     /// </summary>
     [TestMethod]
     public async Task ExecuteAsync_ProductDoesNotExist_ThrowsInvalidOperationException()
     {
         // Arrange
-        var repositoryMock = new Mock<IProductRepository>();
+        Log(
+            "ExecuteAsync_ProductDoesNotExist_"
+            + "ThrowsInvalidOperationException：テスト開始");
+
+        const string productUuid =
+            "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
+
+        var repositoryMock =
+            new Mock<IProductRepository>();
 
         repositoryMock
-            .Setup(repository => repository.DeleteAsync(ProductUuid))
+            .Setup(repository =>
+                repository.DeleteAsync(productUuid))
             .ReturnsAsync(false);
 
-        var usecase = new DeleteProductUsecase(repositoryMock.Object);
+        var usecase =
+            new DeleteProductUsecase(repositoryMock.Object);
 
         // Act
         var exception =
             await Assert.ThrowsExactlyAsync<InvalidOperationException>(
-                () => usecase.ExecuteAsync(ProductUuid));
+                async () =>
+                    await usecase.ExecuteAsync(productUuid));
 
         // Assert
         Assert.AreEqual(
@@ -69,39 +103,67 @@ public class DeleteProductUsecaseTests
             exception.Message);
 
         repositoryMock.Verify(
-            repository => repository.DeleteAsync(ProductUuid),
+            repository =>
+                repository.DeleteAsync(productUuid),
             Times.Once);
+
+        Log(
+            "Repositoryがfalseを返した場合、"
+            + "InvalidOperationExceptionが発生することを確認しました。");
     }
 
     /// <summary>
-    /// Repositoryで例外が発生した場合、
-    /// その例外が呼び出し元へ伝播することを確認する
+    /// Repositoryで予期しない例外が発生した場合、
+    /// 同じ例外が呼び出し元へ伝播すること
     /// </summary>
     [TestMethod]
     public async Task ExecuteAsync_RepositoryThrowsException_PropagatesException()
     {
         // Arrange
-        var repositoryMock = new Mock<IProductRepository>();
+        Log(
+            "ExecuteAsync_RepositoryThrowsException_"
+            + "PropagatesException：テスト開始");
+
+        const string productUuid =
+            "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
 
         var expectedException =
-            new Exception("Repositoryでエラーが発生しました。");
+            new Exception(
+                "Repositoryでエラーが発生しました。");
+
+        var repositoryMock =
+            new Mock<IProductRepository>();
 
         repositoryMock
-            .Setup(repository => repository.DeleteAsync(ProductUuid))
+            .Setup(repository =>
+                repository.DeleteAsync(productUuid))
             .ThrowsAsync(expectedException);
 
-        var usecase = new DeleteProductUsecase(repositoryMock.Object);
+        var usecase =
+            new DeleteProductUsecase(repositoryMock.Object);
 
         // Act
         var actualException =
             await Assert.ThrowsExactlyAsync<Exception>(
-                () => usecase.ExecuteAsync(ProductUuid));
+                async () =>
+                    await usecase.ExecuteAsync(productUuid));
 
         // Assert
-        Assert.AreSame(expectedException, actualException);
+        Assert.AreSame(
+            expectedException,
+            actualException);
+
+        Assert.AreEqual(
+            "Repositoryでエラーが発生しました。",
+            actualException.Message);
 
         repositoryMock.Verify(
-            repository => repository.DeleteAsync(ProductUuid),
+            repository =>
+                repository.DeleteAsync(productUuid),
             Times.Once);
+
+        Log(
+            "Repositoryで発生した同一のExceptionが、"
+            + "呼び出し元へ伝播することを確認しました。");
     }
 }

@@ -4,6 +4,7 @@ using ECService.Infrastructure.Contexts;
 using ECService.Infrastructure.Entities;
 using ECService.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ECService.Infrastructure.Tests.Repositories;
@@ -17,15 +18,27 @@ public class ProductCategoryRepositoryTests
     private AppDbContext _context = null!;
     private ProductCategoryRepository _repository = null!;
 
-    private readonly List<Guid> _categoryUuids = [];
+    private readonly List<Guid> _categoryUuids = new();
 
     [TestInitialize]
     public async Task Setup()
     {
-        var connectionString =
-            Environment.GetEnvironmentVariable("TEST_DB_CONNECTION_STRING")
-            ?? throw new InvalidOperationException(
-                "環境変数 TEST_DB_CONNECTION_STRING が設定されていません。");
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile(
+                "appsettingsTests.json",
+                optional: false,
+                reloadOnChange: false)
+            .Build();
+
+        var connectionString = configuration
+            .GetConnectionString("ECServiceDB");
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException(
+                "appsettingsTests.json に ConnectionStrings:ECServiceDB が設定されていません。");
+        }
 
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(connectionString)

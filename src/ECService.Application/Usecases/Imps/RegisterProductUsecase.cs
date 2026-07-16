@@ -10,19 +10,19 @@ namespace ECService.Application.Usecases.Imps;
 public class RegisterProductUsecase : IRegisterProductUsecase
 {
 
-   private readonly IUnitOfWork _unitOfWork;
-   private readonly IProductRepository _productRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IProductRepository _productRepository;
 
-   public RegisterProductUsecase(
-        IUnitOfWork unitOfWork,
-        IProductRepository productRepository)
+    public RegisterProductUsecase(
+         IUnitOfWork unitOfWork,
+         IProductRepository productRepository)
     {
-        _unitOfWork = unitOfWork; 
+        _unitOfWork = unitOfWork;
         _productRepository = productRepository;
     }
 
- 
-           /// <summary>
+
+    /// <summary>
     /// 新商品を登録する
     /// </summary>
     /// <param name="product">登録対象商品</param>
@@ -55,4 +55,3 @@ public class RegisterProductUsecase : IRegisterProductUsecase
 
 
 }
-    

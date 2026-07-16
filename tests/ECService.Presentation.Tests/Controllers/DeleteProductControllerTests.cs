@@ -1,5 +1,6 @@
 using ECService.Application.Usecases.Interfaces;
 using ECService.Presentation.Controllers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -13,201 +14,260 @@ namespace ECService.Presentation.Tests.Controllers;
 public class DeleteProductControllerTests
 {
     /// <summary>
-    /// テストで使用する正常な商品UUID
+    /// テスト結果出力用
     /// </summary>
-    private const string ProductUuid =
-        "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
+    public TestContext TestContext { get; set; } = null!;
+
+    /// <summary>
+    /// コンソールとテスト結果へメッセージを出力する
+    /// </summary>
+    private void Log(string message)
+    {
+        Console.WriteLine(message);
+        TestContext.WriteLine(message);
+    }
 
     /// <summary>
     /// 商品削除が成功した場合、
-    /// 200 OKと成功メッセージを返すことを確認する
+    /// 200 OKと成功メッセージが返ること
     /// </summary>
     [TestMethod]
     public async Task DeleteProduct_DeleteSucceeds_ReturnsOk()
     {
         // Arrange
-        var usecaseMock = new Mock<IDeleteProductUsecase>();
+        Log(
+            "DeleteProduct_DeleteSucceeds_ReturnsOk："
+            + "テスト開始");
+
+        const string productUuid =
+            "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
+
+        var usecaseMock =
+            new Mock<IDeleteProductUsecase>();
 
         usecaseMock
-            .Setup(usecase => usecase.ExecuteAsync(ProductUuid))
+            .Setup(usecase =>
+                usecase.ExecuteAsync(productUuid))
             .Returns(Task.CompletedTask);
 
         var controller =
-            new DeleteProductController(usecaseMock.Object);
+            new DeleteProductController(
+                usecaseMock.Object);
 
         // Act
-        var result = await controller.DeleteProduct(ProductUuid);
+        var actionResult =
+            await controller.DeleteProduct(productUuid);
 
         // Assert
-        Assert.IsInstanceOfType(
-            result,
-            typeof(OkObjectResult));
+        var okResult =
+            actionResult as OkObjectResult;
 
-        var okResult = (OkObjectResult)result;
+        Assert.IsNotNull(okResult);
 
         Assert.AreEqual(
-            200,
+            StatusCodes.Status200OK,
             okResult.StatusCode);
-
-        Assert.IsNotNull(okResult.Value);
-
-        var messageProperty = okResult.Value
-            .GetType()
-            .GetProperty("message");
-
-        Assert.IsNotNull(messageProperty);
-
-        var actualMessage = messageProperty
-            .GetValue(okResult.Value)?
-            .ToString();
 
         Assert.AreEqual(
             "商品を削除しました。",
-            actualMessage);
+            GetMessage(okResult.Value));
 
         usecaseMock.Verify(
-            usecase => usecase.ExecuteAsync(ProductUuid),
+            usecase =>
+                usecase.ExecuteAsync(productUuid),
             Times.Once);
+
+        Log(
+            "商品削除が成功した場合、"
+            + "200 OKと成功メッセージが返ることを確認しました。");
     }
 
     /// <summary>
     /// 商品が存在しない場合、
-    /// 404 Not Foundとエラーメッセージを返すことを確認する
+    /// 404 Not Foundとエラーメッセージが返ること
     /// </summary>
     [TestMethod]
     public async Task DeleteProduct_ProductDoesNotExist_ReturnsNotFound()
     {
         // Arrange
-        var usecaseMock = new Mock<IDeleteProductUsecase>();
+        Log(
+            "DeleteProduct_ProductDoesNotExist_ReturnsNotFound："
+            + "テスト開始");
+
+        const string productUuid =
+            "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
+
+        var usecaseMock =
+            new Mock<IDeleteProductUsecase>();
 
         usecaseMock
-            .Setup(usecase => usecase.ExecuteAsync(ProductUuid))
+            .Setup(usecase =>
+                usecase.ExecuteAsync(productUuid))
             .ThrowsAsync(
                 new InvalidOperationException(
                     "指定された商品が見つかりません。"));
 
         var controller =
-            new DeleteProductController(usecaseMock.Object);
+            new DeleteProductController(
+                usecaseMock.Object);
 
         // Act
-        var result = await controller.DeleteProduct(ProductUuid);
+        var actionResult =
+            await controller.DeleteProduct(productUuid);
 
         // Assert
-        Assert.IsInstanceOfType(
-            result,
-            typeof(NotFoundObjectResult));
-
         var notFoundResult =
-            (NotFoundObjectResult)result;
+            actionResult as NotFoundObjectResult;
+
+        Assert.IsNotNull(notFoundResult);
 
         Assert.AreEqual(
-            404,
+            StatusCodes.Status404NotFound,
             notFoundResult.StatusCode);
-
-        Assert.IsNotNull(notFoundResult.Value);
-
-        var messageProperty = notFoundResult.Value
-            .GetType()
-            .GetProperty("message");
-
-        Assert.IsNotNull(messageProperty);
-
-        var actualMessage = messageProperty
-            .GetValue(notFoundResult.Value)?
-            .ToString();
 
         Assert.AreEqual(
             "指定された商品が見つかりません。",
-            actualMessage);
+            GetMessage(notFoundResult.Value));
 
         usecaseMock.Verify(
-            usecase => usecase.ExecuteAsync(ProductUuid),
+            usecase =>
+                usecase.ExecuteAsync(productUuid),
             Times.Once);
+
+        Log(
+            "商品が存在しない場合、"
+            + "404 Not Foundとエラーメッセージが"
+            + "返ることを確認しました。");
     }
 
     /// <summary>
-    /// 商品UUIDの形式が不正な場合、
-    /// 400 Bad Requestを返すことを確認する
+    /// 商品UUIDがUUID形式ではない場合、
+    /// 400 Bad Requestが返ること
     /// </summary>
     [TestMethod]
     public async Task DeleteProduct_InvalidUuid_ReturnsBadRequest()
     {
         // Arrange
-        const string invalidUuid = "invalid-uuid";
+        Log(
+            "DeleteProduct_InvalidUuid_ReturnsBadRequest："
+            + "テスト開始");
 
-        var usecaseMock = new Mock<IDeleteProductUsecase>();
+        const string invalidProductUuid =
+            "invalid-uuid";
+
+        var usecaseMock =
+            new Mock<IDeleteProductUsecase>();
 
         var controller =
-            new DeleteProductController(usecaseMock.Object);
+            new DeleteProductController(
+                usecaseMock.Object);
 
         // Act
-        var result = await controller.DeleteProduct(invalidUuid);
+        var actionResult =
+            await controller.DeleteProduct(
+                invalidProductUuid);
 
         // Assert
-        Assert.IsInstanceOfType(
-            result,
-            typeof(BadRequestObjectResult));
-
         var badRequestResult =
-            (BadRequestObjectResult)result;
+            actionResult as BadRequestObjectResult;
+
+        Assert.IsNotNull(badRequestResult);
 
         Assert.AreEqual(
-            400,
+            StatusCodes.Status400BadRequest,
             badRequestResult.StatusCode);
-
-        Assert.IsNotNull(badRequestResult.Value);
-
-        var messageProperty = badRequestResult.Value
-            .GetType()
-            .GetProperty("message");
-
-        Assert.IsNotNull(messageProperty);
-
-        var actualMessage = messageProperty
-            .GetValue(badRequestResult.Value)?
-            .ToString();
 
         Assert.AreEqual(
             "商品UUIDの形式が正しくありません。",
-            actualMessage);
+            GetMessage(badRequestResult.Value));
 
         usecaseMock.Verify(
-            usecase => usecase.ExecuteAsync(It.IsAny<string>()),
+            usecase =>
+                usecase.ExecuteAsync(
+                    It.IsAny<string>()),
             Times.Never);
+
+        Log(
+            "商品UUIDがUUID形式ではない場合、"
+            + "400 Bad Requestが返り、"
+            + "Usecaseが呼ばれないことを確認しました。");
     }
 
     /// <summary>
     /// Usecaseで予期しない例外が発生した場合、
-    /// その例外が呼び出し元へ伝播することを確認する
+    /// 同じ例外が呼び出し元へ伝播すること
     /// </summary>
     [TestMethod]
-    public async Task DeleteProduct_UsecaseThrowsException_PropagatesException()
+    public async Task DeleteProduct_UnexpectedException_PropagatesException()
     {
         // Arrange
-        var usecaseMock = new Mock<IDeleteProductUsecase>();
+        Log(
+            "DeleteProduct_UnexpectedException_"
+            + "PropagatesException：テスト開始");
+
+        const string productUuid =
+            "9374cfe6-bc67-4147-92e6-9f8afab3c06b";
 
         var expectedException =
-            new Exception("予期しないエラーが発生しました。");
+            new Exception(
+                "予期しないエラーが発生しました。");
+
+        var usecaseMock =
+            new Mock<IDeleteProductUsecase>();
 
         usecaseMock
-            .Setup(usecase => usecase.ExecuteAsync(ProductUuid))
+            .Setup(usecase =>
+                usecase.ExecuteAsync(productUuid))
             .ThrowsAsync(expectedException);
 
         var controller =
-            new DeleteProductController(usecaseMock.Object);
+            new DeleteProductController(
+                usecaseMock.Object);
 
         // Act
         var actualException =
             await Assert.ThrowsExactlyAsync<Exception>(
-                () => controller.DeleteProduct(ProductUuid));
+                async () =>
+                    await controller.DeleteProduct(
+                        productUuid));
 
         // Assert
         Assert.AreSame(
             expectedException,
             actualException);
 
+        Assert.AreEqual(
+            "予期しないエラーが発生しました。",
+            actualException.Message);
+
         usecaseMock.Verify(
-            usecase => usecase.ExecuteAsync(ProductUuid),
+            usecase =>
+                usecase.ExecuteAsync(productUuid),
             Times.Once);
+
+        Log(
+            "Usecaseで発生した同一のExceptionが、"
+            + "呼び出し元へ伝播することを確認しました。");
+    }
+
+    /// <summary>
+    /// 匿名オブジェクトのmessageプロパティを取得する
+    /// </summary>
+    private static string? GetMessage(
+        object? response)
+    {
+        if (response is null)
+        {
+            return null;
+        }
+
+        var messageProperty =
+            response
+                .GetType()
+                .GetProperty("message");
+
+        return messageProperty?
+            .GetValue(response)?
+            .ToString();
     }
 }

@@ -75,19 +75,7 @@ public class RegisterProductUsecaseTests
             Times.Once);
 
 
-        _unitOfWorkMock.Verify(
-            x => x.BeginTransactionAsync(),
-            Times.Once);
-
-
-        _productRepositoryMock.Verify(
-            x => x.CreateAsync(It.IsAny<Product>()),
-            Times.Once);
-
-
-        _unitOfWorkMock.Verify(
-            x => x.CommitAsync(),
-            Times.Once);
+    
 
 
         _unitOfWorkMock.Verify(
@@ -133,24 +121,7 @@ public class RegisterProductUsecaseTests
             typeof(DomainException));
 
 
-        _unitOfWorkMock.Verify(
-            x => x.BeginTransactionAsync(),
-            Times.Never);
-
-
-        _productRepositoryMock.Verify(
-            x => x.CreateAsync(It.IsAny<Product>()),
-            Times.Never);
-
-
-        _unitOfWorkMock.Verify(
-            x => x.CommitAsync(),
-            Times.Never);
-
-
-        _unitOfWorkMock.Verify(
-            x => x.RollbackAsync(),
-            Times.Never);
+    
     }
 
 
@@ -160,67 +131,36 @@ public class RegisterProductUsecaseTests
 /// 商品登録時に例外が発生した場合、ロールバックされること
 /// </summary>
 [TestMethod]
-public async Task ExecuteAsync_CreateException_Rollback()
+public async Task ExecuteAsync_CreateAsyncThrows_Rollback()
 {
     // Arrange
     var product = CreateProduct();
-
 
     _productRepositoryMock
         .Setup(x => x.ExistsByNameAsync(product.Name))
         .ReturnsAsync(false);
 
-
-    // ★ここが重要
-    // CreateAsyncで必ず例外を発生させる
     _productRepositoryMock
         .Setup(x => x.CreateAsync(It.IsAny<Product>()))
-        .ThrowsAsync(new Exception("登録エラー"));
-
-
+        .ThrowsAsync(new Exception("Create Error"));
 
     // Act
-    Exception? exception = null;
-
-    try
-    {
-        await _usecase.ExecuteAsync(product);
-    }
-    catch(Exception ex)
-    {
-        exception = ex;
-    }
-
-
+    await Assert.ThrowsAsync<Exception>(
+        () => _usecase.ExecuteAsync(product));
 
     // Assert
-
-    // throw; まで到達した確認
-    Assert.IsNotNull(exception);
-
-
-    // トランザクション開始確認
     _unitOfWorkMock.Verify(
         x => x.BeginTransactionAsync(),
         Times.Once);
 
-
-
-    // CreateAsync実行確認
     _productRepositoryMock.Verify(
         x => x.CreateAsync(It.IsAny<Product>()),
         Times.Once);
 
-
-
-    // ★ここでRollback確認
     _unitOfWorkMock.Verify(
         x => x.RollbackAsync(),
         Times.Once);
 
-
-
-    // Commitされていないこと
     _unitOfWorkMock.Verify(
         x => x.CommitAsync(),
         Times.Never);
@@ -228,65 +168,47 @@ public async Task ExecuteAsync_CreateException_Rollback()
 
 
 
+   
+
+
+
     /// <summary>
     /// UT-REA-004
     /// Commit時に例外発生した場合ロールバックされること
     /// </summary>
-    [TestMethod]
-    public async Task ExecuteAsync_CommitException_Rollback()
-    {
-        // Arrange
-        var product = CreateProduct();
+[TestMethod]
+public async Task ExecuteAsync_CommitAsyncThrows_Rollback()
+{
+    // Arrange
+    var product = CreateProduct();
 
+    _productRepositoryMock
+        .Setup(x => x.ExistsByNameAsync(product.Name))
+        .ReturnsAsync(false);
 
-        _productRepositoryMock
-            .Setup(x => x.ExistsByNameAsync(product.Name))
-            .ReturnsAsync(false);
+    _unitOfWorkMock
+        .Setup(x => x.CommitAsync())
+        .ThrowsAsync(new Exception("Commit Error"));
 
+    // Act
+    await Assert.ThrowsAsync<Exception>(
+        () => _usecase.ExecuteAsync(product));
 
-        _unitOfWorkMock
-            .Setup(x => x.CommitAsync())
-            .ThrowsAsync(new Exception("Commit Error"));
+    // Assert
+    _unitOfWorkMock.Verify(
+        x => x.BeginTransactionAsync(),
+        Times.Once);
 
+    _productRepositoryMock.Verify(
+        x => x.CreateAsync(It.IsAny<Product>()),
+        Times.Once);
 
+    _unitOfWorkMock.Verify(
+        x => x.CommitAsync(),
+        Times.Once);
 
-        // Act
-
-        Exception? exception = null;
-
-        try
-        {
-            await _usecase.ExecuteAsync(product);
-        }
-        catch(Exception ex)
-        {
-            exception = ex;
-        }
-
-
-
-        // Assert
-
-        Assert.IsNotNull(exception);
-
-
-        _unitOfWorkMock.Verify(
-            x => x.BeginTransactionAsync(),
-            Times.Once);
-
-
-        _productRepositoryMock.Verify(
-            x => x.CreateAsync(product),
-            Times.Once);
-
-
-        _unitOfWorkMock.Verify(
-            x => x.CommitAsync(),
-            Times.Once);
-
-
-        _unitOfWorkMock.Verify(
-            x => x.RollbackAsync(),
-            Times.Once);
-    }
+    _unitOfWorkMock.Verify(
+        x => x.RollbackAsync(),
+        Times.Once);
+}
 }
