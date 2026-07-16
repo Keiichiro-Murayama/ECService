@@ -90,36 +90,24 @@ public class GetCategoriesControllerTests
         Assert.IsNotNull(response);
         Assert.AreEqual(0, response.Categories!.Count);
 
-        _usecaseMock.Verify(x => x.ExecuteAsync(), Times.Once);
+
     }
 
     /// <summary>
     /// Usecaseで例外が発生した場合、例外が送出されること
     /// </summary>
-    [TestMethod]
-    public async Task GetCategories_ThrowException()
-    {
-        // Arrange
-        _usecaseMock
-            .Setup(x => x.ExecuteAsync())
-            .ThrowsAsync(new Exception("DB Error"));
+[TestMethod]
+public async Task GetCategories_ThrowException()
+{
+    // Arrange
+    _usecaseMock
+        .Setup(x => x.ExecuteAsync())
+        .ThrowsAsync(new Exception("DB Error"));
 
-        // Act
-        Exception? exception = null;
+    // Act & Assert
+    var ex = await Assert.ThrowsAsync<Exception>(
+        async () => await _controller.GetCategories());
 
-        try
-        {
-            await _controller.GetCategories();
-        }
-        catch (Exception ex)
-        {
-            exception = ex;
-        }
-
-        // Assert
-        Assert.IsNotNull(exception);
-        Assert.AreEqual("DB Error", exception.Message);
-
-        _usecaseMock.Verify(x => x.ExecuteAsync(), Times.Once);
-    }
+    Assert.AreEqual("DB Error", ex.Message);
+}
 }

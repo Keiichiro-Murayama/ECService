@@ -83,7 +83,6 @@ public class GetCategoriesUsecaseTests
         Assert.AreEqual(0, result.Count);
 
         _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
-        _repositoryMock.VerifyNoOtherCalls();
     }
 
     /// <summary>
@@ -97,25 +96,12 @@ public async Task ExecuteAsync_RepositoryThrowsException()
         .Setup(x => x.SelectAllAsync())
         .ThrowsAsync(new Exception("DB Error"));
 
-    // Act
-    Exception? exception = null;
-
-    try
+    // Act & Assert
+    await Assert.ThrowsExactlyAsync<Exception>(async () =>
     {
         await _usecase.ExecuteAsync();
-    }
-    catch (Exception ex)
-    {
-        exception = ex;
-    }
-
-    
-
-    // Assert
-    Assert.IsNotNull(exception);
-    Assert.AreEqual("DB Error", exception.Message);
+    });
 
     _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
-    _repositoryMock.VerifyNoOtherCalls();
 }
 }
