@@ -1,41 +1,155 @@
+using ECService.Application.Extensions;
+using ECService.Application.Authentications;
+using ECService.Infrastructure.Extensions;
+using ECService.Presentation.Extensions;
+using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;//石原:追加
+using System.Text;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// 接続文字列
+var connectionString = builder.Configuration.GetConnectionString("ECServiceDB")
+    ?? throw new InvalidOperationException("接続文字列 'ECServiceDB' が設定されていません。");
+
+// JWT 設定(アプリケーション層へ渡す)
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JWT 設定 'Jwt' が設定されていません。");
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        // 開発環境のポート（例: 5245、あるいはフロントエンドが動作しているURL）を指定します
+        policy.WithOrigins("http://127.0.0.1:5245", "http://localhost:5245") 
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // Cookie（access_token）の送受信を許可するために必須
+    });
+});
+
+// --- 認証(JWT Bearer)---
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        // トークンの検証パラメータ(発行時の JwtSettings と一致するか検証する)
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtSettings.Issuer,
+
+            ValidateAudience = true,
+            ValidAudience = jwtSettings.Audience,
+
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+
+            ValidateLifetime = true,             // 有効期限を検証する
+            ClockSkew = TimeSpan.Zero,           // 期限のずれ許容をゼロに(既定は5分)
+        };
+
+        // トークンは Authorization ヘッダではなく、HttpOnly Cookie から読む
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // ログイン時にセットした Cookie(access_token)から JWT を取得する
+                if (context.Request.Cookies.TryGetValue("access_token", out var token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            },
+
+            // 未認証(トークンが無い・無効)で保護されたリソースにアクセスした場合の応答
+            OnChallenge = async context =>
+            {
+                // 既定の応答(ボディ空・WWW-Authenticate ヘッダ)を抑制する
+                context.HandleResponse();
+
+                // 他のエラーと同じ形式(message)で 401 を返す
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var body = new { message = "認証が必要です。ログインしてください。" };
+
+                var json = System.Text.Json.JsonSerializer.Serialize(body, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                });
+
+                await context.Response.WriteAsync(json);
+            },
+
+            // 認可失敗(認証はあるが権限がない)のときの応答(将来のために用意)
+            OnForbidden = async context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                context.Response.ContentType = "application/json";
+
+                var body = new { message = "アクセスが許可されていません。" };
+                var json = System.Text.Json.JsonSerializer.Serialize(body, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+                });
+
+                await context.Response.WriteAsync(json);
+            }
+        };
+    });
+builder.Services.AddSingleton(jwtSettings);
+builder.Services.AddAuthorization();
+
+// Controller
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>//石原:追加
+    {
+        options.SuppressModelStateInvalidFilter = true;//400errorを自動で返さないようにする
+    });
+
+// 各層のDI登録
+builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddApplication();
+builder.Services.AddPresentation();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Title = "データ管理サービス（管理者向け）",
+        Version = "v1",
+        Description = "ECサービスの管理者サービスの REST API",
+    });
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.MapOpenApi();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "RestAPI Exercise v1");
+    c.RoutePrefix = string.Empty;
+    c.UseRequestInterceptor("(request) => { request.credentials = 'include'; return request; }");
+});
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+//石原:いらなそうなコメントアウト消してまとめました

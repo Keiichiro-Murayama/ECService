@@ -1,0 +1,295 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define NAME_LEN 40
+#define ITEM_TEXT_LEN 120
+#define MAX_ITEMS 8
+
+typedef struct {
+    char name[NAME_LEN];
+    char description[ITEM_TEXT_LEN];
+} Item;
+
+typedef struct {
+    char playerName[NAME_LEN];
+    int trust, mood, insight, money;
+    int visited[4];
+    int honestyFlag, listenedFlag, braveFlag, teasedFlag, hiddenTruthFlag;
+    Item items[MAX_ITEMS];
+    int itemCount;
+} GameData;
+
+static void clearScreen(void){ printf("\033[2J\033[H"); }
+static void waitEnter(void){ char b[16]; printf("\nEnterキーで進む..."); fgets(b,sizeof(b),stdin); }
+static void line(void){ printf("==================================================\n"); }
+
+static int readNumber(int min,int max){
+    char s[128],*end; long v;
+    for(;;){
+        printf("> ");
+        if(!fgets(s,sizeof(s),stdin)) return min;
+        v=strtol(s,&end,10);
+        if(end==s){ puts("数字を入力してください。"); continue; }
+        while(*end==' '||*end=='\t') end++;
+        if(*end!='\n'&&*end!='\0'){ puts("数字だけを入力してください。"); continue; }
+        if(v<min||v>max){ printf("%d〜%dで入力してください。\n",min,max); continue; }
+        return (int)v;
+    }
+}
+
+static int hasItem(const GameData *g,const char *name){
+    for(int i=0;i<g->itemCount;i++) if(strcmp(g->items[i].name,name)==0) return 1;
+    return 0;
+}
+
+static void addItem(GameData *g,const char *name,const char *desc){
+    if(g->itemCount>=MAX_ITEMS||hasItem(g,name)) return;
+    snprintf(g->items[g->itemCount].name,NAME_LEN,"%s",name);
+    snprintf(g->items[g->itemCount].description,ITEM_TEXT_LEN,"%s",desc);
+    g->itemCount++;
+}
+
+static void showItems(const GameData *g){
+    puts("\n【持ち物】");
+    if(g->itemCount==0){ puts("  何も持っていない"); return; }
+    for(int i=0;i<g->itemCount;i++){
+        printf("  ・%s\n",g->items[i].name);
+        printf("    %s\n",g->items[i].description);
+    }
+}
+
+static void showStatus(const GameData *g){
+    line();
+    printf("名前           : %s\n",g->playerName);
+    printf("信頼度         : %d\n",g->trust);
+    printf("ユウダイの気分 : %d\n",g->mood);
+    printf("洞察力         : %d\n",g->insight);
+    printf("所持金         : %d円\n",g->money);
+    showItems(g);
+    line();
+}
+
+static void trust(GameData *g,int n){ g->trust+=n; if(g->trust<0)g->trust=0; if(g->trust>120)g->trust=120; }
+static void mood(GameData *g,int n){ g->mood+=n; if(g->mood<0)g->mood=0; if(g->mood>100)g->mood=100; }
+
+static void title(void){
+    clearScreen(); line();
+    puts("          茨城ラプソディ ADVANCED");
+    puts("         ～潮風、梅、そして本音～");
+    line();
+    puts("\n登場人物はすべて架空。選択・訪問順・持ち物・隠し条件で結末が変わる。");
+    puts("想定プレイ時間：10～15分");
+    waitEnter();
+}
+
+static void opening(GameData *g){
+    clearScreen();
+    puts("春。あなたは仕事のため、茨城県へ引っ越してきた。");
+    puts("水戸駅前で道に迷っていると、無愛想な青年ユウダイが声をかけてきた。\n");
+    printf("あなたの名前を入力してください。\n> ");
+    if(!fgets(g->playerName,sizeof(g->playerName),stdin)) strcpy(g->playerName,"主人公");
+    g->playerName[strcspn(g->playerName,"\n")]='\0';
+    if(strlen(g->playerName)==0) strcpy(g->playerName,"主人公");
+    clearScreen();
+    puts("ユウダイ「茨城が初めてなら、少しくらい案内してやるよ」");
+    puts("ただし、彼は簡単には心を開かなさそうだ。言葉だけでなく、空気を読む必要がある。");
+    waitEnter();
+}
+
+static void stationEvent(GameData *g){
+    int c; clearScreen(); line(); puts("              水戸駅前"); line();
+    puts("\n待ち合わせにユウダイは10分遅れて現れた。息を切らしているが、謝る様子はない。\n");
+    puts("1. 『遅い』と正直に言う");
+    puts("2. 何も言わず笑う");
+    puts("3. 『急いで来てくれたんだね』と言う");
+    puts("4. 少し意地悪くからかう");
+    c=readNumber(1,4);
+    if(c==1){ g->honestyFlag=1; g->insight+=5; trust(g,5); mood(g,-5); puts("\nユウダイ『……悪かった』 率直さは嫌いではないようだ。"); }
+    else if(c==2){ trust(g,2); mood(g,5); puts("\nユウダイ『怒ってないのか？』 少しだけ距離が残った。"); }
+    else if(c==3){ g->listenedFlag=1; g->insight+=8; trust(g,10); mood(g,10); puts("\nユウダイ『電車を一本逃してさ』 少し安心したように笑った。"); }
+    else { g->teasedFlag=1; trust(g,8); mood(g,4); puts("\nユウダイ『初日からそれ言う？』 文句を言いながら楽しそうだ。"); }
+    waitEnter();
+}
+
+static void mitoEvent(GameData *g){
+    int c; clearScreen(); g->visited[0]=1; line(); puts("              水戸・偕楽園"); line();
+    puts("\n梅の香りが園内に広がる。ユウダイは人混みを避け、静かな道を選んだ。");
+    puts("ユウダイ『こういう静かな場所のほうが落ち着く』\n");
+    puts("1. 『私も静かな場所が好き』");
+    puts("2. 『意外と繊細なんだね』");
+    puts("3. 何も言わず歩幅を合わせる");
+    puts("4. 梅の写真を撮る");
+    c=readNumber(1,4);
+    if(c==1){ trust(g,10); mood(g,5); puts("\nユウダイ『じゃあ、気が合うかもな』"); }
+    else if(c==2){ if(g->teasedFlag){ trust(g,12); mood(g,8); puts("\nユウダイ『またそれかよ』 笑っている。"); } else { trust(g,-3); mood(g,-5); puts("\nユウダイ『別に普通だろ』 少し壁を作られた。"); } }
+    else if(c==3){ g->listenedFlag=1; g->insight+=10; trust(g,15); puts("\n会話はないが気まずくない。ユウダイ『こういうの、悪くないな』"); }
+    else { addItem(g,"梅林のツーショット写真","偕楽園の梅を背景に撮った写真。ユウダイは少しだけ笑っている。"); trust(g,8); puts("\n『梅林のツーショット写真』を手に入れた。"); }
+
+    puts("\n売店で何を買う？");
+    puts("1. 水戸納豆せんべい（300円）");
+    puts("2. 梅ジャムクッキー（400円）");
+    puts("3. 木彫りの梅のお守り（600円）");
+    puts("4. 何も買わない");
+    c=readNumber(1,4);
+    if(c==1&&g->money>=300){ g->money-=300; addItem(g,"水戸納豆せんべい","香ばしい納豆風味のせんべい。好みは分かれるが話題にはなる。"); puts("\n水戸納豆せんべいを買った。"); }
+    else if(c==2&&g->money>=400){ g->money-=400; addItem(g,"梅ジャムクッキー","甘酸っぱい梅ジャム入り。甘い物が好きな人には好評。"); puts("\n梅ジャムクッキーを買った。"); }
+    else if(c==3&&g->money>=600){ g->money-=600; addItem(g,"木彫りの梅のお守り","梅の花が彫られたお守り。『素直な気持ちを守る』と書かれている。"); puts("\n木彫りの梅のお守りを買った。"); }
+    else if(c!=4) puts("\nお金が足りない。");
+    else puts("\n何も買わなかった。");
+    waitEnter();
+}
+
+static void oaraiEvent(GameData *g){
+    int c; clearScreen(); g->visited[1]=1; line(); puts("               大洗海岸"); line();
+    puts("\n波の音が響く。ユウダイは海を見ながら話し始めた。");
+    puts("ユウダイ『昔、信じてたやつに裏切られた。それから人に期待しないようにしてる』\n");
+    puts("1. 『無理に信じなくてもいい』");
+    puts("2. 『私は裏切らない』");
+    puts("3. 詳しく聞く");
+    puts("4. 黙って海を見る");
+    c=readNumber(1,4);
+    if(c==1){ g->insight+=8; trust(g,15); puts("\nユウダイ『……そういう言い方、ずるいな』"); }
+    else if(c==2){ if(g->honestyFlag||g->listenedFlag){ g->braveFlag=1; trust(g,22); mood(g,10); puts("\nユウダイ『簡単に言うなよ』 それでも目をそらさなかった。"); } else { trust(g,2); mood(g,-3); puts("\nユウダイ『まだ会ったばかりだろ』 言葉が早すぎた。"); } }
+    else if(c==3){ if(g->insight>=10){ g->hiddenTruthFlag=1; g->insight+=10; trust(g,18); puts("\n彼は昔の友人との出来事を話した。本当に怖いのは『期待すること』らしい。"); } else { trust(g,-8); mood(g,-10); puts("\nユウダイ『そこまで話すつもりはない』 踏み込みすぎた。"); } }
+    else { g->listenedFlag=1; g->insight+=12; trust(g,14); puts("\n長い沈黙のあと、ユウダイ『何も聞かないんだな』 少し笑った。"); }
+
+    puts("\n何か渡す？");
+    puts("1. 水戸納豆せんべい");
+    puts("2. 梅ジャムクッキー");
+    puts("3. 木彫りの梅のお守り");
+    puts("4. 何も渡さない");
+    c=readNumber(1,4);
+    if(c==1&&hasItem(g,"水戸納豆せんべい")){ trust(g,8); mood(g,12); puts("\nユウダイ『海で納豆せんべいってクセ強すぎだろ』 二人で笑った。"); }
+    else if(c==2&&hasItem(g,"梅ジャムクッキー")){ trust(g,14); mood(g,15); puts("\nユウダイ『……これ、結構うまいな』 甘党なのを隠していたらしい。"); }
+    else if(c==3&&hasItem(g,"木彫りの梅のお守り")){ if(g->trust>=35){ trust(g,18); g->braveFlag=1; puts("\nユウダイ『俺に？』 大事そうにしまった。"); } else { trust(g,-2); puts("\nユウダイ『まだ受け取れない』 少し早かった。"); } }
+    else if(c!=4) puts("\nそれは持っていない。");
+    else puts("\n何も渡さず海を眺めた。");
+    waitEnter();
+}
+
+static void tsukubaEvent(GameData *g){
+    int c; clearScreen(); g->visited[2]=1; line(); puts("                筑波山"); line();
+    puts("\n夕暮れの山道。ユウダイは足を止め、苦しそうに膝を押さえた。\n");
+    puts("1. すぐに休もうと提案する");
+    puts("2. 大丈夫か聞く");
+    puts("3. 何も言わず手を差し出す");
+    puts("4. 頂上まで競争しようと言う");
+    c=readNumber(1,4);
+    if(c==1){ g->insight+=6; trust(g,12); puts("\nユウダイ『昔のケガが少しな』"); }
+    else if(c==2){ trust(g,8); puts("\nユウダイ『少し休めば平気』"); }
+    else if(c==3){ if(g->trust>=45){ trust(g,20); g->braveFlag=1; puts("\n迷ったあと、あなたの手を取った。"); } else { trust(g,3); puts("\nユウダイ『そこまでじゃないって』 少し照れている。"); } }
+    else { trust(g,-10); mood(g,-8); puts("\nユウダイ『今それ言う？』 完全にタイミングを間違えた。"); }
+
+    puts("\n山頂の売店で何を買う？");
+    puts("1. 紫峰神社の縁結び守り（700円）");
+    puts("2. 筑波山の無事かえる守り（500円）");
+    puts("3. 何も買わない");
+    c=readNumber(1,3);
+    if(c==1&&g->money>=700){ g->money-=700; addItem(g,"紫峰神社の縁結び守り","紫色のお守り。『二人の縁を結ぶ』という意味が込められている。"); puts("\n縁結び守りを買った。"); }
+    else if(c==2&&g->money>=500){ g->money-=500; addItem(g,"筑波山の無事かえる守り","緑のカエルが描かれたお守り。旅の安全と無事の帰宅を願うもの。"); puts("\n無事かえる守りを買った。"); }
+    else if(c!=3) puts("\nお金が足りない。");
+    else puts("\n何も買わなかった。");
+    waitEnter();
+}
+
+static void hitachiEvent(GameData *g){
+    int c; clearScreen(); g->visited[3]=1; line(); puts("          ひたち海浜公園"); line();
+    puts("\n丘一面に青い花が広がる。ユウダイは珍しく素直な顔を見せた。");
+    puts("ユウダイ『きれいだな』\n");
+    puts("1. 『ユウダイのほうがきれい』と冗談を言う");
+    puts("2. 『一緒に来られてよかった』");
+    puts("3. 写真を撮ろうと誘う");
+    puts("4. 花を見ながら過去のことを聞く");
+    c=readNumber(1,4);
+    if(c==1){ if(g->teasedFlag&&g->mood>=50){ trust(g,16); mood(g,10); puts("\nユウダイ『それは雑すぎるだろ』 笑いながら顔を赤くした。"); } else { trust(g,-5); puts("\nユウダイ『反応に困る』"); } }
+    else if(c==2){ g->honestyFlag=1; trust(g,18); puts("\nユウダイ『……俺も』"); }
+    else if(c==3){ addItem(g,"青い花畑のツーショット写真","ひたち海浜公園の青い花を背景に撮った写真。二人とも自然に笑っている。"); trust(g,12); puts("\n『青い花畑のツーショット写真』を手に入れた。"); }
+    else { if(g->insight>=20||g->hiddenTruthFlag){ g->hiddenTruthFlag=1; g->insight+=10; trust(g,20); puts("\nユウダイは過去を最後まで話し、本当は誰かを信じたいと打ち明けた。"); } else { trust(g,-6); puts("\nユウダイ『今日はその話はやめよう』"); } }
+    waitEnter();
+}
+
+static int choosePlace(const GameData *g){
+    clearScreen(); puts("次にどこへ行く？\n");
+    printf("1. 水戸・偕楽園%s\n",g->visited[0]?"（訪問済み）":"");
+    printf("2. 大洗海岸%s\n",g->visited[1]?"（訪問済み）":"");
+    printf("3. 筑波山%s\n",g->visited[2]?"（訪問済み）":"");
+    printf("4. ひたち海浜公園%s\n",g->visited[3]?"（訪問済み）":"");
+    puts("5. ステータスを見る");
+    return readNumber(1,5);
+}
+
+static void finalEvent(GameData *g){
+    int c,photos=0,score;
+    if(hasItem(g,"梅林のツーショット写真")) photos++;
+    if(hasItem(g,"青い花畑のツーショット写真")) photos++;
+
+    clearScreen(); line(); puts("               最後の夜"); line();
+    puts("\n水戸駅のホーム。電車が来るまであと5分。");
+    puts("ユウダイ『今日で終わりみたいなの、嫌だな。でも俺から何か言うのはまだ怖い』\n");
+    puts("1. 『私を信じて』と伝える");
+    puts("2. 『次も会おう』と約束する");
+    puts("3. 持っているお守りを渡す");
+    puts("4. 写真を見せる");
+    puts("5. 何も言わず電車を待つ");
+    c=readNumber(1,5);
+
+    if(c==1){ if(g->honestyFlag&&g->trust>=55){ trust(g,20); g->braveFlag=1; puts("\nユウダイ『……分かった。今度は逃げない』"); } else { trust(g,5); puts("\nユウダイ『すぐには無理だけど、覚えておく』"); } }
+    else if(c==2){ trust(g,10); puts("\nユウダイ『うん。次も会おう』"); }
+    else if(c==3){
+        if(hasItem(g,"紫峰神社の縁結び守り")){ trust(g,25); g->braveFlag=1; puts("\n縁結び守りを渡した。ユウダイ『意味、分かって渡してる？』"); }
+        else if(hasItem(g,"木彫りの梅のお守り")){ trust(g,16); puts("\n梅のお守りを渡した。ユウダイ『素直な気持ち、か……』"); }
+        else if(hasItem(g,"筑波山の無事かえる守り")){ trust(g,12); puts("\n無事かえる守りを渡した。ユウダイ『また会う約束ってことにしとく』"); }
+        else { trust(g,-2); puts("\n渡せるお守りを持っていなかった。"); }
+    }
+    else if(c==4){ if(photos>=2){ trust(g,20); puts("\n二枚を見比べ、ユウダイ『最初よりちゃんと笑ってるな、俺』"); } else if(photos==1){ trust(g,10); puts("\n写真を見せると、少し照れた。"); } else { trust(g,-3); puts("\n見せられる写真がなかった。"); } }
+    else { trust(g,-10); puts("\n電車の音だけが近づいてきた。"); }
+    waitEnter();
+
+    score=g->trust+g->insight+(g->hiddenTruthFlag?15:0)+(g->braveFlag?10:0)+(photos>=2?8:0);
+    clearScreen(); line(); puts("                 ENDING"); line(); puts("");
+
+    if(score>=125&&g->trust>=80&&g->hiddenTruthFlag&&hasItem(g,"紫峰神社の縁結び守り")){
+        puts("ユウダイは電車に乗らず、ホームに残った。");
+        puts("ユウダイ『怖いけど、それでもお前を信じたい。次はちゃんとデートしよう』");
+        puts("\nTRUE END『茨城で結ばれた縁』");
+    } else if(score>=105&&g->trust>=70&&photos>=1){
+        puts("ユウダイは写真を見つめ、静かに笑った。");
+        puts("ユウダイ『また撮ろう。次はもっとちゃんと笑うから』");
+        puts("\nGOOD END『次の一枚』");
+    } else if(score>=85&&g->trust>=60){
+        puts("ユウダイは少し迷ったあと、あなたに手を差し出した。");
+        puts("ユウダイ『今はまだ、これくらいでいい？』");
+        puts("\nGOOD END『信じる練習』");
+    } else if(score>=65&&g->trust>=45){
+        puts("ユウダイ『また連絡する』 その声は最初よりずっと柔らかかった。");
+        puts("\nNORMAL END『友達より少し先』");
+    } else if(g->mood<25){
+        puts("ユウダイは最後までこちらを見なかった。電車の扉が閉まり、距離は遠ざかった。");
+        puts("\nBAD END『近づきすぎた心』");
+    } else {
+        puts("二人は『また』と言った。だが、その言葉が叶うかは分からない。");
+        puts("\nBAD END『曖昧な約束』");
+    }
+    puts(""); showStatus(g);
+}
+
+int main(void){
+    GameData g={0};
+    int count=0;
+    g.trust=10; g.mood=50; g.money=1800;
+    title(); opening(&g); stationEvent(&g);
+    while(count<3){
+        int c=choosePlace(&g);
+        if(c==5){ clearScreen(); showStatus(&g); waitEnter(); continue; }
+        if(g.visited[c-1]){ puts("\nそこにはもう行った。"); waitEnter(); continue; }
+        if(c==1) mitoEvent(&g);
+        else if(c==2) oaraiEvent(&g);
+        else if(c==3) tsukubaEvent(&g);
+        else hitachiEvent(&g);
+        count++;
+    }
+    finalEvent(&g);
+    puts("\n遊んでくれてありがとう！");
+    return 0;
+}
