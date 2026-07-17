@@ -25,11 +25,9 @@
     <ProjectReference Include="..\..\src\ECService.Application\ECService.Application.csproj" />
     <ProjectReference Include="..\..\src\ECService.Domain\ECService.Domain.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-    <None Update="appsettingsTests.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
+  </ItemGroup> 
 </Project>

@@ -66,7 +66,7 @@ public class ProductRepository : IProductRepository
 
                 if (stockEntity is null)
                 {
-                    continue;
+                    throw new InternalException("商品在庫が存在しません。");
                 }
 
                 var product = await _factory.Factory(
