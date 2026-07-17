@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "enDFaHWmw3A=",
+  "dgSpecHash": "QuDuSRRitKI=",
   "success": true,
   "projectFilePath": "/home/fullness/ECService/src/ECService.Presentation/ECService.Presentation.csproj",
   "expectedPackageFiles": [
@@ -11,7 +11,7 @@
     {
       "code": "NU1903",
       "level": "Warning",
-      "message": "Package 'Microsoft.OpenApi' 2.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
+      "message": "パッケージ 'Microsoft.OpenApi' 2.0.0 に既知の 高 重大度の脆弱性があります、https://github.com/advisories/GHSA-v5pm-xwqc-g5wc",
       "projectPath": "/home/fullness/ECService/src/ECService.Presentation/ECService.Presentation.csproj",
       "warningLevel": 1,
       "filePath": "/home/fullness/ECService/src/ECService.Presentation/ECService.Presentation.csproj",

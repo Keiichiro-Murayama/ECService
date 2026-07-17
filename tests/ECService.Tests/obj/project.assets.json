@@ -393,6 +393,42 @@
         "build": {
           "build/net8.0/xunit.runner.visualstudio.props": {}
         }
+      },
+      "ECService.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "ECService.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ECService.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ECService.Application.dll": {}
+        }
+      },
+      "ECService.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/ECService.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ECService.Domain.dll": {}
+        }
+      },
+      "ECService.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "ECService.Application": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ECService.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ECService.Infrastructure.dll": {}
+        }
       }
     }
   },
@@ -903,10 +939,28 @@
         "xunit.runner.visualstudio.3.1.4.nupkg.sha512",
         "xunit.runner.visualstudio.nuspec"
       ]
+    },
+    "ECService.Application/1.0.0": {
+      "type": "project",
+      "path": "../../src/ECService.Application/ECService.Application.csproj",
+      "msbuildProject": "../../src/ECService.Application/ECService.Application.csproj"
+    },
+    "ECService.Domain/1.0.0": {
+      "type": "project",
+      "path": "../../src/ECService.Domain/ECService.Domain.csproj",
+      "msbuildProject": "../../src/ECService.Domain/ECService.Domain.csproj"
+    },
+    "ECService.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../../src/ECService.Infrastructure/ECService.Infrastructure.csproj",
+      "msbuildProject": "../../src/ECService.Infrastructure/ECService.Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "ECService.Application >= 1.0.0",
+      "ECService.Domain >= 1.0.0",
+      "ECService.Infrastructure >= 1.0.0",
       "Microsoft.NET.Test.Sdk >= 17.14.1",
       "coverlet.collector >= 6.0.4",
       "xunit >= 2.9.3",
@@ -938,7 +992,17 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/home/fullness/ECService/src/ECService.Application/ECService.Application.csproj": {
+              "projectPath": "/home/fullness/ECService/src/ECService.Application/ECService.Application.csproj"
+            },
+            "/home/fullness/ECService/src/ECService.Domain/ECService.Domain.csproj": {
+              "projectPath": "/home/fullness/ECService/src/ECService.Domain/ECService.Domain.csproj"
+            },
+            "/home/fullness/ECService/src/ECService.Infrastructure/ECService.Infrastructure.csproj": {
+              "projectPath": "/home/fullness/ECService/src/ECService.Infrastructure/ECService.Infrastructure.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -990,7 +1054,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.109/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/10.0.110/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
