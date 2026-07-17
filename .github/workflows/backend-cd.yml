@@ -17,7 +17,7 @@ jobs:
     name: Azure VMへデプロイ
 
     # CIが成功した場合だけデプロイする
-    #f: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
