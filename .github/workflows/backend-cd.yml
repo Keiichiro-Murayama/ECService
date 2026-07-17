@@ -1,197 +1,203 @@
-# GitHub Actionsの画面上に表示されるワークフローの名前
 name: .NET ECService CD
 
-# ワークフローが実行される条件（トリガー）の定義
-# 【修正後】CIワークフローが「完了」した時に実行
+
 on:
   workflow_run:
-    workflows: [".NET CI/CD"]
-    types:
-     - completed
-    branches:
-      - main
-# on:
- #  push:
-    # branches:
-      # - dev
-# 実行するジョブ（作業のまとまり）の定義
+      #ここはCIファイル内の「name:」と完全一致させる
+   workflows:
+      - ".NET CI/CD"
+   types:
+   - completed
+   branches:
+     - main
+
+
 jobs:
-  deploy: # ジョブの識別名（任意の名前）
-    # GitHub側が用意する使い捨ての仮想環境（Runner）のOSを指定
+  deploy:
+    name: Azure VMへデプロイ
+
+    # CIが成功した場合だけデプロイする
+    #f: ${{ github.event.workflow_run.conclusion == 'success' }}
+
     runs-on: ubuntu-latest
-    
-    # ジョブ内で順番に実行される手順（ステップ）のリスト
+
     steps:
-      - name: 運用環境へのSSH疎通確認
-        # サードパーティ製（コミュニティ作成）のSSH接続アクションを利用
-        uses: appleboy/ssh-action@v1.0.3
-        
-        # 上記のアクションに渡すパラメータ（引数）の定義
-        with:
-          # GitHub Secretsから認証情報を安全に取得し、環境に展開（注入）する
-          host: ${{ secrets.ECSERVICE_AZURE_HOST }}         # 接続先サーバーのIPアドレス
-          username: ${{ secrets.ECSERVICE_AZURE_USER }}     # ログインユーザー名（ubuntu）
-          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}      # 秘密鍵（PEM）のテキストデータ
-          
-          # SSH接続が成功した後に、リモートサーバー上で実行されるシェルコマンド
-          # （「|」は複数行の文字列を記述するためのYAMLの記法）
-          script: |
-            echo "=== SSH Connection Successful ==="
-            echo "--- System Information ---"
-            uname -a # サーバーのOSやカーネル情報を出力し、Linuxであることを確認
-            echo "--- Current User ---"
-            whoami   # 実行ユーザーを出力し、指定したユーザーでログインできたか確認
-
-      - name: ASP.NET Core Runtime 10.0 のプロビジョニング
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-          username: ${{ secrets.ECSERVICE_AZURE_USER }}
-          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-          script: |
-            # 1. パッケージリストの最新化
-            echo "--- Updating Package List ---"
-            sudo apt-get update
-            # 2. ASP.NET Core ランタイムのインストール
-            echo "--- Installing ASP.NET Core Runtime 10.0 ---"
-            sudo apt-get install -y aspnetcore-runtime-10.0
-            # 3. インストール結果の確認
-            echo "--- Verifying Installation ---"
-            dotnet --list-runtimes
-    # --- アーティファクトの生成（ビルド） ---
-      - name: リポジトリのチェックアウト
+      # workflow_runを発生させた、CI検証済みのコミットを取得する
+      - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha}}
 
-      - name: .NET SDK のセットアップ
+      # プロジェクトは.NET 10なので10を指定
+      - name: .NET SDKをセットアップ
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "10.0.x"
 
-      - name: アプリケーションのビルドと発行 (Publish)
-        # FDD形式、Linux向けに最適化して ./publish フォルダに出力
+      # GitHub Runner上でLinux向けに発行
+      - name: アプリケーションを発行
         run: |
           dotnet publish src/ECService.Presentation/ECService.Presentation.csproj \
-            -c Release \
-            -r linux-x64 \
+            --configuration Release \
+            --runtime linux-x64 \
             --self-contained false \
-            -o ./publish
+            --output ./publish
 
-      # --- 運用環境の事前準備（ディレクトリ作成とクリーンアップ） ---
-      - name: デプロイ先ディレクトリの準備
-        uses: appleboy/ssh-action@v1.0.3
+      # VMの初期設定と、古い配置ファイルの削除
+      - name: VMのデプロイ先を準備
+        uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-          username: ${{ secrets.ECSERVICE_AZURE_USER }}
-          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-          script: |
-            echo "--- Preparing Deployment Directory ---"
-            # 配置用ディレクトリの作成
-            sudo mkdir -p /var/www/ecservice
-            # azureuserユーザーに所有権を変更（SCPでの書き込み許可のため）
-            sudo chown -R $(whoami):$(whoami) /var/www/ecservice
-            # 前回デプロイ時の古いファイルを削除（冪等性の担保）
-            rm -rf /var/www/ecservice/*
-
-      # --- アーティファクトの転送 ---
-      - name: SCPによるアーティファクトの転送
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-          username: ${{ secrets.ECSERVICE_AZURE_USER }}
-          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-          source: "./publish/*"       # 送信元（Runner上で生成した全ファイル）
-          target: "/var/www/ecservice/"   # 送信先（VM上の配置ディレクトリ）
-          strip_components: 1         # 転送先に「publish」という親フォルダを作らず中身だけを展開
-   
-          # --- Webサーバーの連携とアプリケーションの起動 ---
-      - name: リバースプロキシ構成とサービスの起動
-        uses: appleboy/ssh-action@master
-        with:
-         # VM(踏み台サーバー)へSSH接続するための情報をSecretsから取得
          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
          username: ${{ secrets.ECSERVICE_AZURE_USER }}
          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
          script: |
-          echo "--- Configuring systemd service ---"      
-          # 【1. systemd サービス定義ファイルの生成】
-          # アプリケーションをOSのバックグラウンドサービス(デーモン)として常駐させるための設定
-          # "cat << EOF > ファイル名" という構文(ヒアドキュメント)を使い、動的にファイルを作成・上書き
-          # ※ CS_Actions_WebApp.dllの部分は、実際のプロジェクトの出力ファイル名に合わせる
-          sudo bash -c 'cat << EOF > /etc/systemd/system/ecservice.service
-          [Unit]
-          # サービスの説明（ログやステータス確認時に表示）
-          Description=C# ASP.NET Core Application
-          [Service]
-          # アプリケーションの実行ディレクトリ(ここを起点にファイルが読み込まれる)
-          WorkingDirectory=/var/www/ecservice
-          # 起動コマンド：dotnetコマンドでDLLを実行し、Kestrel(内蔵Webサーバー)を5000番ポートで起動
-          ExecStart=/usr/bin/dotnet /var/www/ecservice/ECService.Presentation.dll --urls "http://localhost:5000"
-            
-          # アプリがクラッシュした際の自動復旧（10秒後に自動再起動する）設定
-          Restart=always
-          RestartSec=10
-            
-          # ログ（syslog）に記録される際の識別名
-          SyslogIdentifier=dotnet-ecservice
-            
-          # セキュリティ対策：root権限ではなく、指定した一般ユーザー権限で実行
-          User=${{ secrets.ECSERVICE_AZURE_USER }}
-            
-          # アプリの実行環境を「本番環境（Production）」に指定します
-          Environment=ASPNETCORE_ENVIRONMENT=Production
-            
-          # 【重要】データベースの接続文字列を環境変数として注入
-          # appsettings.jsonに直接パスワードを書かず、GitHub Secretsの値をここで合成して渡すことで、
-          # セキュアかつ柔軟にマルチクラウド（AWS/Azure）に対応できる構成になる
-          Environment="ConnectionStrings__DefaultConnection=Host=${{ secrets.AZURE_DB_HOST }};Database=ActionsDB;Username=${{ secrets.AZURE_DB_USER }};Password=${{ secrets.AZURE_DB_PASSWORD }}"
-            
-          [Install]
-          # サーバー起動時に、どのタイミングでこのサービスを起動するかを指定
-          WantedBy=multi-user.target
-          EOF'
+          set -e
+  
+          echo "=== VM preparation ==="
 
-          echo "--- Configuring Nginx ---"
-             
-          # 【2. Nginx リバースプロキシ設定の生成】
-          # インターネットからのアクセス(80ポート)を受け止め、内部の5000番ポートへ安全に中継
-          sudo bash -c 'cat << EOF > /etc/nginx/sites-available/default
-          server {
-              # HTTPの標準ポート(80番)でリクエストを待ち受け
-              listen 80;
-              server_name _;
-                
-              location / {
-                  # 内部で稼働しているKestrelサーバー（5000番）へ通信を転送(プロキシ)する
-                  proxy_pass http://localhost:5000;
-                  proxy_http_version 1.1;
-                    
-                  # WebSockets等のリアルタイム通信をサポートするためのヘッダー設定
-                  proxy_set_header Upgrade \$http_upgrade;
-                  proxy_set_header Connection keep-alive;
-                    
-                  # クライアントの元のIPアドレスやプロトコル情報を、バックエンドのC#アプリに正しく伝えるための設定
-                  proxy_set_header Host \$host;
-                  proxy_cache_bypass \$http_upgrade;
-                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-                  proxy_set_header X-Forwarded-Proto \$scheme;
-              }
-          }
-          EOF'
+          sudo apt-get update
+          sudo apt-get install -y nginx aspnetcore-runtime-10.0
 
-          echo "--- Reloading Daemons and Restarting Services ---"
-            
-          # 【3. 設定の反映とサービスの起動】
-            
-          # 新しく作成した ecservice.service ファイルをOS(systemd)に再読み込み
-          sudo systemctl daemon-reload
-            
-          # サーバー(VM)自体の再起動時にも、C#アプリが自動的に起動するように有効化
-          sudo systemctl enable ecservice.service
-            
-          # 古いアプリケーションが動作している場合は停止、最新の状態でアプリケーションを起動
-          sudo systemctl restart ecservice.service
-            
-          # Nginxを再起動し、作成したリバースプロキシの設定を反映させる
-          sudo systemctl restart nginx
-            
-          echo "--- Deployment Completed Successfully! ---"
+          dotnet --list-runtimes
+
+          sudo mkdir -p /var/www/ecservice
+          sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
+          rm -rf /var/www/ecservice/*
+
+            echo "=== VM preparation ==="
+
+            # 初回実行時に必要なソフトウェアを準備
+            sudo apt-get update
+            sudo apt-get install -y nginx aspnetcore-runtime-10.0
+
+            echo "=== Installed runtimes ==="
+            dotnet --list-runtimes
+
+            echo "=== Preparing directory ==="
+            sudo mkdir -p /var/www/ecservice
+            sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
+
+            # 転送前に古いファイルを削除
+            rm -rf /var/www/ecservice/*
+
+      # publishフォルダの中身をVMへ転送
+      - name: 発行ファイルをVMへ転送
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          source: "./publish/*"
+          target: "/var/www/ecservice"
+          strip_components: 1
+          overwrite: true
+
+      # systemdとNginxを設定してアプリを起動
+      - name: APIサービスを起動
+        uses: appleboy/ssh-action@v1
+        env:
+          DB_CONNECTION_STRING: ${{ secrets.ECSERVICE_DB_CONNECTION_STRING }}
+          SERVICE_USER: ${{ secrets.ECSERVICE_AZURE_USER }}
+        with:
+         host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+         username: ${{ secrets.ECSERVICE_AZURE_USER }}
+         key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+         script: |
+          set -e
+
+          echo "=== VM preparation ==="
+
+          sudo apt-get update
+          sudo apt-get install -y nginx aspnetcore-runtime-10.0
+
+          dotnet --list-runtimes
+
+          sudo mkdir -p /var/www/ecservice
+          sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
+          rm -rf /var/www/ecservice/*
+
+            echo "=== Creating environment file ==="
+
+            # DB接続文字列をsystemdの環境ファイルとして保存
+            sudo install -m 600 /dev/null /etc/ecservice.env
+
+            sudo env DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
+              bash -c 'printf "%s\n" \
+              "ConnectionStrings__ECServiceDB=${DB_CONNECTION_STRING}" \
+              > /etc/ecservice.env'
+
+            echo "=== Configuring systemd ==="
+
+            sudo tee /etc/systemd/system/ecservice.service > /dev/null <<EOF
+            [Unit]
+            Description=ECService ASP.NET Core API
+            After=network.target
+
+            [Service]
+            WorkingDirectory=/var/www/ecservice
+            ExecStart=/usr/bin/dotnet /var/www/ecservice/ECService.Presentation.dll
+            Restart=always
+            RestartSec=10
+            KillSignal=SIGINT
+            SyslogIdentifier=ecservice
+            User=${SERVICE_USER}
+
+            Environment=ASPNETCORE_ENVIRONMENT=Production
+            Environment=ASPNETCORE_URLS=http://127.0.0.1:5000
+            EnvironmentFile=/etc/ecservice.env
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+
+            echo "=== Configuring Nginx ==="
+
+            sudo tee /etc/nginx/sites-available/ecservice > /dev/null <<'EOF'
+            server {
+                listen 80;
+                listen [::]:80;
+
+                server_name _;
+
+                location / {
+                    proxy_pass http://127.0.0.1:5000;
+                    proxy_http_version 1.1;
+
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection keep-alive;
+                    proxy_cache_bypass $http_upgrade;
+                }
+            }
+            EOF
+
+            # Nginx設定を有効化
+            sudo ln -sfn \
+              /etc/nginx/sites-available/ecservice \
+              /etc/nginx/sites-enabled/ecservice
+
+            sudo rm -f /etc/nginx/sites-enabled/default
+
+            echo "=== Validating Nginx ==="
+            sudo nginx -t
+
+            echo "=== Restarting services ==="
+            sudo systemctl daemon-reload
+            sudo systemctl enable ecservice.service
+            sudo systemctl restart ecservice.service
+
+            sudo systemctl enable nginx
+            sudo systemctl restart nginx
+
+            echo "=== Service status ==="
+            sudo systemctl --no-pager --full status ecservice.service
+
+            echo "=== Local API check ==="
+            sleep 5
+            curl --fail --show-error http://127.0.0.1:5000/ || true
+
+            echo "=== Deployment completed ==="
