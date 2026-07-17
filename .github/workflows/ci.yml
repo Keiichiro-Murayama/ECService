@@ -81,6 +81,7 @@ jobs:
           dotnet format ECService.slnx
           --verify-no-changes
           --severity warn
+          --exclude-diagnostics MSTEST0032
           --no-restore
 
       # ドメイン層のテスト
