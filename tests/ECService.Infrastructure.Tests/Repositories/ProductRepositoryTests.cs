@@ -227,7 +227,7 @@ public class ProductRepositoryTests
 
         Assert.AreEqual(product1.Name, actualProduct1.Name);
         Assert.AreEqual(product1.Price, actualProduct1.Price);
-        Assert.AreEqual(targetCategory.Name,actualProduct1.ProductCategory.Name);
+        Assert.AreEqual(targetCategory.Name, actualProduct1.ProductCategory.Name);
         Assert.AreEqual(50, actualProduct1.ProductStock.Quantity);
 
         var actualProduct2 = products.Single(product =>
@@ -235,7 +235,7 @@ public class ProductRepositoryTests
 
         Assert.AreEqual(product2.Name, actualProduct2.Name);
         Assert.AreEqual(product2.Price, actualProduct2.Price);
-        Assert.AreEqual(targetCategory.Name,actualProduct2.ProductCategory.Name);
+        Assert.AreEqual(targetCategory.Name, actualProduct2.ProductCategory.Name);
         Assert.AreEqual(120, actualProduct2.ProductStock.Quantity);
     }
 
