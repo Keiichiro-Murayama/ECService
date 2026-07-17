@@ -96,29 +96,18 @@ jobs:
       - name: APIサービスを起動
         uses: appleboy/ssh-action@v1
         env:
-          DB_CONNECTION_STRING: ${{ secrets.ECSERVICE_DB_CONNECTION_STRING }}
+          DB_CONNECTION_STRING: ${{ secrets.AZURE_DB_HOST }}
           SERVICE_USER: ${{ secrets.ECSERVICE_AZURE_USER }}
         with:
-         host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-         username: ${{ secrets.ECSERVICE_AZURE_USER }}
-         key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-         script: |
-          set -e
-
-          echo "=== VM preparation ==="
-
-          sudo apt-get update
-          sudo apt-get install -y nginx aspnetcore-runtime-10.0
-
-          dotnet --list-runtimes
-
-          sudo mkdir -p /var/www/ecservice
-          sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
-          rm -rf /var/www/ecservice/*
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          envs: DB_CONNECTION_STRING,SERVICE_USER
+          script: |
+            set -e
 
             echo "=== Creating environment file ==="
 
-            # DB接続文字列をsystemdの環境ファイルとして保存
             sudo install -m 600 /dev/null /etc/ecservice.env
 
             sudo env DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
@@ -175,7 +164,6 @@ jobs:
             }
             EOF
 
-            # Nginx設定を有効化
             sudo ln -sfn \
               /etc/nginx/sites-available/ecservice \
               /etc/nginx/sites-enabled/ecservice
@@ -198,6 +186,8 @@ jobs:
 
             echo "=== Local API check ==="
             sleep 5
-            curl --fail --show-error http://127.0.0.1:5000/ || true
+            test -f /var/www/ecservice/ECService.Presentation.dll
+            curl --fail --show-error \
+              http://127.0.0.1:5000/swagger/index.html
 
             echo "=== Deployment completed ==="
