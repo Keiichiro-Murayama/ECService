@@ -24,7 +24,9 @@ public class ProductRepositoryTests
     {
         var config = new ConfigurationBuilder()
      .SetBasePath(AppContext.BaseDirectory)
-     .AddJsonFile("appsettingsTests.json", optional: false)
+     .AddJsonFile("appsettingsTests.json", optional: false, reloadOnChange: false)
+        .AddEnvironmentVariables()
+
      .Build();
 
         var connectionString =

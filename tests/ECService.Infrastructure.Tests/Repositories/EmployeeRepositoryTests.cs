@@ -30,6 +30,7 @@ public class EmployeeRepositoryTests
                 "appsettingsTests.json",
                 optional: false,
                 reloadOnChange: false)
+                 .AddEnvironmentVariables()
             .Build();
 
         var connectionString = configuration
