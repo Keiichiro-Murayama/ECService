@@ -31,7 +31,7 @@ public class ProductStockEntityAdapter
     {
         // 引数targetがnullの場合
         _ = target ?? throw new InternalException("引数targetがnullです。");
-        var domain = ProductStock.Restore(target.StockUuid.ToString(),target.Quantity);
+        var domain = ProductStock.Restore(target.StockUuid.ToString(), target.Quantity);
         return Task.FromResult(domain);
     }
 }

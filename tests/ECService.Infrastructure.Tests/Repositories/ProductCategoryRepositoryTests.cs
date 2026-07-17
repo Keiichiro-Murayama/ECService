@@ -29,6 +29,7 @@ public class ProductCategoryRepositoryTests
                 "appsettingsTests.json",
                 optional: false,
                 reloadOnChange: false)
+                 .AddEnvironmentVariables()
             .Build();
 
         var connectionString = configuration

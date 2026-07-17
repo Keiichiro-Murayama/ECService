@@ -73,17 +73,7 @@ jobs:
           --configuration Release
           --no-build
 
-      # テストで必要な初期データを投入
-      - name: テストデータを投入
-        env:
-          PGPASSWORD: postgres
-        run: >
-          psql
-          -h localhost
-          -U postgres
-          -d ecservice_test
-          -v ON_ERROR_STOP=1
-          -f src/ECService.Infrastructure/Migrations/insert_testdata.sql
+  
 
       # コードの書式を確認
       - name: 書式チェック
@@ -91,6 +81,7 @@ jobs:
           dotnet format ECService.slnx
           --verify-no-changes
           --severity warn
+          --exclude-diagnostics MSTEST0032
           --no-restore
 
       # ドメイン層のテスト

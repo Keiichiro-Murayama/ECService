@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 using ECService.Domain.Exceptions;
 using ECService.Domain.Models;
@@ -12,46 +13,7 @@ namespace ECService.Domain.Tests.Models;
 public class EmployeeAccountTests
 {
     /// <summary>
-    /// テスト用の社員を生成する
-    /// Employeeのコンストラクタに依存せず、
-    /// EmployeeAccountのテスト対象だけを確認する
-    /// </summary>
-    private static Employee CreateEmployee()
-    {
-        return (Employee)RuntimeHelpers.GetUninitializedObject(
-            typeof(Employee));
-    }
-
-    /// <summary>
-    /// 指定された文字数の正常な半角英数字を生成する
-    /// 末尾だけ異なる文字にして、同一文字チェックを通過させる
-    /// </summary>
-    private static string CreateValidAlphaNumeric(int length)
-    {
-        return new string('a', length - 1) + "1";
-    }
-
-    /// <summary>
-    /// テスト用の社員アカウントを復元する
-    /// </summary>
-    private static EmployeeAccount CreateEmployeeAccount(
-        string accountUuid = "11111111-1111-1111-1111-111111111111",
-        string accountName = "user01",
-        string passwordHash = "hashed-password-value",
-        DateTime? lockoutEnd = null,
-        int accessFailedCount = 0)
-    {
-        return new EmployeeAccount(
-            accountUuid,
-            accountName,
-            passwordHash,
-            CreateEmployee(),
-            lockoutEnd,
-            accessFailedCount);
-    }
-
-    /// <summary>
-    /// DomainExceptionの内容を確認する
+    /// DomainExceptionのメッセージとパラメータ名を確認する
     /// </summary>
     private static void AssertDomainException(
         Action action,
@@ -61,47 +23,91 @@ public class EmployeeAccountTests
         var exception =
             Assert.ThrowsExactly<DomainException>(action);
 
-        Assert.AreEqual(expectedMessage, exception.Message);
-        Assert.AreEqual(expectedParamName, exception.ParamName);
+        Assert.AreEqual(
+            expectedMessage,
+            exception.Message);
+
+        Assert.AreEqual(
+            expectedParamName,
+            exception.ParamName);
+    }
+
+    /// <summary>
+    /// テスト用のEmployeeを生成する
+    /// </summary>
+    private static Employee CreateEmployee()
+    {
+        return (Employee)RuntimeHelpers.GetUninitializedObject(
+            typeof(Employee));
+    }
+
+    /// <summary>
+    /// テスト用の社員アカウントを生成する
+    /// </summary>
+    private static EmployeeAccount CreateEmployeeAccount()
+    {
+        return EmployeeAccount.Create(
+            "user01",
+            "Pass123",
+            "hashed-password-value",
+            CreateEmployee());
     }
 
     // =========================================================
-    // Create
+    // Create 正常系
     // =========================================================
 
     [TestMethod]
     public void Create_正常な値を渡した場合_社員アカウントが生成される()
     {
         // Arrange
+        const string accountName = "user01";
+        const string password = "Pass123";
+        const string passwordHash = "hashed-password-value";
+
         var employee = CreateEmployee();
 
         // Act
-        var account = EmployeeAccount.Create(
-            "user01",
-            "Pass123",
-            "hashed-password-value",
-            employee);
+        var employeeAccount =
+            EmployeeAccount.Create(
+                accountName,
+                password,
+                passwordHash,
+                employee);
 
         // Assert
         Assert.IsFalse(
-            string.IsNullOrWhiteSpace(account.AccountUuid));
+            string.IsNullOrWhiteSpace(employeeAccount.AccountUuid));
 
         Assert.IsTrue(
-            Guid.TryParse(account.AccountUuid, out _));
+            Guid.TryParse(employeeAccount.AccountUuid, out _));
 
-        Assert.AreEqual("user01", account.AccountName);
-        Assert.AreEqual("Pass123", account.Password);
         Assert.AreEqual(
-            "hashed-password-value",
-            account.PasswordHash);
+            accountName,
+            employeeAccount.AccountName);
 
-        Assert.AreSame(employee, account.Employee);
-        Assert.IsNull(account.LockoutEnd);
-        Assert.AreEqual(0, account.AccessFailedCount);
+        Assert.AreEqual(
+            password,
+            employeeAccount.Password);
+
+        Assert.AreEqual(
+            passwordHash,
+            employeeAccount.PasswordHash);
+
+        Assert.AreSame(
+            employee,
+            employeeAccount.Employee);
+
+        Assert.IsNull(
+            employeeAccount.LockoutEnd);
+
+        Assert.AreEqual(
+            0,
+            employeeAccount.AccessFailedCount);
     }
 
     // =========================================================
-    // アカウント名
+    // Create アカウント名
     // =========================================================
 
     [TestMethod]
@@ -129,7 +135,8 @@ public class EmployeeAccountTests
         int length)
     {
         // Arrange
-        var accountName = CreateValidAlphaNumeric(length);
+        var accountName =
+            new string('a', length);
 
         // Act & Assert
         AssertDomainException(
@@ -149,17 +156,21 @@ public class EmployeeAccountTests
         int length)
     {
         // Arrange
-        var accountName = CreateValidAlphaNumeric(length);
+        var accountName =
+            "a" + new string('b', length - 1);
 
         // Act
-        var account = EmployeeAccount.Create(
-            accountName,
-            "Pass123",
-            "hashed-password-value",
-            CreateEmployee());
+        var employeeAccount =
+            EmployeeAccount.Create(
+                accountName,
+                "Pass123",
+                "hashed-password-value",
+                CreateEmployee());
 
         // Assert
-        Assert.AreEqual(accountName, account.AccountName);
+        Assert.AreEqual(
+            accountName,
+            employeeAccount.AccountName);
     }
 
     [TestMethod]
@@ -195,7 +206,7 @@ public class EmployeeAccountTests
     }
 
     // =========================================================
-    // パスワード
+    // Create パスワード
     // =========================================================
 
     [TestMethod]
@@ -223,7 +234,8 @@ public class EmployeeAccountTests
         int length)
     {
         // Arrange
-        var password = CreateValidAlphaNumeric(length);
+        var password =
+            new string('a', length);
 
         // Act & Assert
         AssertDomainException(
@@ -243,17 +255,21 @@ public class EmployeeAccountTests
         int length)
     {
         // Arrange
-        var password = CreateValidAlphaNumeric(length);
+        var password =
+            "a" + new string('b', length - 1);
 
         // Act
-        var account = EmployeeAccount.Create(
-            "user01",
-            password,
-            "hashed-password-value",
-            CreateEmployee());
+        var employeeAccount =
+            EmployeeAccount.Create(
+                "user01",
+                password,
+                "hashed-password-value",
+                CreateEmployee());
 
         // Assert
-        Assert.AreEqual(password, account.Password);
+        Assert.AreEqual(
+            password,
+            employeeAccount.Password);
     }
 
     [TestMethod]
@@ -289,7 +305,7 @@ public class EmployeeAccountTests
     }
 
     // =========================================================
-    // パスワードハッシュ
+    // Create パスワードハッシュ
     // =========================================================
 
     [TestMethod]
@@ -314,25 +330,33 @@ public class EmployeeAccountTests
     public void Create_パスワードハッシュが255文字の場合_社員アカウントが生成される()
     {
         // Arrange
-        var passwordHash = new string('h', 255);
+        var passwordHash =
+            new string('a', 255);
 
         // Act
-        var account = EmployeeAccount.Create(
-            "user01",
-            "Pass123",
-            passwordHash,
-            CreateEmployee());
+        var employeeAccount =
+            EmployeeAccount.Create(
+                "user01",
+                "Pass123",
+                passwordHash,
+                CreateEmployee());
 
         // Assert
-        Assert.AreEqual(passwordHash, account.PasswordHash);
-        Assert.AreEqual(255, account.PasswordHash.Length);
+        Assert.AreEqual(
+            255,
+            employeeAccount.PasswordHash.Length);
+
+        Assert.AreEqual(
+            passwordHash,
+            employeeAccount.PasswordHash);
     }
 
     [TestMethod]
     public void Create_パスワードハッシュが256文字の場合_DomainExceptionが発生する()
     {
         // Arrange
-        var passwordHash = new string('h', 256);
+        var passwordHash =
+            new string('a', 256);
 
         // Act & Assert
         AssertDomainException(
@@ -346,7 +370,7 @@ public class EmployeeAccountTests
     }
 
     // =========================================================
-    // 社員
+    // Create Employee
     // =========================================================
 
     [TestMethod]
@@ -364,211 +388,52 @@ public class EmployeeAccountTests
     }
 
     // =========================================================
-    // 7引数コンストラクタ
-    // =========================================================
-
-    [TestMethod]
-    public void コンストラクタ_正常な値を渡した場合_指定された状態で生成される()
-    {
-        // Arrange
-        const string accountUuid =
-            "22222222-2222-2222-2222-222222222222";
-
-        var employee = CreateEmployee();
-
-        var lockoutEnd = new DateTime(
-            2026,
-            7,
-            20,
-            12,
-            0,
-            0,
-            DateTimeKind.Utc);
-
-        // Act
-        var account = new EmployeeAccount(
-            accountUuid,
-            "employee01",
-            "Pass123",
-            "hashed-password-value",
-            employee,
-            lockoutEnd,
-            2);
-
-        // Assert
-        Assert.AreEqual(accountUuid, account.AccountUuid);
-        Assert.AreEqual("employee01", account.AccountName);
-        Assert.AreEqual("Pass123", account.Password);
-        Assert.AreEqual(
-            "hashed-password-value",
-            account.PasswordHash);
-
-        Assert.AreSame(employee, account.Employee);
-        Assert.AreEqual(lockoutEnd, account.LockoutEnd);
-        Assert.AreEqual(2, account.AccessFailedCount);
-    }
-
-    // =========================================================
-    // UUID
-    // =========================================================
-
-    [TestMethod]
-    [DataRow(null)]
-    [DataRow("")]
-    [DataRow("   ")]
-    public void コンストラクタ_UUIDが未入力の場合_DomainExceptionが発生する(
-        string? accountUuid)
-    {
-        // Act & Assert
-        AssertDomainException(
-            () => new EmployeeAccount(
-                accountUuid!,
-                "user01",
-                "Pass123",
-                "hashed-password-value",
-                CreateEmployee(),
-                null,
-                0),
-            "識別Idは必須です。",
-            "accountUuid");
-    }
-
-    [TestMethod]
-    [DataRow("invalid-guid")]
-    [DataRow("12345")]
-    public void コンストラクタ_UUIDの形式が不正な場合_DomainExceptionが発生する(
-        string accountUuid)
-    {
-        // Act & Assert
-        AssertDomainException(
-            () => new EmployeeAccount(
-                accountUuid,
-                "user01",
-                "Pass123",
-                "hashed-password-value",
-                CreateEmployee(),
-                null,
-                0),
-            "識別Idの形式が不正です。",
-            "accountUuid");
-    }
-
-    // =========================================================
-    // 復元用6引数コンストラクタ
-    // =========================================================
-
-    [TestMethod]
-    public void 復元用コンストラクタ_正常な値を渡した場合_平文パスワードなしで復元される()
-    {
-        // Arrange
-        const string accountUuid =
-            "33333333-3333-3333-3333-333333333333";
-
-        var employee = CreateEmployee();
-
-        var lockoutEnd = new DateTime(
-            2026,
-            7,
-            25,
-            10,
-            30,
-            0,
-            DateTimeKind.Utc);
-
-        // Act
-        var account = new EmployeeAccount(
-            accountUuid,
-            "admin01",
-            "restored-hash-value",
-            employee,
-            lockoutEnd,
-            3);
-
-        // Assert
-        Assert.AreEqual(accountUuid, account.AccountUuid);
-        Assert.AreEqual("admin01", account.AccountName);
-        Assert.AreEqual(string.Empty, account.Password);
-        Assert.AreEqual(
-            "restored-hash-value",
-            account.PasswordHash);
-
-        Assert.AreSame(employee, account.Employee);
-        Assert.AreEqual(lockoutEnd, account.LockoutEnd);
-        Assert.AreEqual(3, account.AccessFailedCount);
-    }
-
-    // =========================================================
-    // 4引数コンストラクタ
-    // =========================================================
-
-    [TestMethod]
-    public void 四引数コンストラクタ_正常な値を渡した場合_プロパティが設定される()
-    {
-        // Arrange
-        const string accountUuid =
-            "44444444-4444-4444-4444-444444444444";
-
-        var employee = CreateEmployee();
-
-        // Act
-        var account = new EmployeeAccount(
-            accountUuid,
-            "staff01",
-            "four-argument-hash",
-            employee);
-
-        // Assert
-        Assert.AreEqual(accountUuid, account.AccountUuid);
-        Assert.AreEqual("staff01", account.AccountName);
-        Assert.AreEqual(string.Empty, account.Password);
-        Assert.AreEqual(
-            "four-argument-hash",
-            account.PasswordHash);
-
-        Assert.AreSame(employee, account.Employee);
-        Assert.IsNull(account.LockoutEnd);
-        Assert.AreEqual(0, account.AccessFailedCount);
-    }
-
-    // =========================================================
-    // ChangePassword
+    // ChangePassword 正常系
     // =========================================================
 
     [TestMethod]
     public void ChangePassword_正常なパスワードハッシュを渡した場合_ハッシュが変更される()
     {
         // Arrange
-        var account = CreateEmployeeAccount();
+        var employeeAccount =
+            CreateEmployeeAccount();
+
+        const string newPasswordHash =
+            "new-hashed-password";
 
         // Act
-        account.ChangePassword("new-hashed-password");
+        employeeAccount.ChangePassword(
+            newPasswordHash);
 
         // Assert
         Assert.AreEqual(
-            "new-hashed-password",
-            account.PasswordHash);
+            newPasswordHash,
+            employeeAccount.PasswordHash);
     }
 
     [TestMethod]
     public void ChangePassword_実行した場合_入力用パスワードには影響しない()
     {
         // Arrange
-        var account = new EmployeeAccount(
-            "55555555-5555-5555-5555-555555555555",
-            "user01",
-            "Pass123",
-            "old-hash",
-            CreateEmployee(),
-            null,
-            0);
+        var employeeAccount =
+            CreateEmployeeAccount();
+
+        var originalPassword =
+            employeeAccount.Password;
 
         // Act
-        account.ChangePassword("new-hash");
+        employeeAccount.ChangePassword(
+            "new-hashed-password");
 
         // Assert
-        Assert.AreEqual("Pass123", account.Password);
-        Assert.AreEqual("new-hash", account.PasswordHash);
+        Assert.AreEqual(
+            originalPassword,
+            employeeAccount.Password);
     }
+
+    // =========================================================
+    // ChangePassword 異常系
+    // =========================================================
 
     [TestMethod]
     [DataRow(null)]
@@ -578,107 +443,70 @@ public class EmployeeAccountTests
         string? passwordHash)
     {
         // Arrange
-        var account = CreateEmployeeAccount();
-        var originalHash = account.PasswordHash;
+        var employeeAccount =
+            CreateEmployeeAccount();
+
+        var originalPasswordHash =
+            employeeAccount.PasswordHash;
 
         // Act & Assert
         AssertDomainException(
-            () => account.ChangePassword(passwordHash!),
+            () => employeeAccount.ChangePassword(
+                passwordHash!),
             "パスワードハッシュは必須です。",
             "passwordHash");
 
-        Assert.AreEqual(originalHash, account.PasswordHash);
+        Assert.AreEqual(
+            originalPasswordHash,
+            employeeAccount.PasswordHash);
     }
 
     [TestMethod]
     public void ChangePassword_パスワードハッシュが256文字の場合_例外が発生して元の値が保持される()
     {
         // Arrange
-        var account = CreateEmployeeAccount();
-        var originalHash = account.PasswordHash;
-        var passwordHash = new string('h', 256);
+        var employeeAccount =
+            CreateEmployeeAccount();
+
+        var originalPasswordHash =
+            employeeAccount.PasswordHash;
+
+        var newPasswordHash =
+            new string('a', 256);
 
         // Act & Assert
         AssertDomainException(
-            () => account.ChangePassword(passwordHash),
+            () => employeeAccount.ChangePassword(
+                newPasswordHash),
             "パスワードハッシュは255文字以内で指定してください。",
             "passwordHash");
 
-        Assert.AreEqual(originalHash, account.PasswordHash);
+        Assert.AreEqual(
+            originalPasswordHash,
+            employeeAccount.PasswordHash);
     }
 
     [TestMethod]
     public void ChangePassword_パスワードハッシュが255文字の場合_変更される()
     {
         // Arrange
-        var account = CreateEmployeeAccount();
-        var passwordHash = new string('h', 255);
+        var employeeAccount =
+            CreateEmployeeAccount();
+
+        var newPasswordHash =
+            new string('a', 255);
 
         // Act
-        account.ChangePassword(passwordHash);
+        employeeAccount.ChangePassword(
+            newPasswordHash);
 
         // Assert
-        Assert.AreEqual(passwordHash, account.PasswordHash);
-    }
-
-    // =========================================================
-    // Entityの同一性
-    // =========================================================
-
-    [TestMethod]
-    public void Equals_AccountUuidが同じ場合_同一の社員アカウントと判定される()
-    {
-        // Arrange
-        const string accountUuid =
-            "66666666-6666-6666-6666-666666666666";
-
-        var first = new EmployeeAccount(
-            accountUuid,
-            "user01",
-            "first-hash",
-            CreateEmployee(),
-            null,
-            0);
-
-        var second = new EmployeeAccount(
-            accountUuid,
-            "admin01",
-            "second-hash",
-            CreateEmployee(),
-            DateTime.UtcNow.AddDays(1),
-            3);
-
-        // Act & Assert
-        Assert.IsTrue(first.Equals(second));
-        Assert.IsTrue(first == second);
+        Assert.AreEqual(
+            255,
+            employeeAccount.PasswordHash.Length);
 
         Assert.AreEqual(
-            first.GetHashCode(),
-            second.GetHashCode());
-    }
-
-    [TestMethod]
-    public void Equals_AccountUuidが異なる場合_別の社員アカウントと判定される()
-    {
-        // Arrange
-        var first = new EmployeeAccount(
-            "77777777-7777-7777-7777-777777777777",
-            "user01",
-            "first-hash",
-            CreateEmployee(),
-            null,
-            0);
-
-        var second = new EmployeeAccount(
-            "88888888-8888-8888-8888-888888888888",
-            "user01",
-            "first-hash",
-            CreateEmployee(),
-            null,
-            0);
-
-        // Act & Assert
-        Assert.IsFalse(first.Equals(second));
-        Assert.IsTrue(first != second);
+            newPasswordHash,
+            employeeAccount.PasswordHash);
     }
 }

@@ -59,7 +59,7 @@ public class GetCategoriesControllerTests
         var response = okResult.Value as GetCategoriesResponse;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(3, response.Categories!.Count);
+        Assert.HasCount(3, response.Categories);
         Assert.AreEqual(categories[0].CategoryUuid, response.Categories[0].CategoryUuid);
         Assert.AreEqual(categories[0].Name, response.Categories[0].Name);
 
@@ -89,7 +89,7 @@ public class GetCategoriesControllerTests
         var response = okResult.Value as GetCategoriesResponse;
 
         Assert.IsNotNull(response);
-        Assert.AreEqual(0, response.Categories!.Count);
+        Assert.IsEmpty(response.Categories);
 
 
     }

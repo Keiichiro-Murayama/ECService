@@ -100,10 +100,10 @@ public class EmployeeAccount : Entity
         string passwordHash,
         Employee employee)
     {
-    AccountUuid = accountUuid;
-    AccountName = accountName;
-    PasswordHash = passwordHash;
-    Employee = employee;
+        AccountUuid = accountUuid;
+        AccountName = accountName;
+        PasswordHash = passwordHash;
+        Employee = employee;
     }
 
     /// <summary>
@@ -264,5 +264,5 @@ public class EmployeeAccount : Entity
         }
     }
 
-    
+
 }

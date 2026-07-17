@@ -88,43 +88,43 @@ public class AuthControllerTests
             await controller.Login(request);
 
         // Assert
-Assert.IsInstanceOfType(
-    result.Result,
-    typeof(OkObjectResult));
+        Assert.IsInstanceOfType(
+            result.Result,
+            typeof(OkObjectResult));
 
-var okResult =
-    result.Result as OkObjectResult;
+        var okResult =
+            result.Result as OkObjectResult;
 
-Assert.IsNotNull(okResult);
+        Assert.IsNotNull(okResult);
 
-Assert.IsInstanceOfType(
-    okResult.Value,
-    typeof(TokenResponse));
+        Assert.IsInstanceOfType(
+            okResult.Value,
+            typeof(TokenResponse));
 
-var response =
-    okResult.Value as TokenResponse;
+        var response =
+            okResult.Value as TokenResponse;
 
-Assert.AreEqual(
-    "ログインに成功しました。",
-    response!.Message);
+        Assert.AreEqual(
+            "ログインに成功しました。",
+            response!.Message);
 
-// Cookieが発行されていることを確認
-Assert.IsTrue(
-    controller.Response.Headers.ContainsKey("Set-Cookie"));
+        // Cookieが発行されていることを確認
+        Assert.IsTrue(
+            controller.Response.Headers.ContainsKey("Set-Cookie"));
 
-var cookie =
-    controller.Response.Headers["Set-Cookie"].ToString();
+        var cookie =
+            controller.Response.Headers["Set-Cookie"].ToString();
 
-StringAssert.Contains(cookie, "access_token=");
-StringAssert.Contains(cookie, "httponly");;
+        StringAssert.Contains(cookie, "access_token=");
+        StringAssert.Contains(cookie, "httponly"); ;
 
-// UseCaseが1回だけ呼ばれたことを確認
-usecaseMock.Verify(
-    usecase => usecase.ExecuteAsync(
-        It.Is<(string, string)>(p =>
-            p.Item1 == Username &&
-            p.Item2 == Password)),
-    Times.Once);
+        // UseCaseが1回だけ呼ばれたことを確認
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(
+                It.Is<(string, string)>(p =>
+                    p.Item1 == Username &&
+                    p.Item2 == Password)),
+            Times.Once);
     }
 
     /// <summary>
@@ -229,187 +229,187 @@ usecaseMock.Verify(
         usecaseMock.Verify(usecase => usecase.ExecuteAsync(It.Is<(string, string)>(p => p.Item1 == Username && p.Item2 == Password)), Times.Once);
     }
     /// <summary>
-/// ユーザー名未入力の場合、
-/// 400 BadRequestが返却されることを確認する。
-/// </summary>
-[TestMethod]
-public async Task Login_UsernameIsEmpty_ReturnsBadRequest()
-{
-    // Arrange
-    var usecaseMock = new Mock<ILoginUsecase>();
-
-    var controller = new AuthController(
-        usecaseMock.Object);
-
-    controller.ControllerContext = new ControllerContext
+    /// ユーザー名未入力の場合、
+    /// 400 BadRequestが返却されることを確認する。
+    /// </summary>
+    [TestMethod]
+    public async Task Login_UsernameIsEmpty_ReturnsBadRequest()
     {
-        HttpContext = new DefaultHttpContext()
-    };
+        // Arrange
+        var usecaseMock = new Mock<ILoginUsecase>();
 
-    controller.ModelState.AddModelError(
-        nameof(LoginRequest.Username),
-        "ユーザー名は必須項目です");
+        var controller = new AuthController(
+            usecaseMock.Object);
 
-    var request = new LoginRequest
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        controller.ModelState.AddModelError(
+            nameof(LoginRequest.Username),
+            "ユーザー名は必須項目です");
+
+        var request = new LoginRequest
+        {
+            Username = "",
+            Password = Password
+        };
+
+        // Act
+        var result = await controller.Login(request);
+
+        // Assert
+        Assert.IsInstanceOfType(
+            result.Result,
+            typeof(ObjectResult));
+
+        var badRequest =
+            result.Result as ObjectResult;
+
+        Assert.IsNotNull(badRequest);
+
+        Assert.AreEqual(
+            StatusCodes.Status400BadRequest,
+            badRequest.StatusCode);
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
+            Times.Never);
+    }
+    /// <summary>
+    /// パスワード未入力の場合、
+    /// 400 BadRequestが返却されることを確認する。
+    /// </summary>
+    /// <returns></returns>
+    [TestMethod]
+    public async Task Login_PasswordIsEmpty_ReturnsBadRequest()
     {
-        Username = "",
-        Password = Password
-    };
+        // Arrange
+        var usecaseMock = new Mock<ILoginUsecase>();
 
-    // Act
-    var result = await controller.Login(request);
+        var controller = new AuthController(
+            usecaseMock.Object);
 
-    // Assert
-    Assert.IsInstanceOfType(
-        result.Result,
-        typeof(ObjectResult));
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
 
-    var badRequest =
-        result.Result as ObjectResult;
+        controller.ModelState.AddModelError(
+            nameof(LoginRequest.Password),
+            "パスワードは必須項目です");
 
-    Assert.IsNotNull(badRequest);
+        var request = new LoginRequest
+        {
+            Username = Username,
+            Password = ""
+        };
 
-    Assert.AreEqual(
-        StatusCodes.Status400BadRequest,
-        badRequest.StatusCode);
+        // Act
+        var result = await controller.Login(request);
 
-    usecaseMock.Verify(
-        usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
-        Times.Never);
-}
-/// <summary>
-/// パスワード未入力の場合、
-/// 400 BadRequestが返却されることを確認する。
-/// </summary>
-/// <returns></returns>
-[TestMethod]
-public async Task Login_PasswordIsEmpty_ReturnsBadRequest()
-{
-    // Arrange
-    var usecaseMock = new Mock<ILoginUsecase>();
+        // Assert
+        Assert.IsInstanceOfType(
+            result.Result,
+            typeof(ObjectResult));
 
-    var controller = new AuthController(
-        usecaseMock.Object);
+        var badRequest =
+            result.Result as ObjectResult;
 
-    controller.ControllerContext = new ControllerContext
+        Assert.IsNotNull(badRequest);
+
+        Assert.AreEqual(
+            StatusCodes.Status400BadRequest,
+            badRequest.StatusCode);
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
+            Times.Never);
+    }
+    /// <summary>
+    /// ユーザー名とパスワードが未入力の場合、
+    /// 400 BadRequestが返却されることを確認する。
+    /// </summary>
+    /// <returns></returns>
+
+    [TestMethod]
+    public async Task Login_UsernameAndPasswordAreEmpty_ReturnsBadRequest()
     {
-        HttpContext = new DefaultHttpContext()
-    };
+        // Arrange
+        var usecaseMock = new Mock<ILoginUsecase>();
 
-    controller.ModelState.AddModelError(
-        nameof(LoginRequest.Password),
-        "パスワードは必須項目です");
+        var controller = new AuthController(
+            usecaseMock.Object);
 
-    var request = new LoginRequest
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
+
+        controller.ModelState.AddModelError(
+            nameof(LoginRequest.Username),
+            "ユーザー名は必須項目です");
+
+        controller.ModelState.AddModelError(
+            nameof(LoginRequest.Password),
+            "パスワードは必須項目です");
+
+        var request = new LoginRequest
+        {
+            Username = "",
+            Password = ""
+        };
+
+        // Act
+        var result = await controller.Login(request);
+
+        // Assert
+        Assert.IsInstanceOfType(
+            result.Result,
+            typeof(ObjectResult));
+
+        var badRequest =
+            result.Result as ObjectResult;
+
+        Assert.IsNotNull(badRequest);
+
+        Assert.AreEqual(
+            StatusCodes.Status400BadRequest,
+            badRequest.StatusCode);
+
+        usecaseMock.Verify(
+            usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
+            Times.Never);
+    }
+    /// <summary>
+    /// ログアウト時、
+    /// 200 OKが返却されることを確認する。
+    /// </summary>
+    [TestMethod]
+    public void Logout_ReturnsOk()
     {
-        Username = Username,
-        Password = ""
-    };
+        // Arrange
+        var usecaseMock = new Mock<ILoginUsecase>();
 
-    // Act
-    var result = await controller.Login(request);
+        var controller = new AuthController(
+            usecaseMock.Object);
 
-    // Assert
-    Assert.IsInstanceOfType(
-        result.Result,
-        typeof(ObjectResult));
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext()
+        };
 
-    var badRequest =
-        result.Result as ObjectResult;
+        // Act
+        var result = controller.Logout();
 
-    Assert.IsNotNull(badRequest);
+        // Assert
+        Assert.IsInstanceOfType(
+            result,
+            typeof(OkObjectResult));
 
-    Assert.AreEqual(
-        StatusCodes.Status400BadRequest,
-        badRequest.StatusCode);
+        var okResult = result as OkObjectResult;
 
-    usecaseMock.Verify(
-        usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
-        Times.Never);
-}
-/// <summary>
-/// ユーザー名とパスワードが未入力の場合、
-/// 400 BadRequestが返却されることを確認する。
-/// </summary>
-/// <returns></returns>
-
-[TestMethod]
-public async Task Login_UsernameAndPasswordAreEmpty_ReturnsBadRequest()
-{
-    // Arrange
-    var usecaseMock = new Mock<ILoginUsecase>();
-
-    var controller = new AuthController(
-        usecaseMock.Object);
-
-    controller.ControllerContext = new ControllerContext
-    {
-        HttpContext = new DefaultHttpContext()
-    };
-
-    controller.ModelState.AddModelError(
-        nameof(LoginRequest.Username),
-        "ユーザー名は必須項目です");
-
-    controller.ModelState.AddModelError(
-        nameof(LoginRequest.Password),
-        "パスワードは必須項目です");
-
-    var request = new LoginRequest
-    {
-        Username = "",
-        Password = ""
-    };
-
-    // Act
-    var result = await controller.Login(request);
-
-    // Assert
-    Assert.IsInstanceOfType(
-        result.Result,
-        typeof(ObjectResult));
-
-    var badRequest =
-        result.Result as ObjectResult;
-
-    Assert.IsNotNull(badRequest);
-
-    Assert.AreEqual(
-        StatusCodes.Status400BadRequest,
-        badRequest.StatusCode);
-
-    usecaseMock.Verify(
-        usecase => usecase.ExecuteAsync(It.IsAny<(string, string)>()),
-        Times.Never);
-}
-/// <summary>
-/// ログアウト時、
-/// 200 OKが返却されることを確認する。
-/// </summary>
-[TestMethod]
-public void Logout_ReturnsOk()
-{
-    // Arrange
-    var usecaseMock = new Mock<ILoginUsecase>();
-
-    var controller = new AuthController(
-        usecaseMock.Object);
-
-    controller.ControllerContext = new ControllerContext
-    {
-        HttpContext = new DefaultHttpContext()
-    };
-
-    // Act
-    var result = controller.Logout();
-
-    // Assert
-    Assert.IsInstanceOfType(
-        result,
-        typeof(OkObjectResult));
-
-    var okResult = result as OkObjectResult;
-
-    Assert.IsNotNull(okResult);
-}
+        Assert.IsNotNull(okResult);
+    }
 }

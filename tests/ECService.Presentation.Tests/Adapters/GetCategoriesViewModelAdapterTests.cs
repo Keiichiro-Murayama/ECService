@@ -36,7 +36,7 @@ public class GetCategoriesViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Categories);
-        Assert.AreEqual(3, result.Categories.Count);
+        Assert.HasCount(3, result.Categories);
 
         Assert.AreEqual(categories[0].CategoryUuid, result.Categories[0].CategoryUuid);
         Assert.AreEqual(categories[0].Name, result.Categories[0].Name);
@@ -63,7 +63,7 @@ public class GetCategoriesViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Categories);
-        Assert.AreEqual(0, result.Categories.Count);
+        Assert.IsEmpty(result.Categories);
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class GetCategoriesViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Categories);
-        Assert.AreEqual(1, result.Categories.Count);
+        Assert.HasCount(1, result.Categories);
 
         Assert.AreEqual(categories[0].CategoryUuid, result.Categories[0].CategoryUuid);
         Assert.AreEqual(categories[0].Name, result.Categories[0].Name);
