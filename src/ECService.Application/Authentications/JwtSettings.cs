@@ -25,5 +25,5 @@ public sealed class JwtSettings
     /// <summary>
     /// 有効期限(分単位)
     /// </summary>
-    public int ExpiresInMinutes { get; init; } = 60;
+    public int ExpiresInMinutes { get; init; } = 30;
 }
