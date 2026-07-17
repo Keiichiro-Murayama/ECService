@@ -272,7 +272,7 @@ public partial class RegisterProductControllerTests
             result,
             typeof(BadRequestObjectResult));
     }
- /// <summary>
+    /// <summary>
     /// UT-REA-013
     /// カテゴリ未入力
     /// </summary>

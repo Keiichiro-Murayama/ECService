@@ -54,7 +54,7 @@ public class GetUnregisteredEmployeesUsecaseTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(2, result.Count);
+        Assert.HasCount(2, result);
 
         Assert.AreEqual(
             "22222222-2222-2222-2222-222222222222",
@@ -91,7 +91,7 @@ public class GetUnregisteredEmployeesUsecaseTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(0, result.Count);
+        Assert.IsEmpty(result);
 
         _employeeRepositoryMock.Verify(
             repository => repository.SelectUnregisteredAsync(),

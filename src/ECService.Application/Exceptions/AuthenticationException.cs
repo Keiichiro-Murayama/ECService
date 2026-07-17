@@ -22,12 +22,12 @@ public class AuthenticationException : Exception
     {
         ErrorCode = errorCode;
     }
-    public AuthenticationException(string errorCode, string message, double remainingMinutes) 
+    public AuthenticationException(string errorCode, string message, double remainingMinutes)
             : base(message)
-        {
-            ErrorCode = errorCode;
-            RemainingMinutes = remainingMinutes;
-        }
+    {
+        ErrorCode = errorCode;
+        RemainingMinutes = remainingMinutes;
+    }
 
-    
+
 }

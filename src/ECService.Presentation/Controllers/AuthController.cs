@@ -49,13 +49,13 @@ public class AuthController : ControllerBase
 
             var response = new TokenResponse
             {
-              Token = result.AccessToken,
-              AccountUuid = result.EmployeeAccount.AccountUuid,
-              AccountName = result.EmployeeAccount.AccountName,
-              Message = "ログインに成功しました。"
+                Token = result.AccessToken,
+                AccountUuid = result.EmployeeAccount.AccountUuid,
+                AccountName = result.EmployeeAccount.AccountName,
+                Message = "ログインに成功しました。"
             };
 
-return Ok(response);
+            return Ok(response);
         }
         catch (AuthenticationException ex)
         {

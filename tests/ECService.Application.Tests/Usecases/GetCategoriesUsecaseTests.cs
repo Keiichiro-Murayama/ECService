@@ -48,7 +48,7 @@ public class GetCategoriesUsecaseTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(3, result.Count);
+        Assert.HasCount(3, result);
 
         CollectionAssert.AreEqual(
             categories.Select(c => c.CategoryUuid).ToList(),
@@ -80,7 +80,7 @@ public class GetCategoriesUsecaseTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(0, result.Count);
+        Assert.IsEmpty(result);
 
         _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
     }
@@ -89,19 +89,19 @@ public class GetCategoriesUsecaseTests
     /// Repositoryで例外が発生した場合、例外が送出されること
     /// </summary>
     [TestMethod]
-public async Task ExecuteAsync_RepositoryThrowsException()
-{
-    // Arrange
-    _repositoryMock
-        .Setup(x => x.SelectAllAsync())
-        .ThrowsAsync(new Exception("DB Error"));
-
-    // Act & Assert
-    await Assert.ThrowsExactlyAsync<Exception>(async () =>
+    public async Task ExecuteAsync_RepositoryThrowsException()
     {
-        await _usecase.ExecuteAsync();
-    });
+        // Arrange
+        _repositoryMock
+            .Setup(x => x.SelectAllAsync())
+            .ThrowsAsync(new Exception("DB Error"));
 
-    _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
-}
+        // Act & Assert
+        await Assert.ThrowsExactlyAsync<Exception>(async () =>
+        {
+            await _usecase.ExecuteAsync();
+        });
+
+        _repositoryMock.Verify(x => x.SelectAllAsync(), Times.Once);
+    }
 }

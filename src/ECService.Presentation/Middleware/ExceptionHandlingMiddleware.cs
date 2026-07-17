@@ -37,7 +37,7 @@ public class ExceptionHandlingMiddleware
         catch (InternalException ex)
         {
             // InternalException(内部エラー)、StackTraceも含めてログ出力
-            _logger.LogError(ex.Message, ex , ex.StackTrace);
+            _logger.LogError(ex.Message, ex, ex.StackTrace);
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             context.Response.ContentType = "application/json";
             // クライアントには詳細を隠してシンプルなレスポンスを返す

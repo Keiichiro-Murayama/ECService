@@ -47,14 +47,14 @@ namespace ECService.Infrastructure.Entities
         [MaxLength(200)]
         public string Password { get; set; } = string.Empty;
         public EmployeeEntity Employee { get; set; } = null!;
-        
+
         [Column("lockoutend")]
         public DateTime? LockoutEnd { get; set; }
 
         [Required]
         [Column("accessfailedcount")]
         public int AccessFailedCount { get; set; } = 0;
-        
-                
+
+
     }
 }

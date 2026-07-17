@@ -10,19 +10,19 @@ namespace ECService.Application.Usecases.Imps;
 public class GetCategoriesUsecase : IGetCategoriesUsecase
 {
 
-   private readonly IUnitOfWork _unitOfWork;
-   private readonly IProductCategoryRepository _productCategoryRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IProductCategoryRepository _productCategoryRepository;
 
-   public GetCategoriesUsecase(
-        IUnitOfWork unitOfWork,
-        IProductCategoryRepository productCategoryRepository)
+    public GetCategoriesUsecase(
+         IUnitOfWork unitOfWork,
+         IProductCategoryRepository productCategoryRepository)
     {
-        _unitOfWork = unitOfWork; 
+        _unitOfWork = unitOfWork;
         _productCategoryRepository = productCategoryRepository;
     }
 
- 
-     /// <summary>
+
+    /// <summary>
     /// すべての商品カテゴリを取得する
     /// クライアント側の[入力画面]で利用するプルダウンを作成するため
     /// </summary>
@@ -34,4 +34,3 @@ public class GetCategoriesUsecase : IGetCategoriesUsecase
 
 
 }
-    

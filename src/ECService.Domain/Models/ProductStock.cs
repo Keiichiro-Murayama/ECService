@@ -52,11 +52,11 @@ public class ProductStock : Entity
         return new ProductStock(stockUuid, quantity);
     }
 
-public static ProductStock Restore(string stockUuid,int quantity)
+    public static ProductStock Restore(string stockUuid, int quantity)
     {
         ValidateQuantity(quantity);
 
-        return new ProductStock(stockUuid,quantity);
+        return new ProductStock(stockUuid, quantity);
     }
 
     /// <summary>

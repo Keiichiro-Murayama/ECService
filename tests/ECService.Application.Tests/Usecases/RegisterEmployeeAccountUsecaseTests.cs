@@ -185,7 +185,7 @@ public class RegisterEmployeeAccountUsecaseTests
         Assert.AreEqual(
             "指定された社員IDが存在しません。",
             exception.Message);
-     
+
     }
 
     [TestMethod(
