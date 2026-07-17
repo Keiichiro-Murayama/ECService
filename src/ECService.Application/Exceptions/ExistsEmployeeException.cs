@@ -4,8 +4,10 @@ namespace ECService.Application.Exceptions;
 /// </summary>
 public class ExistsEmployeeException : Exception
 {
-    public ExistsEmployeeException(string message) : 
-    base(message) { }
-    public ExistsEmployeeException(string message, Exception innerException) : 
-    base(message, innerException) { }
+    public ExistsEmployeeException(string message) :
+    base(message)
+    { }
+    public ExistsEmployeeException(string message, Exception innerException) :
+    base(message, innerException)
+    { }
 }

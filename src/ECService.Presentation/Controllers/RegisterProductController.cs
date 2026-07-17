@@ -48,7 +48,7 @@ public class RegisterProductController : ControllerBase
     [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー / 入力値エラー")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "重複エラー")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-    [Authorize]
+
 
     public async Task<IActionResult> RegisterProduct(
         [FromBody] RegisterProductRequest request)
@@ -86,7 +86,7 @@ public class RegisterProductController : ControllerBase
         {
             return BadRequest(new
             {
-                message = "productName、price、stock、categoryUuidを入力してください。"
+                message = "入力値に不備があります。"
             });
         }
 
@@ -114,6 +114,7 @@ public class RegisterProductController : ControllerBase
                 new
                 {
                     productUuid = product.ProductUuid,
+                    name = product.Name,
                     message = "商品を登録しました。"
                 });
         }

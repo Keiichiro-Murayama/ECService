@@ -25,7 +25,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         // 開発環境のポート（例: 5245、あるいはフロントエンドが動作しているURL）を指定します
-        policy.WithOrigins("http://127.0.0.1:5245", "http://localhost:5245") 
+        policy.WithOrigins("http://127.0.0.1:5245", "http://localhost:5245")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials(); // Cookie（access_token）の送受信を許可するために必須

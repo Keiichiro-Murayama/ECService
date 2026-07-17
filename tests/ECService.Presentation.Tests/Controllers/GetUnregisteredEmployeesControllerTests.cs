@@ -74,7 +74,7 @@ public class GetUnregisteredEmployeesControllerTests
 
         Assert.IsNotNull(response);
         Assert.IsNotNull(response.Employees);
-        Assert.AreEqual(2, response.Employees.Count);
+        Assert.HasCount(2, response.Employees);
 
         Assert.AreEqual(
             "22222222-2222-2222-2222-222222222222",
@@ -121,7 +121,7 @@ public class GetUnregisteredEmployeesControllerTests
 
         Assert.IsNotNull(response);
         Assert.IsNotNull(response.Employees);
-        Assert.AreEqual(0, response.Employees.Count);
+        Assert.IsEmpty(response.Employees);
 
         _usecaseMock.Verify(
             usecase => usecase.ExecuteAsync(),

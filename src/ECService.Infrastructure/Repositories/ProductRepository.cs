@@ -277,6 +277,10 @@ public class ProductRepository : IProductRepository
                 product.ProductUuid,
                 "商品UUIDの形式が不正です。");
 
+            var parsedCategoryUuid = ConvertToGuid(
+                product.ProductCategory.CategoryUuid,
+                "商品カテゴリUUIDの形式が不正です。");
+
             var productEntity = await _context.Products
                 .SingleOrDefaultAsync(p =>
                     p.ProductUuid == parsedProductUuid &&
@@ -287,17 +291,14 @@ public class ProductRepository : IProductRepository
                 return false;
             }
 
-            var parsedCategoryUuid = ConvertToGuid(
-                product.ProductCategory.CategoryUuid,
-                "商品カテゴリUUIDの形式が不正です。");
-
             var categoryEntity = await _context.ProductCategories
                 .SingleOrDefaultAsync(c =>
                     c.CategoryUuid == parsedCategoryUuid);
 
             if (categoryEntity is null)
             {
-                throw new InternalException("指定された商品カテゴリが存在しません。");
+                throw new InternalException(
+                    "指定された商品カテゴリが存在しません。");
             }
 
             productEntity.Name = product.Name;

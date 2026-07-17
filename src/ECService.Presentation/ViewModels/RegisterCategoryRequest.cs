@@ -9,7 +9,7 @@ public class RegisterCategoryRequest
     /// 商品名
     /// </summary>
     [Required(ErrorMessage = "カテゴリ名を入力してください")]
-    [StringLength(30,ErrorMessage = "カテゴリ名は30文字以内で入力してください。")]
+    [StringLength(30, ErrorMessage = "カテゴリ名は30文字以内で入力してください。")]
     [Display(Name = "カテゴリ名")]
     public string CategoryName { get; set; } = string.Empty;
 }

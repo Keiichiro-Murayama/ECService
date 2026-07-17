@@ -231,14 +231,14 @@ public class Product : Entity
     private static void ValidatePrice(int price)
     {
         if (price < PriceMinValue)
-    {
-        throw new DomainException("価格は0円以上で入力してください", nameof(price));
-    }
+        {
+            throw new DomainException("価格は0円以上で入力してください", nameof(price));
+        }
 
-    if (price > PriceMaxValue)
-    {
-        throw new DomainException("価格は100万円以下で入力してください", nameof(price));
-    }
+        if (price > PriceMaxValue)
+        {
+            throw new DomainException("価格は100万円以下で入力してください", nameof(price));
+        }
     }
 
     /// <summary>

@@ -44,7 +44,7 @@ public class UnregisteredEmployeesViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Employees);
-        Assert.AreEqual(2, result.Employees.Count);
+        Assert.HasCount(2, result.Employees);
 
         Assert.AreEqual(
             "22222222-2222-2222-2222-222222222222",
@@ -75,6 +75,6 @@ public class UnregisteredEmployeesViewModelAdapterTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNotNull(result.Employees);
-        Assert.AreEqual(0, result.Employees.Count);
+        Assert.IsEmpty(result.Employees);
     }
 }
