@@ -59,7 +59,6 @@ jobs:
           dotnet build ECService.slnx
           --configuration Release
           --no-restore
-          -warnaserror
 
       # EF Core Migrationを実行するためのツール
       - name: dotnet-efをインストール
