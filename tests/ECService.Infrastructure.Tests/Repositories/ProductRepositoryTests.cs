@@ -24,7 +24,7 @@ public class ProductRepositoryTests
     {
         var config = new ConfigurationBuilder()
      .SetBasePath(AppContext.BaseDirectory)
-     .AddJsonFile("appsettings.json", optional: false)
+     .AddJsonFile("appsettingsTests.json", optional: false)
      .Build();
 
         var connectionString =
@@ -116,7 +116,7 @@ public class ProductRepositoryTests
         var product4 = products.Single(
             product => product.ProductUuid ==
                 "8edb1714-54ad-4349-a64c-0341466ac94a");
-        Assert.AreEqual("8edb1714-54ad-4349-a64c-0341466ac94a", product4.Name);
+        Assert.AreEqual("Type-C ハブ 6in1", product4.Name);
         Assert.AreEqual(3980, product4.Price);
         Assert.AreEqual(0, product4.DeleteFlg);
 
@@ -606,7 +606,7 @@ public class ProductRepositoryTests
     {
         // Arrange
         const string productUuid =
-            "ここにDBに存在する未削除商品のUUID";
+            "11e6d2e9-e24d-4078-9552-3c5efaf62fdf";
 
         var strategy = _dbContext!.Database.CreateExecutionStrategy();
 
