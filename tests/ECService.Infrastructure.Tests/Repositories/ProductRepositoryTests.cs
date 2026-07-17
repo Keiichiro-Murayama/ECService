@@ -607,8 +607,8 @@ public class ProductRepositoryTests
     public async Task DeleteAsync_WhenProductExists_ShouldReturnTrueAndNotBeSelectable()
     {
         // Arrange
-        const string productUuid =
-            "11e6d2e9-e24d-4078-9552-3c5efaf62fdf";
+        var categoryUuid = Guid.NewGuid();
+        var productUuid = Guid.NewGuid();
 
         var strategy = _dbContext!.Database.CreateExecutionStrategy();
 
@@ -619,26 +619,55 @@ public class ProductRepositoryTests
 
             try
             {
+                var categoryEntity = new ProductCategoryEntity
+                {
+                    CategoryUuid = categoryUuid,
+                    Name = "テストカテゴリ"
+                };
+
+                _dbContext.ProductCategories.Add(categoryEntity);
+                await _dbContext.SaveChangesAsync();
+
+                var productEntity = new ProductEntity
+                {
+                    ProductUuid = productUuid,
+                    Name = "削除テスト商品",
+                    Price = 1000,
+                    ImageUrl = "https://example.com/test.png",
+                    ProductCategoryId = categoryEntity.Id,
+                    DeleteFlag = 0
+                };
+
+                _dbContext.Products.Add(productEntity);
+                await _dbContext.SaveChangesAsync();
+
+                var stockEntity = new ProductStockEntity
+                {
+                    ProductId = productEntity.Id,
+                    Quantity = 10
+                };
+
+                _dbContext.ProductStocks.Add(stockEntity);
+                await _dbContext.SaveChangesAsync();
+
                 // Act
-                var result =
-                    await _productRepository.DeleteAsync(productUuid);
+                var result = await _productRepository
+                    .DeleteAsync(productUuid.ToString());
 
                 // Assert
                 Assert.IsTrue(result);
 
-                // 論理削除後はSelectByUuidAsyncで取得できない
-                var deletedProduct =
-                    await _productRepository.SelectByUuidAsync(productUuid);
+                var deletedProduct = await _productRepository
+                    .SelectByUuidAsync(productUuid.ToString());
 
                 Assert.IsNull(deletedProduct);
 
-                // DB上ではDeleteFlagが1になっていることを確認
-                var productEntity = await _dbContext!.Products
+                var deletedEntity = await _dbContext.Products
                     .AsNoTracking()
                     .SingleAsync(product =>
-                        product.ProductUuid == Guid.Parse(productUuid));
+                        product.ProductUuid == productUuid);
 
-                Assert.AreEqual(1, productEntity.DeleteFlag);
+                Assert.AreEqual(1, deletedEntity.DeleteFlag);
             }
             finally
             {
