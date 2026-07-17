@@ -48,7 +48,7 @@ public class RegisterCategoryController : ControllerBase
     [SwaggerResponse(StatusCodes.Status400BadRequest, "入力値エラー / 未入力エラー")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "カテゴリ名が既に存在する場合")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-    [Authorize]
+    
 
     public async Task<IActionResult> Register(
         [FromBody] RegisterCategoryRequest request)
@@ -59,7 +59,7 @@ public class RegisterCategoryController : ControllerBase
         {
             return BadRequest(new
             {
-                message = "カテゴリ名を入力してください。"
+                message = "入力値に不備があります。"
             });
         }
 
@@ -92,7 +92,7 @@ public class RegisterCategoryController : ControllerBase
 
             return BadRequest(new
             {
-                message = "カテゴリ名を入力してください。"
+                message = "入力値に不備があります。"
             });
         }
         catch (InternalException)
