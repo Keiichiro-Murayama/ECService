@@ -107,16 +107,17 @@ public class ProductStockTests
     // =========================================================
 
     [TestMethod]
-    [DataRow(-1)]
-    [DataRow(1001)]
+    [DataRow(-1, "在庫数は0個以上で入力してください")]
+    [DataRow(1001, "在庫数は1000個以下で入力してください")]
     public void Create_在庫数が範囲外の場合_DomainExceptionが発生する(
-        int quantity)
+        int quantity,
+    string expectedMessage)
     {
         // Act & Assert
         AssertDomainException(
             () => ProductStock.Create(quantity),
-            "在庫数は1000個以下で入力してください",
-            "quantity");
+            expectedMessage,
+        "quantity");
     }
 
     // =========================================================
@@ -175,18 +176,19 @@ public class ProductStockTests
     }
 
     [TestMethod]
-    [DataRow(-1)]
-    [DataRow(1001)]
+    [DataRow(-1, "在庫数は0個以上で入力してください")]
+    [DataRow(1001, "在庫数は1000個以下で入力してください")]
     public void Restore_在庫数が範囲外の場合_DomainExceptionが発生する(
-        int quantity)
+        int quantity,
+    string expectedMessage)
     {
         // Act & Assert
         AssertDomainException(
             () => ProductStock.Restore(
                 "44444444-4444-4444-4444-444444444444",
                 quantity),
-            "在庫数は1000個以下で入力してください",
-            "quantity");
+            expectedMessage,
+        "quantity");
     }
 
     // =========================================================
@@ -213,15 +215,15 @@ public class ProductStockTests
     // =========================================================
 
     [TestMethod]
-    [DataRow(-1)]
-    [DataRow(1001)]
+    [DataRow(-1, "在庫数は0個以上で入力してください")]
+    [DataRow(1001, "在庫数は1000個以下で入力してください")]
     public void ValidateQuantity_在庫数が範囲外の場合_DomainExceptionが発生する(
-        int quantity)
+    int quantity,
+    string expectedMessage)
     {
-        // Act & Assert
         AssertDomainException(
             () => ProductStock.ValidateQuantity(quantity),
-            "在庫数は1000個以下で入力してください",
+            expectedMessage,
             "quantity");
     }
 
@@ -269,10 +271,10 @@ public class ProductStockTests
     // =========================================================
 
     [TestMethod]
-    [DataRow(-1)]
-    [DataRow(1001)]
+    [DataRow(-1, "在庫数は0個以上で入力してください")]
+    [DataRow(1001, "在庫数は1000個以下で入力してください")]
     public void ChangeQuantity_在庫数が範囲外の場合_例外が発生して元の値が保持される(
-        int quantity)
+        int quantity, string expectedMessage)
     {
         // Arrange
         var productStock =
@@ -283,9 +285,9 @@ public class ProductStockTests
 
         // Act & Assert
         AssertDomainException(
-            () => productStock.ChangeQuantity(quantity),
-            "在庫数は1000個以下で入力してください",
-            "quantity");
+      () => ProductStock.Create(quantity),
+      expectedMessage,
+      "quantity");
 
         Assert.AreEqual(
             originalQuantity,
