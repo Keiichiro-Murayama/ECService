@@ -1,17 +1,14 @@
 name: .NET ECService CD
 
-
 on:
   workflow_run:
-      #ここはCIファイル内の「name:」と完全一致させる
-   workflows:
+    workflows:
       - "ECService Backend CI"
-   types:
-     - completed
-   branches:
-     - dev
-     - main
-
+    types:
+      - completed
+    branches:
+      - dev
+      - main
 
 jobs:
   deploy:
@@ -23,19 +20,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # workflow_runを発生させた、CI検証済みのコミットを取得する
+      # CIで検証されたコミットを取得
       - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha}}
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      # プロジェクトは.NET 10なので10を指定
+      # .NET 10 SDKを準備
       - name: .NET SDKをセットアップ
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
-      # GitHub Runner上でLinux向けに発行
+      # Linux向けにアプリを発行
       - name: アプリケーションを発行
         run: |
           dotnet publish src/ECService.Presentation/ECService.Presentation.csproj \
@@ -44,17 +41,21 @@ jobs:
             --self-contained false \
             --output ./publish
 
-      # VMの初期設定と、古い配置ファイルの削除
+      # VM側のデプロイ先を準備
       - name: VMのデプロイ先を準備
         uses: appleboy/ssh-action@v1
         with:
-         host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-         username: ${{ secrets.ECSERVICE_AZURE_USER }}
-         key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-         script: |
-          set -e
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          script: |
+            set -e
 
             echo "=== VM preparation ==="
+
+            sudo apt-get update
+            sudo apt-get install -y nginx aspnetcore-runtime-10.0
+
             echo "=== Installed runtimes ==="
             dotnet --list-runtimes
 
@@ -62,7 +63,7 @@ jobs:
             sudo mkdir -p /var/www/ecservice
             sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
 
-            # 転送前に古いファイルを削除
+            echo "=== Removing old files ==="
             rm -rf /var/www/ecservice/*
 
       # publishフォルダの中身をVMへ転送
@@ -84,26 +85,21 @@ jobs:
           DB_CONNECTION_STRING: ${{ secrets.ECSERVICE_DB_CONNECTION_STRING }}
           SERVICE_USER: ${{ secrets.ECSERVICE_AZURE_USER }}
         with:
-         host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-         username: ${{ secrets.ECSERVICE_AZURE_USER }}
-         key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-         script: |
-          set -e
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
 
-          echo "=== VM preparation ==="
+          # envで定義した値をSSH先へ渡す
+          envs: DB_CONNECTION_STRING,SERVICE_USER
 
-          sudo apt-get update
-          sudo apt-get install -y nginx aspnetcore-runtime-10.0
+          script: |
+            set -e
 
-          dotnet --list-runtimes
-
-          sudo mkdir -p /var/www/ecservice
-          sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
-          rm -rf /var/www/ecservice/*
+            echo "=== Checking deployment files ==="
+            test -f /var/www/ecservice/ECService.Presentation.dll
 
             echo "=== Creating environment file ==="
 
-            # DB接続文字列をsystemdの環境ファイルとして保存
             sudo install -m 600 /dev/null /etc/ecservice.env
 
             sudo env DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
@@ -160,7 +156,8 @@ jobs:
             }
             EOF
 
-            # Nginx設定を有効化
+            echo "=== Enabling Nginx configuration ==="
+
             sudo ln -sfn \
               /etc/nginx/sites-available/ecservice \
               /etc/nginx/sites-enabled/ecservice
@@ -171,6 +168,7 @@ jobs:
             sudo nginx -t
 
             echo "=== Restarting services ==="
+
             sudo systemctl daemon-reload
             sudo systemctl enable ecservice.service
             sudo systemctl restart ecservice.service
@@ -183,6 +181,9 @@ jobs:
 
             echo "=== Local API check ==="
             sleep 5
-            curl --fail --show-error http://127.0.0.1:5000/ || true
+
+            curl --fail --show-error \
+              --max-time 10 \
+              http://127.0.0.1:5000/ || true
 
             echo "=== Deployment completed ==="
