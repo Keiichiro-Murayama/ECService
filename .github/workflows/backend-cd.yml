@@ -83,13 +83,16 @@ jobs:
       - name: APIサービスを起動
         uses: appleboy/ssh-action@v1
         env:
-          DB_CONNECTION_STRING: ${{ secrets.AZURE_DB_HOST }}
+          AZURE_DB_HOST: ${{ secrets.AZURE_DB_HOST }}
+          AZURE_DB_NAME: ${{ secrets.AZURE_DB_NAME }}
+          AZURE_DB_USER: ${{ secrets.AZURE_DB_USER }}
+          AZURE_DB_PASSWORD: ${{ secrets.AZURE_DB_PASSWORD }}
           SERVICE_USER: ${{ secrets.ECSERVICE_AZURE_USER }}
         with:
           host: ${{ secrets.ECSERVICE_AZURE_HOST }}
           username: ${{ secrets.ECSERVICE_AZURE_USER }}
           key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-          envs: DB_CONNECTION_STRING,SERVICE_USER
+          envs: AZURE_DB_HOST,AZURE_DB_NAME,AZURE_DB_USER,AZURE_DB_PASSWORD,SERVICE_USER
           script: |
             set -e
 
@@ -97,11 +100,14 @@ jobs:
 
             sudo install -m 600 /dev/null /etc/ecservice.env
 
-            sudo env DB_CONNECTION_STRING="$DB_CONNECTION_STRING" \
+            sudo env \
+              AZURE_DB_HOST="$AZURE_DB_HOST" \
+              AZURE_DB_NAME="$AZURE_DB_NAME" \
+              AZURE_DB_USER="$AZURE_DB_USER" \
+              AZURE_DB_PASSWORD="$AZURE_DB_PASSWORD" \
               bash -c 'printf "%s\n" \
-              "ConnectionStrings__ECServiceDB=${DB_CONNECTION_STRING}" \
+             "ConnectionStrings__ECServiceDB=Host=${AZURE_DB_HOST};Port=5432;Database=${AZURE_DB_NAME};Username=${AZURE_DB_USER};Password=${AZURE_DB_PASSWORD};SSL Mode=Require;Trust Server Certificate=true" \
               > /etc/ecservice.env'
-
             echo "=== Configuring systemd ==="
 
             sudo tee /etc/systemd/system/ecservice.service > /dev/null <<EOF
