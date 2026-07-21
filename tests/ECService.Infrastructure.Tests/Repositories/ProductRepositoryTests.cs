@@ -254,7 +254,7 @@ public class ProductRepositoryTests
         Assert.IsEmpty(products);
     }
 
-    [TestMethod(DisplayName = "カテゴリUUIDの形式が不正な場合はInternalExceptionをスローする")]
+    [TestMethod(DisplayName = "カテゴリ取得のときにカテゴリUUIDの形式が不正な場合はInternalExceptionをスローする")]
     public async Task SelectByCategoryAsync_WhenCategoryUuidIsInvalid_ShouldThrowInternalException()
     {
         // Act
@@ -392,7 +392,7 @@ public class ProductRepositoryTests
             exception.Message);
     }
 
-    [TestMethod(DisplayName = "商品カテゴリUUIDの形式が不正な場合はInternalExceptionをスローする")]
+    [TestMethod(DisplayName = "登録時に商品カテゴリUUIDの形式が不正な場合はInternalExceptionをスローする")]
     public async Task CreateAsync_WhenCategoryUuidIsInvalid_ShouldThrowInternalException()
     {
         // Arrange

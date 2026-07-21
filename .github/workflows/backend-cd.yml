@@ -1,6 +1,5 @@
 name: .NET ECService CD
 
-
 on:
   workflow_run:
       #ここはCIファイル内の「name:」と完全一致させる
@@ -22,19 +21,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # workflow_runを発生させた、CI検証済みのコミットを取得する
+      # CIで検証されたコミットを取得
       - name: リポジトリをチェックアウト
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha}}
+          ref: ${{ github.event.workflow_run.head_sha }}
 
-      # プロジェクトは.NET 10なので10を指定
+      # .NET 10 SDKを準備
       - name: .NET SDKをセットアップ
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
-      # GitHub Runner上でLinux向けに発行
+      # Linux向けにアプリを発行
       - name: アプリケーションを発行
         run: |
           dotnet publish src/ECService.Presentation/ECService.Presentation.csproj \
@@ -43,30 +42,18 @@ jobs:
             --self-contained false \
             --output ./publish
 
-      # VMの初期設定と、古い配置ファイルの削除
+      # VM側のデプロイ先を準備
       - name: VMのデプロイ先を準備
         uses: appleboy/ssh-action@v1
         with:
-         host: ${{ secrets.ECSERVICE_AZURE_HOST }}
-         username: ${{ secrets.ECSERVICE_AZURE_USER }}
-         key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-         script: |
-          set -e
-  
-          echo "=== VM preparation ==="
-
-          sudo apt-get update
-          sudo apt-get install -y nginx aspnetcore-runtime-10.0
-
-          dotnet --list-runtimes
-
-          sudo mkdir -p /var/www/ecservice
-          sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
-          rm -rf /var/www/ecservice/*
+          host: ${{ secrets.ECSERVICE_AZURE_HOST }}
+          username: ${{ secrets.ECSERVICE_AZURE_USER }}
+          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
+          script: |
+            set -e
 
             echo "=== VM preparation ==="
 
-            # 初回実行時に必要なソフトウェアを準備
             sudo apt-get update
             sudo apt-get install -y nginx aspnetcore-runtime-10.0
 
@@ -77,7 +64,7 @@ jobs:
             sudo mkdir -p /var/www/ecservice
             sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
 
-            # 転送前に古いファイルを削除
+            echo "=== Removing old files ==="
             rm -rf /var/www/ecservice/*
 
       # publishフォルダの中身をVMへ転送
@@ -174,6 +161,7 @@ jobs:
             sudo nginx -t
 
             echo "=== Restarting services ==="
+
             sudo systemctl daemon-reload
             sudo systemctl enable ecservice.service
             sudo systemctl restart ecservice.service

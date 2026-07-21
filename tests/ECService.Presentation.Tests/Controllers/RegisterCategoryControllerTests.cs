@@ -176,7 +176,7 @@ public class RegisterCategoryControllerTests
 
 
         Assert.AreEqual(
-            "カテゴリ名を入力してください。",
+           "入力値に不備があります。",
             message);
 
 
