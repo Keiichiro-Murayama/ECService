@@ -7,7 +7,7 @@ on:
    workflows:
       - "ECService Backend CI"
    types:
-   - completed
+     - completed
    branches:
      - dev
      - main
@@ -18,7 +18,7 @@ jobs:
     name: Azure VMへデプロイ
 
     # CIが成功した場合だけデプロイする
-    #f: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
@@ -53,24 +53,8 @@ jobs:
          key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
          script: |
           set -e
-  
-          echo "=== VM preparation ==="
-
-          sudo apt-get update
-          sudo apt-get install -y nginx aspnetcore-runtime-10.0
-
-          dotnet --list-runtimes
-
-          sudo mkdir -p /var/www/ecservice
-          sudo chown -R "$(whoami)":"$(whoami)" /var/www/ecservice
-          rm -rf /var/www/ecservice/*
 
             echo "=== VM preparation ==="
-
-            # 初回実行時に必要なソフトウェアを準備
-            sudo apt-get update
-            sudo apt-get install -y nginx aspnetcore-runtime-10.0
-
             echo "=== Installed runtimes ==="
             dotnet --list-runtimes
 
