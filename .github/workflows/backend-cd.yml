@@ -5,10 +5,11 @@ on:
   workflow_run:
       #ここはCIファイル内の「name:」と完全一致させる
    workflows:
-      - ".NET CI/CD"
+      - "ECService Backend CI"
    types:
    - completed
    branches:
+     - dev
      - main
 
 
