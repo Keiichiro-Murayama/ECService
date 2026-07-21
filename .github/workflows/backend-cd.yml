@@ -2,13 +2,14 @@ name: .NET ECService CD
 
 on:
   workflow_run:
-    workflows:
+      #ここはCIファイル内の「name:」と完全一致させる
+   workflows:
       - "ECService Backend CI"
-    types:
-      - completed
-    branches:
-      - dev
-      - main
+   types:
+   - completed
+   branches:
+     - main
+
 
 jobs:
   deploy:
@@ -82,21 +83,15 @@ jobs:
       - name: APIサービスを起動
         uses: appleboy/ssh-action@v1
         env:
-          DB_CONNECTION_STRING: ${{ secrets.ECSERVICE_DB_CONNECTION_STRING }}
+          DB_CONNECTION_STRING: ${{ secrets.AZURE_DB_HOST }}
           SERVICE_USER: ${{ secrets.ECSERVICE_AZURE_USER }}
         with:
           host: ${{ secrets.ECSERVICE_AZURE_HOST }}
           username: ${{ secrets.ECSERVICE_AZURE_USER }}
           key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-
-          # envで定義した値をSSH先へ渡す
           envs: DB_CONNECTION_STRING,SERVICE_USER
-
           script: |
             set -e
-
-            echo "=== Checking deployment files ==="
-            test -f /var/www/ecservice/ECService.Presentation.dll
 
             echo "=== Creating environment file ==="
 
@@ -156,8 +151,6 @@ jobs:
             }
             EOF
 
-            echo "=== Enabling Nginx configuration ==="
-
             sudo ln -sfn \
               /etc/nginx/sites-available/ecservice \
               /etc/nginx/sites-enabled/ecservice
@@ -181,9 +174,17 @@ jobs:
 
             echo "=== Local API check ==="
             sleep 5
+            test -f /var/www/ecservice/ECService.Presentation.dll
+            curl --fail --show-error \
+              http://127.0.0.1:5000/
+
+            echo "=== Deployment completed ==="
+            echo "=== Local API check ==="
+            sleep 5
+
+            test -f /var/www/ecservice/ECService.Presentation.dll
 
             curl --fail --show-error \
-              --max-time 10 \
-              http://127.0.0.1:5000/ || true
+            http://127.0.0.1:5000/
 
             echo "=== Deployment completed ==="
