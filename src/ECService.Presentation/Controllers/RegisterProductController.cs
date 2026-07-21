@@ -48,7 +48,7 @@ public class RegisterProductController : ControllerBase
     [SwaggerResponse(StatusCodes.Status400BadRequest, "未入力エラー / 入力値エラー")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "重複エラー")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-
+    [Authorize]
 
     public async Task<IActionResult> RegisterProduct(
         [FromBody] RegisterProductRequest request)

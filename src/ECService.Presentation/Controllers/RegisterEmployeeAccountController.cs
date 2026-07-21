@@ -45,7 +45,7 @@ public class RegisterEmployeeAccountController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "指定された社員IDが存在しない")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "アカウント名または社員のアカウントが既に存在する場合")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-    [Authorize]
+    // [Authorize]
 
     public async Task<IActionResult> Register(
         [FromBody, SwaggerRequestBody("担当者アカウント登録用Request", Required = true)]

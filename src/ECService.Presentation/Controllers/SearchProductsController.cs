@@ -16,7 +16,6 @@ namespace ECService.Presentation.Controllers;
 /// 商品検索APIを提供するController
 /// </summary>
 [ApiController]
-[Authorize]
 [Route("api/admin/products")]
 public class SearchProductsController : ControllerBase
 {
@@ -64,6 +63,7 @@ public class SearchProductsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Authorize]
     public async Task<ActionResult<List<ProductsItem>>> Search(
         [FromQuery] string? categoryUuid)
     {
