@@ -53,29 +53,9 @@ public class RegisterProductController : ControllerBase
     public async Task<IActionResult> RegisterProduct(
         [FromBody] RegisterProductRequest request)
     {
-        //石原:追加 request自体がnullの場合は未入力エラーとして返す
-        if (request is null)
-        {
-            return BadRequest(new
-            {
-                message = "productName、price、stock、categoryUuidを入力してください。"
-            });
-        }
-
         if (!ModelState.IsValid)
         {
-            if (HasRequiredError())
-            {
-                return BadRequest(new
-                {
-                    message = "productName、price、stock、categoryUuidを入力してください。"
-                });
-            }
-
-            return BadRequest(new
-            {
-                message = "入力値に不備があります。"
-            });
+            return ValidationError();
         }
 
         //石原:追加 空白だけの入力やnullable項目の未入力をControllerで判定する
@@ -93,10 +73,11 @@ public class RegisterProductController : ControllerBase
         //石原:追加 categoryUuidの形式チェックはAdapterではなくControllerで行う
         if (!Guid.TryParse(request.CategoryUuid, out _))
         {
-            return BadRequest(new
-            {
-                message = "入力値に不備があります。"
-            });
+            ModelState.AddModelError(
+                nameof(request.CategoryUuid),
+                "カテゴリUUIDの形式が不正です。");
+
+            return ValidationError();
         }
 
         try
@@ -163,22 +144,22 @@ public class RegisterProductController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// 必須項目の未入力エラーがあるか判定する
-    /// </summary>
-    /// <returns>true: 未入力エラーあり false: 未入力エラーなし</returns>
-    private bool HasRequiredError()
-    {
-        var requiredMessages = new[]
-        {
-            "商品名を入力してください",
-            "価格を入力してください",
-            "在庫数を入力してください",
-            "カテゴリを選択してください"
-        };
 
-        return ModelState.Values
-            .SelectMany(value => value.Errors)
-            .Any(error => requiredMessages.Contains(error.ErrorMessage));
+
+    /// <summary>
+    /// バリデーションエラー時のレスポンスを返す
+    /// </summary>
+    /// <returns></returns>
+    private IActionResult ValidationError()
+    {
+        string message = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .FirstOrDefault() ?? "入力値に不備があります。";
+
+        return BadRequest(new
+        {
+            message
+        });
     }
 }

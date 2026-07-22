@@ -42,6 +42,7 @@ public class RegisterProductRequest
     /// 画像URL
     /// </summary>
     [Required(ErrorMessage = "画像をアップロードしてください")]
+    [Url(ErrorMessage = "画像URLの形式が正しくありません")]
     [Display(Name = "画像")]
     public string ImageUrl { get; set; } = string.Empty;
 }

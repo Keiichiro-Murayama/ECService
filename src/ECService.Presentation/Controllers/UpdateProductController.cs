@@ -34,7 +34,7 @@ public class UpdateProductController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return ValidationError();
         }
 
         try
@@ -42,8 +42,8 @@ public class UpdateProductController : ControllerBase
             await _updateProductUsecase.ExecuteAsync(
                 productUuid,
                 model.ProductName,
-                model.Price,
-                model.Stock,
+                model.Price!.Value,
+                model.Stock!.Value,
                 model.CategoryId,
                 model.ImageUrl
             );
@@ -60,5 +60,17 @@ public class UpdateProductController : ControllerBase
                 message = ex.Message
             });
         }
+    }
+    private IActionResult ValidationError()
+    {
+        string message = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .FirstOrDefault() ?? "入力値に不備があります。";
+
+        return BadRequest(new
+        {
+            message
+        });
     }
 }
