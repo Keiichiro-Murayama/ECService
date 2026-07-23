@@ -19,14 +19,14 @@ public class UpdateProductRequest
     /// </summary>
     [Required(ErrorMessage = "価格を入力してください")]
     [Range(0, 1000000, ErrorMessage = "価格は100万円以下で入力してください")]
-    public int? Price { get; set; }
+    public int Price { get; set; }
 
     /// <summary>
     /// 在庫数。
     /// </summary>
     [Required(ErrorMessage = "在庫数を入力してください")]
     [Range(0, 1000, ErrorMessage = "在庫数は1000個以下で入力してください")]
-    public int? Stock { get; set; }
+    public int Stock { get; set; }
 
     /// <summary>
     /// 商品カテゴリUUID。
