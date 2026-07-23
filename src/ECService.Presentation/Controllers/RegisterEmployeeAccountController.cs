@@ -45,23 +45,40 @@ public class RegisterEmployeeAccountController : ControllerBase
     [SwaggerResponse(StatusCodes.Status404NotFound, "指定された社員IDが存在しない")]
     [SwaggerResponse(StatusCodes.Status409Conflict, "アカウント名または社員のアカウントが既に存在する場合")]
     [SwaggerResponse(StatusCodes.Status500InternalServerError, "予期せぬサーバーエラー")]
-   // [Authorize]
+
+    [Authorize]
 
     public async Task<IActionResult> Register(
         [FromBody, SwaggerRequestBody("担当者アカウント登録用Request", Required = true)]
         RegisterEmployeeAccountRequest request)
     {
-        //石原:追加 request自体がnull、または必須項目が空の場合はREADMEの未入力エラーを返す
-        if (request is null ||
-            string.IsNullOrWhiteSpace(request.EmployeeUuid) ||
-            string.IsNullOrWhiteSpace(request.AccountName) ||
-            string.IsNullOrWhiteSpace(request.Password))
+        if (string.IsNullOrWhiteSpace(request.AccountName))
         {
-            return BadRequest(new
-            {
-                message = "employeeId、accountName、passwordを入力してください。"
-            });
+            ModelState.AddModelError(
+                nameof(request.AccountName),
+                "アカウント名を入力してください");
         }
+
+        if (string.IsNullOrWhiteSpace(request.Password))
+        {
+            ModelState.AddModelError(
+                nameof(request.Password),
+                "パスワードを入力してください");
+        }
+        if (!ModelState.IsValid)
+        {
+            return ValidationError();
+        }
+        if (!Guid.TryParse(request.EmployeeUuid, out _))
+        {
+            ModelState.AddModelError(
+                nameof(request.EmployeeUuid),
+                "社員UUIDの形式が正しくありません。");
+
+            return ValidationError();
+        }
+
+
 
         //石原:追加 文字数などDataAnnotationsの入力値エラーはREADMEの入力値不備エラーを返す
         if (!ModelState.IsValid)
@@ -134,5 +151,18 @@ public class RegisterEmployeeAccountController : ControllerBase
                     message = "InternalException: サーバー内部で予期せぬエラーが発生しました。"
                 });
         }
+    }
+
+    private IActionResult ValidationError()
+    {
+        string message = ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .FirstOrDefault() ?? "入力値に不備があります。";
+
+        return BadRequest(new
+        {
+            message
+        });
     }
 }
