@@ -44,7 +44,7 @@ public class UpdateProductControllerTests
                 request.ProductName,
                 request.Price,
                 request.Stock,
-                request.CategoryId,
+                request.CategoryUuid,
                 request.ImageUrl))
             .ReturnsAsync(product);
 
@@ -62,7 +62,7 @@ public class UpdateProductControllerTests
             request.ProductName,
             request.Price,
             request.Stock,
-            request.CategoryId,
+            request.CategoryUuid,
             request.ImageUrl), Times.Once);
     }
 
@@ -114,7 +114,7 @@ public class UpdateProductControllerTests
                 request.ProductName,
                 request.Price,
                 request.Stock,
-                request.CategoryId,
+                request.CategoryUuid,
                 request.ImageUrl))
             .ThrowsAsync(new DomainException(
                 "商品が見つかりません。",
@@ -134,7 +134,7 @@ public class UpdateProductControllerTests
             request.ProductName,
             request.Price,
             request.Stock,
-            request.CategoryId,
+            request.CategoryUuid,
             request.ImageUrl), Times.Once);
     }
 
@@ -154,7 +154,7 @@ public class UpdateProductControllerTests
                 request.ProductName,
                 request.Price,
                 request.Stock,
-                request.CategoryId,
+                request.CategoryUuid,
                 request.ImageUrl))
             .ThrowsAsync(new InvalidOperationException("想定外エラー"));
 
@@ -179,7 +179,7 @@ public class UpdateProductControllerTests
             request.ProductName,
             request.Price,
             request.Stock,
-            request.CategoryId,
+            request.CategoryUuid,
             request.ImageUrl), Times.Once);
     }
 
@@ -193,7 +193,7 @@ public class UpdateProductControllerTests
             ProductName = "修正商品",
             Price = 1500,
             Stock = 20,
-            CategoryId = Guid.NewGuid().ToString(),
+            CategoryUuid = Guid.NewGuid().ToString(),
             ImageUrl = "https://example.com/update.png"
         };
     }
@@ -206,7 +206,7 @@ public class UpdateProductControllerTests
         UpdateProductRequest request)
     {
         var category = new ProductCategory(
-            request.CategoryId,
+            request.CategoryUuid,
             "文房具");
 
         return Product.Restore(

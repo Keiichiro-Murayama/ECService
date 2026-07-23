@@ -42,9 +42,9 @@ public class UpdateProductController : ControllerBase
             await _updateProductUsecase.ExecuteAsync(
                 productUuid,
                 model.ProductName,
-                model.Price!.Value,
-                model.Stock!.Value,
-                model.CategoryId,
+                model.Price,
+                model.Stock,
+                model.CategoryUuid,
                 model.ImageUrl
             );
 
