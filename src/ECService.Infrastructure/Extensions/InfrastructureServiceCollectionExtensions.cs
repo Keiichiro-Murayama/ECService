@@ -37,6 +37,10 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<ProductCategoryEntityAdapter>();
         services.AddScoped<EmployeeEntityAdapter>();
         services.AddScoped<EmployeeAccountEntityAdapter>();
+        services.AddScoped<CustomerEntityAdapter>();
+        services.AddScoped<OrderStatusEntityAdapter>();
+        services.AddScoped<OrderDetailEntityAdapter>();
+        services.AddScoped<OrderEntityAdapter>();
 
         // ProductFactory
         services.AddScoped<ProductFactory>();
@@ -66,6 +70,22 @@ public static class InfrastructureServiceCollectionExtensions
             IRestorer<EmployeeAccount, EmployeeAccountEntity>,
             EmployeeAccountEntityAdapter>();
 
+        services.AddScoped<
+            IRestorer<Customer, CustomerEntity>,
+            CustomerEntityAdapter>();
+
+        services.AddScoped<
+            IRestorer<OrderStatus, OrderStatusEntity>,
+            OrderStatusEntityAdapter>();
+
+        services.AddScoped<
+            IRestorer<OrderDetail, OrdersDetailEntity>,
+            OrderDetailEntityAdapter>();
+
+        services.AddScoped<
+            IRestorer<Order, OrdersEntity>,
+            OrderEntityAdapter>();
+
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -74,6 +94,9 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IEmployeeAccountRepository, EmployeeAccountRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderStatusRepository,OrderStatusRepository>();
+        
 
         return services;
     }

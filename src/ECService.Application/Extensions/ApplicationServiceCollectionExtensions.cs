@@ -29,6 +29,9 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IRegisterProductUsecase, RegisterProductUsecase>();
         services.AddScoped<ILoginUsecase, LoginUsecase>();
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
+        services.AddScoped<ISearchOrderHistoriesUsecase, SearchOrderHistoriesUsecase>();
+        services.AddScoped<IGetOrderStatusUpdateUsecase, GetOrderStatusUpdateUsecase>();
+        services.AddScoped<IUpdateOrderStatusUsecase,UpdateOrderStatusUsecase>();
 
         return services;
     }
