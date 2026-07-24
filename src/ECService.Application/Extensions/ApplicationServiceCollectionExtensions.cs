@@ -31,7 +31,7 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IJwtTokenProvider, JwtTokenProvider>();
         services.AddScoped<ISearchOrderHistoriesUsecase, SearchOrderHistoriesUsecase>();
         services.AddScoped<IGetOrderStatusUpdateUsecase, GetOrderStatusUpdateUsecase>();
-        services.AddScoped<IUpdateOrderStatusUsecase,UpdateOrderStatusUsecase>();
+        services.AddScoped<IUpdateOrderStatusUsecase, UpdateOrderStatusUsecase>();
 
         return services;
     }

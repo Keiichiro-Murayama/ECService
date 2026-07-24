@@ -96,7 +96,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IEmployeeAccountRepository, EmployeeAccountRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IOrderStatusRepository, OrderStatusRepository>();
-        
+
 
         return services;
     }
