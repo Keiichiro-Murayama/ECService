@@ -10,7 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder =
+    WebApplication.CreateBuilder(args);
 
 // データベースへ接続するための接続文字列を取得する
 var connectionString =
@@ -19,21 +20,17 @@ var connectionString =
     ?? throw new InvalidOperationException(
         "接続文字列 'ECServiceDB' が設定されていません。");
 
-//石原:追加
-// Azure Blob Storageへ接続するための接続文字列を取得する
-var blobStorageConnectionString =
-    builder.Configuration.GetConnectionString(
-        "AzureBlobStorage")
-    ?? throw new InvalidOperationException(
-        "接続文字列 'AzureBlobStorage' が設定されていません。");
-
-//石原:追加
-// 商品画像を保存するBlobコンテナー名を取得する
-var productImageContainerName =
+// Azure Blob StorageのコンテナーSAS URLを取得する
+var containerSasUrl =
     builder.Configuration[
-        "AzureBlobStorage:ProductImageContainerName"]
-    ?? throw new InvalidOperationException(
-        "設定 'AzureBlobStorage:ProductImageContainerName' が設定されていません。");
+        "AzureBlobStorage:ContainerSasUrl"]; //石原:変更 接続文字列ではなくコンテナーSAS URLを取得する
+
+if (string.IsNullOrWhiteSpace(
+        containerSasUrl))
+{
+    throw new InvalidOperationException(
+        "設定 'AzureBlobStorage:ContainerSasUrl' が設定されていません。");
+}
 
 // JWT設定を取得し、認証処理へ渡す
 var jwtSettings =
@@ -91,91 +88,103 @@ builder.Services
                 ClockSkew = TimeSpan.Zero,
             };
 
-        options.Events = new JwtBearerEvents
-        {
-            // Authorizationヘッダーではなく、
-            // HttpOnly CookieからJWTを取得する
-            OnMessageReceived = context =>
+        options.Events =
+            new JwtBearerEvents
             {
-                if (
-                    context.Request.Cookies.TryGetValue(
-                        "access_token",
-                        out var token))
+                // Authorizationヘッダーではなく、
+                // HttpOnly CookieからJWTを取得する
+                OnMessageReceived = context =>
                 {
-                    context.Token = token;
-                }
+                    if (
+                        context.Request.Cookies
+                            .TryGetValue(
+                                "access_token",
+                                out var token))
+                    {
+                        context.Token = token;
+                    }
 
-                return Task.CompletedTask;
-            },
+                    return Task.CompletedTask;
+                },
 
-            // 未認証の場合にJSON形式で401を返す
-            OnChallenge = async context =>
-            {
-                // JWT Bearerの既定レスポンスを抑制する
-                context.HandleResponse();
-
-                context.Response.StatusCode =
-                    StatusCodes.Status401Unauthorized;
-
-                context.Response.ContentType =
-                    "application/json";
-
-                var body = new
+                // 未認証の場合にJSON形式で401を返す
+                OnChallenge = async context =>
                 {
-                    message =
-                        "認証が必要です。ログインしてください。",
-                };
+                    // JWT Bearerの既定レスポンスを抑制する
+                    context.HandleResponse();
 
-                var json =
-                    System.Text.Json.JsonSerializer.Serialize(
-                        body,
-                        new System.Text.Json
-                            .JsonSerializerOptions
+                    context.Response.StatusCode =
+                        StatusCodes
+                            .Status401Unauthorized;
+
+                    context.Response.ContentType =
+                        "application/json";
+
+                    var body =
+                        new
                         {
-                            PropertyNamingPolicy =
-                                System.Text.Json
-                                    .JsonNamingPolicy
-                                    .CamelCase,
-                        });
+                            message =
+                                "認証が必要です。ログインしてください。",
+                        };
 
-                await context.Response.WriteAsync(
-                    json);
-            },
+                    var json =
+                        System.Text.Json
+                            .JsonSerializer
+                            .Serialize(
+                                body,
+                                new System.Text.Json
+                                    .JsonSerializerOptions
+                                {
+                                    PropertyNamingPolicy =
+                                        System.Text.Json
+                                            .JsonNamingPolicy
+                                            .CamelCase,
+                                });
 
-            // 認証済みだが権限がない場合に403を返す
-            OnForbidden = async context =>
-            {
-                context.Response.StatusCode =
-                    StatusCodes.Status403Forbidden;
+                    await context.Response
+                        .WriteAsync(json);
+                },
 
-                context.Response.ContentType =
-                    "application/json";
-
-                var body = new
+                // 認証済みだが権限がない場合に403を返す
+                OnForbidden = async context =>
                 {
-                    message =
-                        "アクセスが許可されていません。",
-                };
+                    context.Response.StatusCode =
+                        StatusCodes
+                            .Status403Forbidden;
 
-                var json =
-                    System.Text.Json.JsonSerializer.Serialize(
-                        body,
-                        new System.Text.Json
-                            .JsonSerializerOptions
+                    context.Response.ContentType =
+                        "application/json";
+
+                    var body =
+                        new
                         {
-                            PropertyNamingPolicy =
-                                System.Text.Json
-                                    .JsonNamingPolicy
-                                    .CamelCase,
-                        });
+                            message =
+                                "アクセスが許可されていません。",
+                        };
 
-                await context.Response.WriteAsync(
-                    json);
-            },
-        };
+                    var json =
+                        System.Text.Json
+                            .JsonSerializer
+                            .Serialize(
+                                body,
+                                new System.Text.Json
+                                    .JsonSerializerOptions
+                                {
+                                    PropertyNamingPolicy =
+                                        System.Text.Json
+                                            .JsonNamingPolicy
+                                            .CamelCase,
+                                });
+
+                    await context.Response
+                        .WriteAsync(json);
+                },
+            };
     });
 
-builder.Services.AddSingleton(jwtSettings);
+builder.Services.AddSingleton(
+    jwtSettings);
+
 builder.Services.AddAuthorization();
 
 // Controller
@@ -183,7 +192,6 @@ builder.Services
     .AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
-        //石原:追加
         // ModelStateが不正な場合に自動で400を返さず、
         // Controller側でエラー内容を制御できるようにする
         options.SuppressModelStateInvalidFilter =
@@ -191,13 +199,9 @@ builder.Services
     });
 
 // 各層のDI登録
-
-//石原:変更
-// DBとAzure Blob Storageの設定をInfrastructure層へ渡す
 builder.Services.AddInfrastructure(
     connectionString,
-    blobStorageConnectionString,
-    productImageContainerName);
+    containerSasUrl); //石原:変更 Blob接続用のコンテナーSAS URLを渡す
 
 builder.Services.AddApplication();
 builder.Services.AddPresentation();
@@ -213,7 +217,9 @@ builder.Services.AddSwaggerGen(options =>
         {
             Title =
                 "データ管理サービス（管理者向け）",
+
             Version = "v1",
+
             Description =
                 "ECサービスの管理者サービスの REST API",
         });
@@ -231,7 +237,8 @@ builder.Services.AddSwaggerGen(options =>
         includeControllerXmlComments: true);
 });
 
-var app = builder.Build();
+var app =
+    builder.Build();
 
 app.UseSwagger();
 
@@ -241,7 +248,8 @@ app.UseSwaggerUI(options =>
         "/swagger/v1/swagger.json",
         "RestAPI Exercise v1");
 
-    options.RoutePrefix = string.Empty;
+    options.RoutePrefix =
+        string.Empty;
 
     // SwaggerからCookieを送信できるようにする
     options.UseRequestInterceptor(
@@ -254,7 +262,8 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 
 // フロントエンドからの通信へCORS設定を適用する
-app.UseCors("AllowFrontend");
+app.UseCors(
+    "AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();

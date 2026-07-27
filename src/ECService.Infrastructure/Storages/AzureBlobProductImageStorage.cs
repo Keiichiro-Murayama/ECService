@@ -13,7 +13,8 @@ namespace ECService.Infrastructure.Storages;
 public sealed class AzureBlobProductImageStorage
     : IProductImageStorage
 {
-    private readonly BlobContainerClient _containerClient;
+    private readonly
+        BlobContainerClient _containerClient;
 
     /// <summary>
     /// コンストラクタ
@@ -24,7 +25,8 @@ public sealed class AzureBlobProductImageStorage
     public AzureBlobProductImageStorage(
         BlobContainerClient containerClient)
     {
-        _containerClient = containerClient;
+        _containerClient =
+            containerClient;
     }
 
     /// <summary>
@@ -68,10 +70,12 @@ public sealed class AzureBlobProductImageStorage
             contentType);
 
         string extension =
-            GetExtension(contentType);
+            GetExtension(
+                contentType);
 
         string safeProductName =
-            CreateSafeProductName(productName);
+            CreateSafeProductName(
+                productName);
 
         /*
          * 商品名だけでは重複する可能性があるため、
@@ -105,7 +109,8 @@ public sealed class AzureBlobProductImageStorage
             uploadOptions,
             cancellationToken);
 
-        return blobClient.Uri.AbsoluteUri;
+        return blobClient.Uri.GetLeftPart(
+            UriPartial.Path); //石原:変更 SASトークンを除いた画像URLだけを返す
     }
 
     /// <summary>
@@ -147,7 +152,8 @@ public sealed class AzureBlobProductImageStorage
         }
 
         string containerPath =
-            containerUri.AbsolutePath.TrimEnd('/');
+            containerUri.AbsolutePath
+                .TrimEnd('/');
 
         string expectedPrefix =
             $"{containerPath}/";
@@ -167,7 +173,8 @@ public sealed class AzureBlobProductImageStorage
                 imageUri.AbsolutePath[
                     expectedPrefix.Length..]);
 
-        if (string.IsNullOrWhiteSpace(blobName))
+        if (string.IsNullOrWhiteSpace(
+                blobName))
         {
             throw new ArgumentException(
                 "画像URLからBlob名を取得できませんでした。",
@@ -177,7 +184,8 @@ public sealed class AzureBlobProductImageStorage
         await _containerClient
             .DeleteBlobIfExistsAsync(
                 blobName,
-                DeleteSnapshotsOption.IncludeSnapshots,
+                DeleteSnapshotsOption
+                    .IncludeSnapshots,
                 cancellationToken:
                     cancellationToken);
     }
@@ -207,11 +215,14 @@ public sealed class AzureBlobProductImageStorage
                 character == '-' ||
                 character == '_')
             {
-                builder.Append(character);
+                builder.Append(
+                    character);
+
                 continue;
             }
 
-            if (char.IsWhiteSpace(character))
+            if (char.IsWhiteSpace(
+                    character))
             {
                 builder.Append('-');
             }
@@ -245,8 +256,11 @@ public sealed class AzureBlobProductImageStorage
         return contentType
             .ToLowerInvariant() switch
         {
-            "image/jpeg" => ".jpg",
-            "image/png" => ".png",
+            "image/jpeg" =>
+                ".jpg",
+
+            "image/png" =>
+                ".png",
 
             _ => throw new ArgumentException(
                 "PNG形式またはJPEG形式の画像を指定してください。",

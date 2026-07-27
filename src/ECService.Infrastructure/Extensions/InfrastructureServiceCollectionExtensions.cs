@@ -1,6 +1,6 @@
-using Azure.Storage.Blobs; //石原:追加
+using Azure.Storage.Blobs;
 
-using ECService.Application.Usecases.Interfaces; //石原:追加
+using ECService.Application.Usecases.Interfaces;
 using ECService.Application.Usecases.UnitOfWorks;
 
 using ECService.Domain.Adapters;
@@ -11,7 +11,7 @@ using ECService.Infrastructure.Adapters;
 using ECService.Infrastructure.Contexts;
 using ECService.Infrastructure.Entities;
 using ECService.Infrastructure.Repositories;
-using ECService.Infrastructure.Storages; //石原:追加
+using ECService.Infrastructure.Storages;
 using ECService.Infrastructure.UnitOfWorks;
 
 using Microsoft.EntityFrameworkCore;
@@ -34,11 +34,8 @@ public static class InfrastructureServiceCollectionExtensions
     /// <param name="connectionString">
     /// データベースの接続文字列。
     /// </param>
-    /// <param name="blobStorageConnectionString">
-    /// Azure Blob Storageの接続文字列。
-    /// </param>
-    /// <param name="productImageContainerName">
-    /// 商品画像を保存するコンテナー名。
+    /// <param name="containerSasUrl">
+    /// 商品画像用BlobコンテナーのSAS URL。
     /// </param>
     /// <returns>
     /// DIコンテナ。
@@ -46,21 +43,43 @@ public static class InfrastructureServiceCollectionExtensions
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
         string connectionString,
-        //石原:追加
-        string blobStorageConnectionString,
-        //石原:追加
-        string productImageContainerName)
+        string containerSasUrl) //石原:変更 Blobの接続文字列とコンテナー名ではなくSAS URLを受け取る
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(
             connectionString);
 
-        //石原:追加
         ArgumentException.ThrowIfNullOrWhiteSpace(
-            blobStorageConnectionString);
+            containerSasUrl); //石原:変更 コンテナーSAS URLの未設定を確認する
 
-        //石原:追加
-        ArgumentException.ThrowIfNullOrWhiteSpace(
-            productImageContainerName);
+        if (
+            !Uri.TryCreate(
+                containerSasUrl,
+                UriKind.Absolute,
+                out Uri? containerSasUri))
+        {
+            throw new ArgumentException(
+                "Azure Blob StorageのコンテナーSAS URLの形式が正しくありません。",
+                nameof(containerSasUrl));
+        }
+
+        if (
+            !string.Equals(
+                containerSasUri.Scheme,
+                Uri.UriSchemeHttps,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException(
+                "Azure Blob StorageのコンテナーSAS URLはHTTPSで指定してください。",
+                nameof(containerSasUrl));
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                containerSasUri.Query))
+        {
+            throw new ArgumentException(
+                "Azure Blob StorageのコンテナーSAS URLにSASトークンが含まれていません。",
+                nameof(containerSasUrl));
+        }
 
         // DbContext
         services.AddDbContext<AppDbContext>(
@@ -71,17 +90,14 @@ public static class InfrastructureServiceCollectionExtensions
         /*
          * Azure Blob Storage
          *
-         * Azure SDKのクライアントは
-         * スレッドセーフなのでSingletonで登録する。
+         * SASトークンを含むコンテナーURLから
+         * BlobContainerClientを生成する。
          */
 
-        //石原:追加
         services.AddSingleton(
             new BlobContainerClient(
-                blobStorageConnectionString,
-                productImageContainerName));
+                containerSasUri)); //石原:変更 コンテナーSAS URLを使用してBlobへ接続する
 
-        //石原:追加
         services.AddScoped<
             IProductImageStorage,
             AzureBlobProductImageStorage>();
