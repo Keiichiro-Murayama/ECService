@@ -93,7 +93,8 @@ jobs:
           host: ${{ secrets.ECSERVICE_AZURE_HOST }}
           username: ${{ secrets.ECSERVICE_AZURE_USER }}
           key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-          envs: AZURE_DB_HOST,AZURE_DB_NAME,AZURE_DB_USER,AZURE_DB_PASSWORD,AZURE_BLOB_CONTAINER_SAS_URL,SERVICE_USER          script: |
+          envs: AZURE_DB_HOST,AZURE_DB_NAME,AZURE_DB_USER,AZURE_DB_PASSWORD,AZURE_BLOB_CONTAINER_SAS_URL,SERVICE_USER          
+          script: |
             set -e
 
             echo "=== Creating environment file ==="
