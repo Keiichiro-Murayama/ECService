@@ -88,12 +88,12 @@ jobs:
           AZURE_DB_USER: ${{ secrets.AZURE_DB_USER }}
           AZURE_DB_PASSWORD: ${{ secrets.AZURE_DB_PASSWORD }}
           SERVICE_USER: ${{ secrets.ECSERVICE_AZURE_USER }}
+          AZURE_BLOB_CONTAINER_SAS_URL: ${{ secrets.AZURE_BLOB_CONTAINER_SAS_URL }}
         with:
           host: ${{ secrets.ECSERVICE_AZURE_HOST }}
           username: ${{ secrets.ECSERVICE_AZURE_USER }}
           key: ${{ secrets.ECSERVICE_AZURE_SECRET }}
-          envs: AZURE_DB_HOST,AZURE_DB_NAME,AZURE_DB_USER,AZURE_DB_PASSWORD,SERVICE_USER
-          script: |
+          envs: AZURE_DB_HOST,AZURE_DB_NAME,AZURE_DB_USER,AZURE_DB_PASSWORD,AZURE_BLOB_CONTAINER_SAS_URL,SERVICE_USER          script: |
             set -e
 
             echo "=== Creating environment file ==="
@@ -105,10 +105,11 @@ jobs:
               AZURE_DB_NAME="$AZURE_DB_NAME" \
               AZURE_DB_USER="$AZURE_DB_USER" \
               AZURE_DB_PASSWORD="$AZURE_DB_PASSWORD" \
+              AZURE_BLOB_CONTAINER_SAS_URL="$AZURE_BLOB_CONTAINER_SAS_URL" \
               bash -c 'printf "%s\n" \
              "ConnectionStrings__ECServiceDB=Host=${AZURE_DB_HOST};Port=5432;Database=${AZURE_DB_NAME};Username=${AZURE_DB_USER};Password=${AZURE_DB_PASSWORD};SSL Mode=Require;Trust Server Certificate=true" \
+             "AzureBlobStorage__ContainerSasUrl=${AZURE_BLOB_CONTAINER_SAS_URL}" \
               > /etc/ecservice.env'
-            echo "=== Configuring systemd ==="
 
             sudo tee /etc/systemd/system/ecservice.service > /dev/null <<EOF
             [Unit]

@@ -22,7 +22,7 @@ namespace ECService.Infrastructure.Migrations
                 oldType: "character varying(20)",
                 oldMaxLength: 20);
 
-            migrationBuilder.AddColumn<int>(
+          /*  migrationBuilder.AddColumn<int>(
                 name: "accessfailedcount",
                 table: "employee_account",
                 type: "integer",
@@ -33,7 +33,7 @@ namespace ECService.Infrastructure.Migrations
                 name: "lockoutend",
                 table: "employee_account",
                 type: "timestamp with time zone",
-                nullable: true);
+                nullable: true);*/
 
             migrationBuilder.CreateTable(
                 name: "customer",
