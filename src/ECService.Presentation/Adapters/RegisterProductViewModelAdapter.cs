@@ -1,34 +1,56 @@
-using ECService.Domain.Adapters;
 using ECService.Domain.Models;
 using ECService.Presentation.ViewModels;
 
 namespace ECService.Presentation.Adapters;
 
 /// <summary>
-/// RegisterProductRequestからドメインオブジェクト:Productへ変換するアダプタ
+/// RegisterProductRequestから
+/// Productへ変換するアダプタ
 /// </summary>
-public class RegisterProductViewModelAdapter : IRestorer<Product, RegisterProductRequest>
+//石原:変更 ImageUrlを別引数で受け取るためIRestorerの実装を外す
+public class RegisterProductViewModelAdapter
 {
     /// <summary>
-    /// RegisterProductRequestからドメインオブジェクト:Productを復元する
+    /// 商品登録リクエストから
+    /// 商品ドメインを復元する
     /// </summary>
-    /// <param name="target">商品登録リクエスト</param>
-    /// <returns>商品ドメイン</returns>
-    public Task<Product> RestoreAsync(RegisterProductRequest target)
+    /// <param name="target">
+    /// 商品登録リクエスト
+    /// </param>
+    /// <param name="imageUrl">
+    /// Azure Blob Storageへ保存した画像のURL
+    /// </param>
+    /// <returns>
+    /// 商品ドメイン
+    /// </returns>
+    //石原:変更 画像URLはリクエストDTOではなくControllerから受け取る
+    public Task<Product> RestoreAsync(
+        RegisterProductRequest target,
+        string imageUrl)
     {
-        var category = new ProductCategory(
-            target.CategoryUuid,
-            string.Empty);
+        ArgumentNullException.ThrowIfNull(
+            target);
 
-        var productStock = ProductStock.Create(target.Stock!.Value);
+        ArgumentException.ThrowIfNullOrWhiteSpace(
+            imageUrl);
 
-        var product = Product.Create(
-            target.ProductName,
-            target.Price!.Value,
-            target.ImageUrl,
-            category,
-            productStock);
+        var category =
+            new ProductCategory(
+                target.CategoryUuid,
+                string.Empty);
+
+        ProductStock productStock =
+            ProductStock.Create(
+                target.Stock!.Value);
+
+        Product product =
+            Product.Create(
+                target.ProductName,
+                target.Price!.Value,
+                imageUrl,
+                category,
+                productStock);
 
         return Task.FromResult(product);
     }
-}//石原:本来Adapterの仕事外のエラーチェックが含まれていたので変更
+}

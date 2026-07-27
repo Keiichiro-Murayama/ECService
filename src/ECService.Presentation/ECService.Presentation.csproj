@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- XMLコメント未記載の警告を抑制(任意) -->
     <NoWarn>$(NoWarn);1591</NoWarn> 
+    <UserSecretsId>603ac774-79fa-48cb-a222-44a37540bcb1</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

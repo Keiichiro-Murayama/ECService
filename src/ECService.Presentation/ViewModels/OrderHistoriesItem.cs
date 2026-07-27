@@ -1,3 +1,4 @@
+
 namespace ECService.Presentation.ViewModels;
 
 /// <summary>
@@ -13,7 +14,7 @@ public class OrderHistoriesItem
     /// <summary>
     /// 購入日時
     /// </summary>
-    public DateTime PurchaseDate { get; set; }
+    public DateTimeOffset PurchaseDate { get; set; }
 
     /// <summary>
     /// 顧客アカウント名

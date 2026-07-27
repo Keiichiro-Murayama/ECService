@@ -9,6 +9,11 @@ namespace ECService.Presentation.Adapters;
 public class SearchOrderHistoriesViewModelAdapter
 {
     /// <summary>
+    /// 日本時間のUTCオフセット
+    /// </summary>
+    private static readonly TimeSpan JapanOffset = TimeSpan.FromHours(9);
+
+    /// <summary>
     /// 注文リストを購入履歴検索結果ViewModelへ変換する
     /// </summary>
     /// <param name="orders">注文ドメインオブジェクトのリスト</param>
@@ -21,14 +26,24 @@ public class SearchOrderHistoriesViewModelAdapter
                 .Select(order => new OrderHistoriesItem
                 {
                     OrderUuid = order.OrderUuid,
-                    PurchaseDate = order.OrderDate,
+
+                    // DBから取得した日時をUTCとして扱い、日本時間へ変換
+                    PurchaseDate = new DateTimeOffset(
+                        DateTime.SpecifyKind(
+                            order.OrderDate,
+                            DateTimeKind.Utc
+                        )
+                    ).ToOffset(JapanOffset),
+
                     CustomerAccountName = order.Customer.Username,
+
                     OrderContent = string.Join(
                         "、",
                         order.OrderDetails.Select(orderDetail =>
                             $"{orderDetail.ProductName} × {orderDetail.Count}"
                         )
                     ),
+
                     OrderStatus = order.OrderStatus.Name
                 })
                 .ToList()
