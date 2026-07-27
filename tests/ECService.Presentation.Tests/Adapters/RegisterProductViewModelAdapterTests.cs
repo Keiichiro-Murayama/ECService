@@ -1,5 +1,6 @@
 using ECService.Presentation.Adapters;
 using ECService.Presentation.ViewModels;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ECService.Presentation.Tests.Adapters;
@@ -7,12 +8,36 @@ namespace ECService.Presentation.Tests.Adapters;
 [TestClass]
 public class RegisterProductViewModelAdapterTests
 {
-    private RegisterProductViewModelAdapter _adapter = null!;
+    private const string ImageUrl =
+        "https://example.com/photos/sample.png"; //石原:追加 Controllerから渡される画像URL
+
+    private RegisterProductViewModelAdapter
+        _adapter = null!;
 
     [TestInitialize]
     public void Initialize()
     {
-        _adapter = new RegisterProductViewModelAdapter();
+        _adapter =
+            new RegisterProductViewModelAdapter();
+    }
+
+    /// <summary>
+    /// 正常な商品登録リクエストを生成する
+    /// </summary>
+    /// <returns>
+    /// 商品登録リクエスト
+    /// </returns>
+    private static RegisterProductRequest
+        CreateValidRequest()
+    {
+        return new RegisterProductRequest
+        {
+            ProductName = "ボールペン",
+            Price = 120,
+            Stock = 50,
+            CategoryUuid =
+                Guid.NewGuid().ToString(),
+        };
     }
 
     /// <summary>
@@ -20,28 +45,42 @@ public class RegisterProductViewModelAdapterTests
     /// ViewModelからProductへ正常に変換できること
     /// </summary>
     [TestMethod]
-    public async Task RestoreAsync_ReturnsProduct_WhenRequestIsValid()
+    public async Task
+        RestoreAsync_ReturnsProduct_WhenRequestIsValid()
     {
         // Arrange
-        var request = new RegisterProductRequest
-        {
-            ProductName = "ボールペン",
-            Price = 120,
-            Stock = 50,
-            CategoryUuid = Guid.NewGuid().ToString(),
-            ImageUrl = "sample.png"
-        };
+        RegisterProductRequest request =
+            CreateValidRequest();
 
         // Act
-        var product = await _adapter.RestoreAsync(request);
+        var product =
+            await _adapter.RestoreAsync(
+                request,
+                ImageUrl); //石原:変更 画像URLを別引数で渡す
 
         // Assert
         Assert.IsNotNull(product);
-        Assert.AreEqual(request.ProductName, product.Name);
-        Assert.AreEqual(request.Price, product.Price);
-        Assert.AreEqual(request.ImageUrl, product.ImageUrl);
-        Assert.AreEqual(request.CategoryUuid, product.ProductCategory.CategoryUuid);
-        Assert.AreEqual(request.Stock, product.ProductStock.Quantity);
+
+        Assert.AreEqual(
+            request.ProductName,
+            product.Name);
+
+        Assert.AreEqual(
+            request.Price,
+            product.Price);
+
+        Assert.AreEqual(
+            ImageUrl,
+            product.ImageUrl); //石原:変更 別引数の画像URLが設定されたことを確認する
+
+        Assert.AreEqual(
+            request.CategoryUuid,
+            product.ProductCategory
+                .CategoryUuid);
+
+        Assert.AreEqual(
+            request.Stock,
+            product.ProductStock.Quantity);
     }
 
     /// <summary>
@@ -49,20 +88,25 @@ public class RegisterProductViewModelAdapterTests
     /// 商品名が正しく設定されること
     /// </summary>
     [TestMethod]
-    public async Task RestoreAsync_ProductNameIsRestored()
+    public async Task
+        RestoreAsync_ProductNameIsRestored()
     {
-        var request = new RegisterProductRequest
-        {
-            ProductName = "ノート",
-            Price = 100,
-            Stock = 10,
-            CategoryUuid = Guid.NewGuid().ToString(),
-            ImageUrl = "note.png"
-        };
+        // Arrange
+        RegisterProductRequest request =
+            CreateValidRequest();
 
-        var product = await _adapter.RestoreAsync(request);
+        request.ProductName = "ノート";
 
-        Assert.AreEqual("ノート", product.Name);
+        // Act
+        var product =
+            await _adapter.RestoreAsync(
+                request,
+                ImageUrl); //石原:変更 画像URLを別引数で渡す
+
+        // Assert
+        Assert.AreEqual(
+            "ノート",
+            product.Name);
     }
 
     /// <summary>
@@ -70,20 +114,25 @@ public class RegisterProductViewModelAdapterTests
     /// 価格が正しく設定されること
     /// </summary>
     [TestMethod]
-    public async Task RestoreAsync_PriceIsRestored()
+    public async Task
+        RestoreAsync_PriceIsRestored()
     {
-        var request = new RegisterProductRequest
-        {
-            ProductName = "ノート",
-            Price = 500,
-            Stock = 10,
-            CategoryUuid = Guid.NewGuid().ToString(),
-            ImageUrl = "note.png"
-        };
+        // Arrange
+        RegisterProductRequest request =
+            CreateValidRequest();
 
-        var product = await _adapter.RestoreAsync(request);
+        request.Price = 500;
 
-        Assert.AreEqual(500, product.Price);
+        // Act
+        var product =
+            await _adapter.RestoreAsync(
+                request,
+                ImageUrl); //石原:変更 画像URLを別引数で渡す
+
+        // Assert
+        Assert.AreEqual(
+            500,
+            product.Price);
     }
 
     /// <summary>
@@ -91,20 +140,25 @@ public class RegisterProductViewModelAdapterTests
     /// 在庫数が正しく設定されること
     /// </summary>
     [TestMethod]
-    public async Task RestoreAsync_StockIsRestored()
+    public async Task
+        RestoreAsync_StockIsRestored()
     {
-        var request = new RegisterProductRequest
-        {
-            ProductName = "ノート",
-            Price = 500,
-            Stock = 999,
-            CategoryUuid = Guid.NewGuid().ToString(),
-            ImageUrl = "note.png"
-        };
+        // Arrange
+        RegisterProductRequest request =
+            CreateValidRequest();
 
-        var product = await _adapter.RestoreAsync(request);
+        request.Stock = 999;
 
-        Assert.AreEqual(999, product.ProductStock.Quantity);
+        // Act
+        var product =
+            await _adapter.RestoreAsync(
+                request,
+                ImageUrl); //石原:変更 画像URLを別引数で渡す
+
+        // Assert
+        Assert.AreEqual(
+            999,
+            product.ProductStock.Quantity);
     }
 
     /// <summary>
@@ -112,22 +166,30 @@ public class RegisterProductViewModelAdapterTests
     /// カテゴリUUIDが正しく設定されること
     /// </summary>
     [TestMethod]
-    public async Task RestoreAsync_CategoryUuidIsRestored()
+    public async Task
+        RestoreAsync_CategoryUuidIsRestored()
     {
-        var categoryUuid = Guid.NewGuid().ToString();
+        // Arrange
+        string categoryUuid =
+            Guid.NewGuid().ToString();
 
-        var request = new RegisterProductRequest
-        {
-            ProductName = "ノート",
-            Price = 500,
-            Stock = 10,
-            CategoryUuid = categoryUuid,
-            ImageUrl = "note.png"
-        };
+        RegisterProductRequest request =
+            CreateValidRequest();
 
-        var product = await _adapter.RestoreAsync(request);
+        request.CategoryUuid =
+            categoryUuid;
 
-        Assert.AreEqual(categoryUuid, product.ProductCategory.CategoryUuid);
+        // Act
+        var product =
+            await _adapter.RestoreAsync(
+                request,
+                ImageUrl); //石原:変更 画像URLを別引数で渡す
+
+        // Assert
+        Assert.AreEqual(
+            categoryUuid,
+            product.ProductCategory
+                .CategoryUuid);
     }
 
     /// <summary>
@@ -135,19 +197,25 @@ public class RegisterProductViewModelAdapterTests
     /// 画像URLが正しく設定されること
     /// </summary>
     [TestMethod]
-    public async Task RestoreAsync_ImageUrlIsRestored()
+    public async Task
+        RestoreAsync_ImageUrlIsRestored()
     {
-        var request = new RegisterProductRequest
-        {
-            ProductName = "ノート",
-            Price = 500,
-            Stock = 10,
-            CategoryUuid = Guid.NewGuid().ToString(),
-            ImageUrl = "image.png"
-        };
+        // Arrange
+        RegisterProductRequest request =
+            CreateValidRequest();
 
-        var product = await _adapter.RestoreAsync(request);
+        const string expectedImageUrl =
+            "https://example.com/photos/image.png";
 
-        Assert.AreEqual("image.png", product.ImageUrl);
+        // Act
+        var product =
+            await _adapter.RestoreAsync(
+                request,
+                expectedImageUrl); //石原:変更 リクエストDTOではなく別引数で画像URLを渡す
+
+        // Assert
+        Assert.AreEqual(
+            expectedImageUrl,
+            product.ImageUrl);
     }
 }
