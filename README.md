@@ -16,12 +16,15 @@
 | 8   | 商品削除API             | DELETE   | `/api/admin/products/{productUuid}` |                                        |
 | 9   | 商品カテゴリ登録API     | POST     | `/api/admin/categories`             |                                        |
 | 10  | ログインAPI             | POST     | `/api/admin/login`                  |                                        |
+| 11  | 購入履歴検索API         | GET      | `/api/admin/orders`                 |                                        |
+| 12  | 注文ステータス更新情報取得API | GET | `/api/admin/orders/{orderUuid}/status` | 注文ステータス更新画面で使用         |
+| 13  | 注文ステータス更新API   | PUT      | `/api/admin/orders/{orderUuid}/status` |                                        |
 
 ---
 
 ## 共通エラーレスポンス
 
-システム全体（No.1〜No.10すべて）で予期せぬエラーやサーバー内部エラーが発生した場合は、共通で以下のレスポンスを返却する。
+システム全体（No.1〜No.13すべて）で予期せぬエラーやサーバー内部エラーが発生した場合は、共通で以下のレスポンスを返却する。
 
 #### 500 Internal Server Error（予期せぬエラー）
 
@@ -48,6 +51,9 @@
 - No.7: 商品修正API
 - No.8: 商品削除API
 - No.9: 商品カテゴリ登録API
+- No.11: 購入履歴検索API
+- No.12: 注文ステータス更新情報取得API
+- No.13: 注文ステータス更新API
 
 ### リクエストヘッダー
 
@@ -509,7 +515,185 @@ Authorization: Bearer {JWTトークン}
 }
 ```
 
-## 11.ログアウト
+## 11.購入履歴検索API
+
+| 項目           | 内容                             |
+| -------------- | -------------------------------- |
+| エンドポイント | `/api/admin/orders`              |
+| HTTPメソッド   | `GET`                            |
+| コントローラー | `SearchOrderHistoriesController` |
+| メソッド       | `Search`                         |
+
+### クエリパラメータ
+
+| 項目                | 型     | 必須 | 内容                                      |
+| ------------------- | ------ | ---- | ----------------------------------------- |
+| PurchaseDate        | date   | 任意 | 購入日。`yyyy-MM-dd`形式で指定            |
+| CustomerAccountName | string | 任意 | 顧客アカウント名。完全一致で検索          |
+
+**注:**
+
+- 両方未指定の場合は、購入履歴を全件取得する。
+- 両方指定した場合は、AND条件で検索する。
+- 購入履歴は購入日時の降順で取得する。
+
+### レスポンス
+
+```json
+[
+  {
+    "orderUuid": "550e8400-e29b-41d4-a716-446655440000",
+    "purchaseDate": "2026-07-21T10:30:00Z",
+    "customerAccountName": "Yamada",
+    "orderContent": "商品A × 1、商品B × 2",
+    "orderStatus": "注文受付"
+  }
+]
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（入力値エラー）
+
+```json
+{
+  "message": "入力値に不備があります。"
+}
+```
+
+## 12.注文ステータス更新情報取得API
+
+| 項目           | 内容                                   |
+| -------------- | -------------------------------------- |
+| エンドポイント | `/api/admin/orders/{orderUuid}/status` |
+| HTTPメソッド   | `GET`                                  |
+| コントローラー | `GetOrderStatusUpdateController`       |
+| メソッド       | `Get`                                  |
+
+### パスパラメータ
+
+| 項目      | 型     | 必須 | 内容            |
+| --------- | ------ | ---- | --------------- |
+| orderUuid | string | 必須 | 対象注文のUUID  |
+
+### レスポンス
+
+```json
+{
+  "orderUuid": "550e8400-e29b-41d4-a716-446655440000",
+  "orderDate": "2026-07-21T10:30:00Z",
+  "customerAccountName": "Yamada",
+  "orderContent": "商品A × 1、商品B × 2",
+  "currentOrderStatusId": 1,
+  "currentOrderStatusName": "注文受付",
+  "orderStatuses": [
+    {
+      "orderStatusId": 1,
+      "orderStatusName": "注文受付"
+    },
+    {
+      "orderStatusId": 2,
+      "orderStatusName": "入金済"
+    },
+    {
+      "orderStatusId": 3,
+      "orderStatusName": "配送中"
+    },
+    {
+      "orderStatusId": 4,
+      "orderStatusName": "完了"
+    }
+  ]
+}
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（UUID不正）
+
+```json
+{
+  "message": "注文UUIDの形式が不正です。"
+}
+```
+
+#### 404 Not Found（注文が存在しない）
+
+```json
+{
+  "message": "指定された注文情報が見つかりません。"
+}
+```
+
+## 13.注文ステータス更新API
+
+| 項目           | 内容                                   |
+| -------------- | -------------------------------------- |
+| エンドポイント | `/api/admin/orders/{orderUuid}/status` |
+| HTTPメソッド   | `PUT`                                  |
+| コントローラー | `UpdateOrderStatusController`          |
+| メソッド       | `Update`                               |
+
+### パスパラメータ
+
+| 項目      | 型     | 必須 | 内容                 |
+| --------- | ------ | ---- | -------------------- |
+| orderUuid | string | 必須 | 更新対象注文のUUID   |
+
+### リクエスト
+
+```json
+{
+  "orderStatusId": 2
+}
+```
+
+### レスポンス
+
+```json
+{
+  "orderUuid": "550e8400-e29b-41d4-a716-446655440000",
+  "orderStatusId": 2,
+  "orderStatusName": "入金済",
+  "updatedAt": "2026-07-24T01:30:00Z"
+}
+```
+
+### エラーレスポンス
+
+#### 400 Bad Request（UUID不正）
+
+```json
+{
+  "message": "注文UUIDの形式が不正です。"
+}
+```
+
+#### 400 Bad Request（注文ステータスID不正）
+
+```json
+{
+  "message": "注文ステータスIDは1以上で指定してください。"
+}
+```
+
+#### 400 Bad Request（注文が存在しない）
+
+```json
+{
+  "message": "指定された注文情報が見つかりません。"
+}
+```
+
+#### 400 Bad Request（注文ステータスが存在しない）
+
+```json
+{
+  "message": "指定された注文ステータスが見つかりません。"
+}
+```
+
+## 14.ログアウト
 
 JWT認証のため、ログアウト時はフロントエンド側で保持しているJWTトークンを削除する。
 そのため、ログアウトAPIは作成しない。

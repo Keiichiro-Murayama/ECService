@@ -21,7 +21,7 @@ public class GetProductViewModelAdapter
             ProductName = product.Name,
             Price = product.Price,
             Stock = product.ProductStock.Quantity,
-            CategoryId = product.ProductCategory.CategoryUuid,
+            CategoryUuid = product.ProductCategory.CategoryUuid,
             ImageUrl = product.ImageUrl
         };
     }

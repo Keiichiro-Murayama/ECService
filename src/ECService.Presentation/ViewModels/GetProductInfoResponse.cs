@@ -28,7 +28,7 @@ public class GetProductInfoResponse
     /// <summary>
     /// 商品カテゴリUUID。
     /// </summary>
-    public string CategoryId { get; set; } = string.Empty;
+    public string CategoryUuid { get; set; } = string.Empty;
 
     /// <summary>
     /// 画像URL。

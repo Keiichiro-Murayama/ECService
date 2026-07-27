@@ -46,7 +46,7 @@ public class GetProductViewModelAdapterTests
         Assert.AreEqual("詳細取得テスト商品", result.ProductName);
         Assert.AreEqual(1200, result.Price);
         Assert.AreEqual(15, result.Stock);
-        Assert.AreEqual(categoryUuid, result.CategoryId);
+        Assert.AreEqual(categoryUuid, result.CategoryUuid);
         Assert.AreEqual("https://example.com/product.png", result.ImageUrl);
     }
 

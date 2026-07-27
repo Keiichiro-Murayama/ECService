@@ -36,7 +36,14 @@ public static class PresentationServiceCollectionExtensions
         // 未登録用ViewModelAdapter
         services.AddScoped<UnregisteredEmployeesViewModelAdapter>();
 
+        // 購入履歴検索用ViewModelAdapter
+        services.AddScoped<SearchOrderHistoriesViewModelAdapter>();
 
+        // 注文ステータス更新用ViewModelAdapter
+        services.AddScoped<GetOrderStatusUpdateViewModelAdapter>();
+
+        // 注文ステータス更新結果用ViewModelAdapter
+        services.AddScoped<UpdateOrderStatusViewModelAdapter>();
         return services;
     }
 }

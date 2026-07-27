@@ -8,7 +8,6 @@ namespace ECService.Presentation.Controllers;
 /// 商品削除APIを提供するController
 /// </summary>
 [ApiController]
-//[Authorize]
 [Route("api/admin/products")]
 public class DeleteProductController : ControllerBase
 {

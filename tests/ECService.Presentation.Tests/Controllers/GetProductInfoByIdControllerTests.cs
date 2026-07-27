@@ -63,7 +63,7 @@ public class GetProductInfoByIdControllerTests
         Assert.AreEqual("詳細取得テスト商品", response.ProductName);
         Assert.AreEqual(1200, response.Price);
         Assert.AreEqual(15, response.Stock);
-        Assert.AreEqual(product.ProductCategory.CategoryUuid, response.CategoryId);
+        Assert.AreEqual(product.ProductCategory.CategoryUuid, response.CategoryUuid);
         Assert.AreEqual("https://example.com/product.png", response.ImageUrl);
 
         _getProductInfoUsecaseMock.Verify(
