@@ -23,11 +23,11 @@ namespace ECService.Infrastructure.Migrations
                 oldMaxLength: 20);
 
             migrationBuilder.AddColumn<int>(
-                name: "accessfailedcount",
-                table: "employee_account",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+                 name: "accessfailedcount",
+                 table: "employee_account",
+                 type: "integer",
+                 nullable: false,
+                 defaultValue: 0);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "lockoutend",
