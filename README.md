@@ -1,24 +1,24 @@
-# ECService
+# ECService ( リリース ver.01 )
 
 ## フルネス研修総合演習課題「ECサイト」
 
 # API一覧
 
-| No  | API名                   | メソッド | エンドポイント                      | 備考                                   |
-| --- | ----------------------- | -------- | ----------------------------------- | -------------------------------------- |
-| 1   | 担当者アカウント登録API | POST     | `/api/admin/accounts`               |                                        |
-| 2   | 未登録社員取得API       | GET      | `/api/admin/employees/unregistered` |                                        |
-| 3   | 商品カテゴリ一覧取得API | GET      | `/api/admin/categories`             |                                        |
-| 4   | 新商品登録API           | POST     | `/api/admin/products`               |                                        |
-| 5   | 商品検索API             | GET      | `/api/admin/products`               |                                        |
-| 6   | 商品詳細取得API         | GET      | `/api/admin/products/{productUuid}` | (商品修正画面・商品削除確認画面で使用) |
-| 7   | 商品修正API             | PUT      | `/api/admin/products/{productUuid}` |                                        |
-| 8   | 商品削除API             | DELETE   | `/api/admin/products/{productUuid}` |                                        |
-| 9   | 商品カテゴリ登録API     | POST     | `/api/admin/categories`             |                                        |
-| 10  | ログインAPI             | POST     | `/api/admin/login`                  |                                        |
-| 11  | 購入履歴検索API         | GET      | `/api/admin/orders`                 |                                        |
-| 12  | 注文ステータス更新情報取得API | GET | `/api/admin/orders/{orderUuid}/status` | 注文ステータス更新画面で使用         |
-| 13  | 注文ステータス更新API   | PUT      | `/api/admin/orders/{orderUuid}/status` |                                        |
+| No  | API名                         | メソッド | エンドポイント                         | 備考                                   |
+| --- | ----------------------------- | -------- | -------------------------------------- | -------------------------------------- |
+| 1   | 担当者アカウント登録API       | POST     | `/api/admin/accounts`                  |                                        |
+| 2   | 未登録社員取得API             | GET      | `/api/admin/employees/unregistered`    |                                        |
+| 3   | 商品カテゴリ一覧取得API       | GET      | `/api/admin/categories`                |                                        |
+| 4   | 新商品登録API                 | POST     | `/api/admin/products`                  |                                        |
+| 5   | 商品検索API                   | GET      | `/api/admin/products`                  |                                        |
+| 6   | 商品詳細取得API               | GET      | `/api/admin/products/{productUuid}`    | (商品修正画面・商品削除確認画面で使用) |
+| 7   | 商品修正API                   | PUT      | `/api/admin/products/{productUuid}`    |                                        |
+| 8   | 商品削除API                   | DELETE   | `/api/admin/products/{productUuid}`    |                                        |
+| 9   | 商品カテゴリ登録API           | POST     | `/api/admin/categories`                |                                        |
+| 10  | ログインAPI                   | POST     | `/api/admin/login`                     |                                        |
+| 11  | 購入履歴検索API               | GET      | `/api/admin/orders`                    |                                        |
+| 12  | 注文ステータス更新情報取得API | GET      | `/api/admin/orders/{orderUuid}/status` | 注文ステータス更新画面で使用           |
+| 13  | 注文ステータス更新API         | PUT      | `/api/admin/orders/{orderUuid}/status` |                                        |
 
 ---
 
@@ -313,7 +313,7 @@ Authorization: Bearer {JWTトークン}
 
 ```json
 {
-  "message": "商品UUIDの形式が不正です。"//石原:追加しました。
+  "message": "商品UUIDの形式が不正です。" //石原:追加しました。
 }
 ```
 
@@ -406,7 +406,6 @@ Authorization: Bearer {JWTトークン}
 ```
 
 ### エラーレスポンス
-
 
 #### 400 Bad Request (不正なUUID)
 
@@ -526,10 +525,10 @@ Authorization: Bearer {JWTトークン}
 
 ### クエリパラメータ
 
-| 項目                | 型     | 必須 | 内容                                      |
-| ------------------- | ------ | ---- | ----------------------------------------- |
-| PurchaseDate        | date   | 任意 | 購入日。`yyyy-MM-dd`形式で指定            |
-| CustomerAccountName | string | 任意 | 顧客アカウント名。完全一致で検索          |
+| 項目                | 型     | 必須 | 内容                             |
+| ------------------- | ------ | ---- | -------------------------------- |
+| PurchaseDate        | date   | 任意 | 購入日。`yyyy-MM-dd`形式で指定   |
+| CustomerAccountName | string | 任意 | 顧客アカウント名。完全一致で検索 |
 
 **注:**
 
@@ -572,9 +571,9 @@ Authorization: Bearer {JWTトークン}
 
 ### パスパラメータ
 
-| 項目      | 型     | 必須 | 内容            |
-| --------- | ------ | ---- | --------------- |
-| orderUuid | string | 必須 | 対象注文のUUID  |
+| 項目      | 型     | 必須 | 内容           |
+| --------- | ------ | ---- | -------------- |
+| orderUuid | string | 必須 | 対象注文のUUID |
 
 ### レスポンス
 
@@ -636,9 +635,9 @@ Authorization: Bearer {JWTトークン}
 
 ### パスパラメータ
 
-| 項目      | 型     | 必須 | 内容                 |
-| --------- | ------ | ---- | -------------------- |
-| orderUuid | string | 必須 | 更新対象注文のUUID   |
+| 項目      | 型     | 必須 | 内容               |
+| --------- | ------ | ---- | ------------------ |
+| orderUuid | string | 必須 | 更新対象注文のUUID |
 
 ### リクエスト
 
