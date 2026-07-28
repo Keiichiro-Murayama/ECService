@@ -1,10 +1,9 @@
 using ECService.Domain.Models;
 using ECService.Presentation.ViewModels;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using Swashbuckle.AspNetCore.Annotations;
+using ECService.Application.Usecases.Interfaces;
 
 namespace ECService.Presentation.Controllers;
 
