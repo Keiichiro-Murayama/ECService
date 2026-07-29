@@ -52,6 +52,10 @@ public class AuthController : ControllerBase
                 Token = result.AccessToken,
                 AccountUuid = result.EmployeeAccount.AccountUuid,
                 AccountName = result.EmployeeAccount.AccountName,
+
+                //石原:追加
+                EmployeeName = result.EmployeeAccount.Employee.Name,
+
                 Message = "ログインに成功しました。"
             };
 
